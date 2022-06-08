@@ -1,0 +1,126 @@
+﻿@page "/auth/login";
+
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+
+@model LoginModel
+@{
+    ViewData["Title"] = "Login";
+    Layout = "~/Pages/Shared/_LayoutAuth.cshtml";
+}
+@functions
+{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(HttpContext).RequestToken;
+    }
+}
+
+<div class="row h-100">
+    <div class="col-lg-5 col-12">
+        <div id="auth-left">
+            <div class="auth-logo">                
+            </div>
+            <h1 class="auth-title">Fido 2 Me</h1>
+            <p class="auth-subtitle mb-5">Sign in without username and password!</p>
+
+            <form method="POST" name="loginForm" id="loginForm">
+                <button type="submit" class="btn btn-primary btn-block btn-lg shadow-lg mt-5">Sign in</button>                
+            </form>
+            <div class="text-center mt-5 text-lg fs-4">
+                <p class="text-gray-600">Don't have an account? <a href="/auth/register" class="font-bold">Sign up</a>.</p>
+                <p><a class="font-bold" href="/auth/recovery">Account recovery</a>.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-7 d-none d-lg-block">
+        <div id="auth-right">
+
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+let assertionOptions = JSON.parse('@Html.Raw(Model.AssertionOptions)');
+document.getElementById("loginForm").addEventListener('submit', handleSignInSubmit);
+
+async function handleSignInSubmit(event) {
+   event.preventDefault();
+
+    assertionOptions.challenge = coerceToArrayBuffer(assertionOptions.challenge); 
+    assertionOptions.allowCredentials = assertionOptions.allowCredentials.map((c) => {
+        c.id = coerceToArrayBuffer(c.id);
+        return c;
+    });
+
+    console.log("Assertion options", assertionOptions);
+    /*
+    Swal.fire({
+        title: 'Logging In...',
+        text: 'Tap your security key to login.',
+        imageUrl: "/images/securitykey.min.svg",
+        showCancelButton: true,
+        showConfirmButton: false,
+        focusConfirm: false,
+        focusCancel: false
+    });
+    */
+
+    // ask browser for credentials (browser will ask connected authenticators)
+    let credential;
+    try {
+        credential = await navigator.credentials.get({ publicKey: assertionOptions })
+    } catch (err) {
+        showErrorAlert(err.message ? err.message : err);
+    }
+
+    try {
+        verifyAssertionWithServer(credential);
+    } catch (e) {
+        showErrorAlert("Could not verify assertion", e);
+    }
+}
+
+function verifyAssertionWithServer(assertedCredential) {
+
+    // Move data into Arrays incase it is super long
+    let authData = new Uint8Array(assertedCredential.response.authenticatorData);
+    let clientDataJSON = new Uint8Array(assertedCredential.response.clientDataJSON);
+    let rawId = new Uint8Array(assertedCredential.rawId);
+    let sig = new Uint8Array(assertedCredential.response.signature);
+    let userHandle = new Uint8Array(assertedCredential.response.userHandle)
+    const data = {
+        id: assertedCredential.id,
+        rawId: coerceToBase64Url(rawId),
+        type: assertedCredential.type,
+        extensions: assertedCredential.getClientExtensionResults(),
+        response: {
+            authenticatorData: coerceToBase64Url(authData),
+            clientDataJSON: coerceToBase64Url(clientDataJSON),
+            userHandle: userHandle !== null ? coerceToBase64Url(userHandle): null,
+            signature: coerceToBase64Url(sig)
+        }
+    };
+
+    fetch("/auth/login?" + new URLSearchParams({ ReturnUrl: '@Model.ReturnUrl' }),
+        {
+            method: 'POST',
+            body: JSON.stringify(data),
+            redirect: 'follow',
+            headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'RequestVerificationToken': '@GetAntiXsrfRequestToken()'
+            }            
+        })
+    .then(response => {
+        if (response.redirected) {
+            window.location.href = response.url;
+        }
+    })
+    .catch(function(err) {
+        console.info(err);
+    });
+
+}
+
+</script>

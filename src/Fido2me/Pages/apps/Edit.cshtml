@@ -1,0 +1,70 @@
+﻿@page
+@model Fido2me.Pages.OidcApp.EditModel
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h1>Edit</h1>
+
+<h4>OidcBasicClient</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="OidcBasicClient.ClientId" />
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="OidcBasicClient.Enabled" /> @Html.DisplayNameFor(model => model.OidcBasicClient.Enabled)
+                </label>
+            </div>
+            <div class="form-group">
+                <label asp-for="OidcBasicClient.ClientId" class="control-label"></label>
+                <input asp-for="OidcBasicClient.ClientId" class="form-control" />
+                <span asp-validation-for="OidcBasicClient.ClientId" class="text-danger"></span>
+            </div>
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="OidcBasicClient.RequireClientSecret" /> @Html.DisplayNameFor(model => model.OidcBasicClient.RequireClientSecret)
+                </label>
+            </div>
+            <div class="form-group">
+                <label asp-for="OidcBasicClient.ClientName" class="control-label"></label>
+                <input asp-for="OidcBasicClient.ClientName" class="form-control" />
+                <span asp-validation-for="OidcBasicClient.ClientName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="OidcBasicClient.Description" class="control-label"></label>
+                <input asp-for="OidcBasicClient.Description" class="form-control" />
+                <span asp-validation-for="OidcBasicClient.Description" class="text-danger"></span>
+            </div>
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="OidcBasicClient.AllowOfflineAccess" /> @Html.DisplayNameFor(model => model.OidcBasicClient.AllowOfflineAccess)
+                </label>
+            </div>
+            <div class="form-group">
+                <label asp-for="OidcBasicClient.Created" class="control-label"></label>
+                <input asp-for="OidcBasicClient.Created" class="form-control" />
+                <span asp-validation-for="OidcBasicClient.Created" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="OidcBasicClient.Updated" class="control-label"></label>
+                <input asp-for="OidcBasicClient.Updated" class="form-control" />
+                <span asp-validation-for="OidcBasicClient.Updated" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-page="./Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

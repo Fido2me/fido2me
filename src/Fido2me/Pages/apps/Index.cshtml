@@ -1,0 +1,105 @@
+﻿@page
+@model Fido2me.Pages.OidcApp.IndexModel
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-page="Create">Create New</a>
+</p>
+
+@if(Model.OidcBasicClients is null)
+{
+    <p>No entries yet</p>
+}
+else
+{  
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.OidcBasicClients[0].Enabled)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.OidcBasicClients[0].ClientId)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.OidcBasicClients[0].RequireClientSecret)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.OidcBasicClients[0].ClientName)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.OidcBasicClients[0].Description)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.OidcBasicClients[0].RedirectUri)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.OidcBasicClients[0].PostLoginUrl)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.OidcBasicClients[0].PostLogoutUrl)
+                </th>
+                <th>
+                <th>
+                    @Html.DisplayNameFor(model => model.OidcBasicClients[0].AllowOfflineAccess)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.OidcBasicClients[0].Created)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.OidcBasicClients[0].Updated)
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+    @foreach (var item in Model.OidcBasicClients) {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Enabled)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ClientId)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.RequireClientSecret)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ClientName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Description)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.RedirectUri)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.PostLoginUrl)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.PostLogoutUrl)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.AllowOfflineAccess)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Created)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Updated)
+                </td>
+                <td>
+                    <a asp-page="./Edit" asp-route-id="@item.ClientId">Edit</a> |
+                    <a asp-page="./Details" asp-route-id="@item.ClientId">Details</a> |
+                    <a asp-page="./Delete" asp-route-id="@item.ClientId">Delete</a>
+                </td>
+            </tr>
+    }
+        </tbody>
+    </table>
+}

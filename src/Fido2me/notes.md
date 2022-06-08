@@ -1,0 +1,5 @@
+﻿PKCE RFC Section 7.1 says the "The security model relies on the fact that the code verifier is not learned or guessed by the attacker. It is vitally important to adhere to this principle. As such, the code verifier has to be created in such a manner that it is cryptographically random and has high entropy that it is not practical for the attacker to guess." ... "The use of "S256" protects against disclosure of the "code_verifier" value to an attacker."
+Now it does give an opening to using a cookie if you encrypt the "code verifier". Here is the what the spec says in Section 7.2: "If the code challenge method is "plain" and the code challenge is to be returned inside authorization "code" to achieve a stateless server, it MUST be encrypted in such a manner that only the server can decrypt and extract it."
+https://stackoverflow.com/questions/65374119/in-openid-connect-with-pkce-how-does-the-client-know-which-code-verifier-to-sen
+
+https://blogs.aaddevsup.xyz/2019/11/state-parameter-in-mvc-application/

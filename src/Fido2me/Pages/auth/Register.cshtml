@@ -1,0 +1,239 @@
+﻿@page "/auth/register";
+
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+
+@model RegisterModel
+@{
+    ViewData["Title"] = "Register";
+    Layout = "~/Pages/Shared/_LayoutAuth.cshtml";
+}
+@functions
+{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(HttpContext).RequestToken;
+    }
+}
+
+<div class="row h-100">
+    <div class="col-lg-5 col-12">
+        <div id="auth-left">
+            <div class="auth-logo">                
+            </div>
+            <h1 class="auth-title">Fido 2 me</h1>
+            <p class="auth-subtitle mb-5">Sign up with</p>
+
+            
+            <form method="POST" name="registerForm" id="registerForm">
+                <div class="form-group position-relative has-icon-left mb-4">
+                    <input type="text" class="form-control form-control-xl" id="device" name="device" placeholder="Device Nickname (optional)" />
+                    <div class="form-control-icon">
+                        <i class="bi bi-phone"></i>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block btn-lg shadow-lg mt-5">Sign Up with</button>
+
+
+                <div class="m-4 d-flex justify-content-center">
+                    <div class="btn-group">
+                        <input type="radio" class="btn-check" name="authenticator" id="rPlatfrom" value="platform" autocomplete="off">
+                        <label class="btn btn-outline-primary" for="rPlatfrom">Platform</label>
+    
+                        <input type="radio" class="btn-check" name="authenticator" id="rAny" value=""  autocomplete="off" checked>
+                        <label class="btn btn-outline-primary" for="rAny">Any</label>
+
+                        <input type="radio" class="btn-check" name="authenticator" id="rRoaming" value="cross-platform" autocomplete="off">
+                        <label class="btn btn-outline-primary" for="rRoaming">Roaming</label>
+                    </div>
+                </div>
+            </form>
+            <div class="text-center mt-5 text-lg fs-4">
+                <p class='text-gray-600'>Already have an account? <a href="/auth/login" class="font-bold">Sign in</a>.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-7 d-none d-lg-block">
+        <div id="auth-right">
+            <div class="" style="padding: 8rem 8rem;">
+              <div class="">
+                <div class="card h-100 text-center" id="cardPlatform">
+                    <div class="card-body">
+                        <h5 class="card-title">Platform / Internal authenticators</h5>
+                        <p>
+                            Integrated into a laptop or a smartphone containing a trusted platfrom module.
+                        </p>
+                        <div class="list-group">
+                            <a href="#" class="list-group-item list-group-item-action">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h5 class="mb-1">Biometrics</h5>
+                                    <small>unlocks with face / fingerprint</small>
+                                </div>
+                                <p class="mb-1">
+                                    Windows Hello, Face ID, Touch ID, etc.
+                                </p>   
+                            </a>
+                            <a href="#" class="list-group-item list-group-item-action">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h5 class="mb-1">PIN</h5>
+                                    <small>unlocks with code</small>
+                                </div>
+                                <p class="mb-1">
+                                    Windows Hello PIN, Smartphone PIN.
+                                </p>              
+                            </a>
+                        </div>
+                    </div>
+                </div>
+              </div>
+              <div class="">
+                <div class="card h-100 text-center" id="cardRoaming">
+                    <div class="card-body">
+                        <h5 class="card-title">Roaming / External authenticators</h5>
+                        <p>
+                            A small USB Security Key with various connectivity options (USB-A, USB-C, NFC).
+                        </p>
+                        <div class="list-group">
+                            <a href="#" class="list-group-item list-group-item-action">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h5 class="mb-1">USB Security Token</h5>
+                                    <small>Unlocks with touch / PIN / fingerprint</small>
+                                </div>
+                                <p class="mb-1">
+                                    We require user verification with PIN or fingerprint.
+                                </p>   
+                            </a>
+                        </div>
+                    </div>
+                </div>
+              </div>   
+           </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    var rad = document.registerForm.authenticator;
+    for (var i = 0; i < rad.length; i++) {
+        rad[i].addEventListener('change', function() {
+            var cardPlatform = document.getElementById("cardPlatform");
+            var cardRoaming = document.getElementById("cardRoaming");
+            if (this.value === "platform")
+            {                
+                cardPlatform.classList.add("border", "border-info", "border-3");
+                cardRoaming.classList.remove("border", "border-info", "border-3");
+            }
+            else if (this.value === "cross-platform")
+            {
+                cardPlatform.classList.remove("border", "border-info", "border-3");
+                cardRoaming.classList.add("border", "border-info", "border-3");
+            }
+            else if (this.value === "")
+            {
+                cardPlatform.classList.remove("border", "border-info", "border-3");
+                cardRoaming.classList.remove("border", "border-info", "border-3");
+            }
+        });
+    }
+
+let credOptions = JSON.parse('@Html.Raw(Model.RegistrationOptions)');
+
+document.getElementById('registerForm').addEventListener('submit', handleRegisterSubmit);
+
+async function handleRegisterSubmit(event) {
+    event.preventDefault();
+
+    // Turn the challenge back into the accepted format of padded base64
+    credOptions.challenge = coerceToArrayBuffer(credOptions.challenge);
+    // Turn ID into a UInt8Array Buffer for some reason
+    credOptions.user.id = coerceToArrayBuffer(credOptions.user.id);    
+    credOptions.user.displayName = this.device.value;
+    credOptions.excludeCredentials = credOptions.excludeCredentials.map((c) => {
+        c.id = coerceToArrayBuffer(c.id);
+        return c;
+    });
+
+    // need to use a value from a user
+    //if (credOptions.authenticatorSelection.authenticatorAttachment === null) credOptions.authenticatorSelection.authenticatorAttachment = undefined;
+    var authrType = document.querySelector('input[name="authenticator"]:checked').value;
+    if (authrType)
+        credOptions.authenticatorSelection["authenticatorAttachment"] = authrType;
+
+    console.log("Credential Options Formatted", credOptions);
+/*
+    Swal.fire({
+        title: 'Registering...',
+        text: 'Tap your security key to finish registration.',
+        imageUrl: "/images/securitykey.min.svg",
+        showCancelButton: true,
+        showConfirmButton: false,
+        focusConfirm: false,
+        focusCancel: false
+    });
+*/
+
+        
+    console.log("Creating PublicKeyCredential...");
+
+    let newCredential;
+    try {
+        newCredential = await navigator.credentials.create({
+            publicKey: credOptions
+        });
+    } catch (e) {
+        var msg = "Could not create credentials in browser. Probably because the username is already registered with your authenticator. Please change username or authenticator."
+        console.error(msg, e);
+        showErrorAlert(msg, e);
+    }
+
+
+    console.log("PublicKeyCredential Created", newCredential);
+    console.log("Credential Extenstions", newCredential.getClientExtensionResults());
+
+    try {
+        registerNewCredential(newCredential);
+
+    } catch (e) {
+        showErrorAlert(err.message ? err.message : err);
+    }
+}
+
+// This should be used to verify the auth data with the server
+function registerNewCredential(newCredential) {
+    // Move data into Arrays incase it is super long
+    let attestationObject = new Uint8Array(newCredential.response.attestationObject);
+    let clientDataJSON = new Uint8Array(newCredential.response.clientDataJSON);
+    let rawId = new Uint8Array(newCredential.rawId);
+
+    const data = {
+        id: newCredential.id,
+        rawId: coerceToBase64Url(rawId),
+        type: newCredential.type,
+        displayName: credOptions.user.displayName,
+        extensions: newCredential.getClientExtensionResults(),
+        response: {
+            attestationObject: coerceToBase64Url(attestationObject),
+            clientDataJSON: coerceToBase64Url(clientDataJSON)
+        }
+    };
+
+    fetch("/auth/register", {
+            method: 'POST',
+            body: JSON.stringify(data),
+            redirect: 'follow',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'RequestVerificationToken': '@GetAntiXsrfRequestToken()'
+            }            
+        })
+    .then(response => {
+        if (response.redirected) {
+            window.location.href = response.url;
+        }
+    })
+    .catch(function(err) {
+        console.info(err);
+    });
+}
+
+</script>

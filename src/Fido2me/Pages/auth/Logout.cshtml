@@ -1,0 +1,37 @@
+﻿@page "/auth/logout"
+@model Fido2me.Pages.LogoutModel
+@{
+    ViewData["Title"] = "Logout";
+    Layout = "~/Pages/Shared/_LayoutAuth.cshtml";
+}
+
+<div class="row h-100">
+    <div class="col-lg-5 col-12">
+        <div id="auth-left">
+            <div class="auth-logo">                
+            </div>
+            <h1 class="auth-title">Fido 2 Me</h1>
+            @if (User.Identity.IsAuthenticated) 
+            {
+                <p class="auth-subtitle mb-5">Are you sure you want to sign out?</p>
+
+                <form method="post">
+                    <button type="submit" class="btn btn-primary btn-block btn-lg shadow-lg mt-5">Sign out</button>                
+                </form>
+            }
+            else
+            {
+                <p class="auth-subtitle mb-5">You are already sign out.</p>
+
+                <div class="text-center mt-5 text-lg fs-4">
+                    <a href="/auth/login" class="font-bold">Sign in</a>
+                </div>
+            }
+        </div>
+    </div>
+    <div class="col-lg-7 d-none d-lg-block">
+        <div id="auth-right">
+
+        </div>
+    </div>
+</div>

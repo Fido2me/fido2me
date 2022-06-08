@@ -1,0 +1,54 @@
+﻿@page 
+@model Fido2me.Pages.devices.EditModel
+
+@{
+    ViewData["Title"] = "Edit Device";
+    Layout = "~/Pages/Shared/_Layout.cshtml";
+}
+
+<h1>Edit</h1>
+
+<h4>Device (Authenticator)</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Device.CredentialId" />
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="Device.Enabled" />Status
+                </label>
+            </div>
+            <div class="form-group">
+                <label class="control-label">Type</label>
+                <p class="text-subtitle text-muted">@Model.Device.DeviceDescription</p>
+            </div>
+            <div class="form-group">
+                <label class="control-label">Name</label>
+                <input asp-for="Device.DeviceName" class="form-control" />
+                <span asp-validation-for="Device.DeviceName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label class="control-label">Display Name</label>
+                <input asp-for="Device.DeviceDisplayName" class="form-control" />
+                <span asp-validation-for="Device.DeviceDisplayName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label class="control-label">Registration Date</label>
+                <p class="text-subtitle text-muted">@Model.Device.RegDate</p>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+                <a class="btn btn-outline-primary" asp-page="./Index">Cancel</a>
+            </div>
+        </form>
+       
+    </div>
+</div>
+
+
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

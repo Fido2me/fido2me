@@ -1,0 +1,70 @@
+﻿@page
+@model Fido2me.Pages.OidcApp.CreateModel
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Create</h1>
+
+<h4>OidcBasicClient</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="OidcBasicClientVM.Enabled" /> @Html.DisplayNameFor(model => model.OidcBasicClientVM.Enabled)
+                </label>
+            </div>
+            <div class="form-group">
+                <label asp-for="OidcBasicClientVM.ClientId" class="control-label"></label>
+                <input asp-for="OidcBasicClientVM.ClientId" class="form-control" />
+                <span asp-validation-for="OidcBasicClientVM.ClientId" class="text-danger"></span>
+            </div>
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="OidcBasicClientVM.RequireClientSecret" /> @Html.DisplayNameFor(model => model.OidcBasicClientVM.RequireClientSecret)
+                </label>
+            </div>
+            <div class="form-group">
+                <label asp-for="OidcBasicClientVM.ClientName" class="control-label"></label>
+                <input asp-for="OidcBasicClientVM.ClientName" class="form-control" />
+                <span asp-validation-for="OidcBasicClientVM.ClientName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="OidcBasicClientVM.Description" class="control-label"></label>
+                <input asp-for="OidcBasicClientVM.Description" class="form-control" />
+                <span asp-validation-for="OidcBasicClientVM.Description" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="OidcBasicClientVM.RedirectUri" class="control-label"></label>
+                <input asp-for="OidcBasicClientVM.RedirectUri" class="form-control" />
+                <span asp-validation-for="OidcBasicClientVM.RedirectUri" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="OidcBasicClientVM.PostLoginUrl" class="control-label"></label>
+                <input asp-for="OidcBasicClientVM.PostLoginUrl" class="form-control" />
+                <span asp-validation-for="OidcBasicClientVM.PostLoginUrl" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="OidcBasicClientVM.PostLogoutUrl" class="control-label"></label>
+                <input asp-for="OidcBasicClientVM.PostLogoutUrl" class="form-control" />
+                <span asp-validation-for="OidcBasicClientVM.PostLogoutUrl" class="text-danger"></span>
+            </div>
+            
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-page="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

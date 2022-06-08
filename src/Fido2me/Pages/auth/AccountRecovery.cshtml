@@ -1,0 +1,32 @@
+﻿@page "/auth/recovery"
+@model Fido2me.Pages.AccountRecoveryModel
+@{
+    ViewData["Title"] = "Account Recovery";
+    Layout = "~/Pages/Shared/_LayoutAuth.cshtml";
+}
+
+<div class="row h-100">
+    <div class="col-lg-5 col-12">
+        <div id="auth-left">
+            <div class="auth-logo">                
+            </div>
+            <h1 class="auth-title">Fido 2 Me</h1>
+            <p class="auth-subtitle mb-5">Account recovery is unavailable by design.</p>
+
+            <p class="text-gray-600">
+                You cannot recover access to your account with less secure options (e.g. by email or phone number).
+            </p>
+            <p class="text-gray-600">
+                But you can add multiple authenticators (devices) to your account after a successful login.
+            </p>
+            <div class="text-center mt-5 text-lg fs-4">
+                <a href="/auth/login" class="font-bold">Sign in</a>                
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-7 d-none d-lg-block">
+        <div id="auth-right">
+
+        </div>
+    </div>
+</div>
