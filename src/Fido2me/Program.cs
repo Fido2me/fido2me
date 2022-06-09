@@ -1,15 +1,13 @@
-using Duende.IdentityServer.Configuration;
+using Azure.Identity;
 using Fido2me;
 using Fido2me.Data;
 using Fido2me.Duende;
 using Fido2me.Duende.Test;
 using Fido2me.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection; 
 
 // useful link: https://docs.microsoft.com/en-us/aspnet/core/migration/50-to-60-samples?view=aspnetcore-6.0
 
@@ -18,7 +16,22 @@ var builder = WebApplication.CreateBuilder(args);
 var config = builder.Configuration;
 var services = builder.Services;
 
-StartupConfigurationHelper.ConfigureApplicationInsights(services, config["applicationinsights-instrumentationkey"]);
+config.AddAzureKeyVault(
+    new Uri($"https://{config["vaultName"]}.vault.azure.net/"),
+    new DefaultAzureCredential(new DefaultAzureCredentialOptions
+    {
+        ExcludeEnvironmentCredential = true,
+        ExcludeInteractiveBrowserCredential = true,
+        ExcludeAzurePowerShellCredential = true,
+        ExcludeSharedTokenCacheCredential = true,
+        ExcludeVisualStudioCodeCredential = true,
+        ExcludeVisualStudioCredential = true,
+        ExcludeAzureCliCredential = builder.Environment.IsProduction(),
+        ExcludeManagedIdentityCredential = !builder.Environment.IsProduction(),
+
+    }));
+
+StartupConfigurationHelper.ConfigureApplicationInsights(services, config["tracing-key"]);
 
 services.Configure<ForwardedHeadersOptions>(options =>
 {
@@ -40,9 +53,7 @@ services.AddControllers();
 services.AddDbContext<DataContext>(options =>
 {
     options.UseCosmos(
-        config["cosmosdb-endpointurl"],
-        config["cosmosdb-privatekey"],
-        config["cosmosdb-dbname"],
+        config["db-connectionstring"], config["db-name"],
         opt =>
         {
             opt.ConnectionMode(Microsoft.Azure.Cosmos.ConnectionMode.Direct);
@@ -53,6 +64,7 @@ services.AddDbContext<DataContext>(options =>
 // https://docs.microsoft.com/en-us/aspnet/core/security/data-protection/configuration/overview?view=aspnetcore-6.0.
 // use db context for now
 services.AddDataProtection().PersistKeysToDbContext<DataContext>();
+
 
 // Use the in-memory implementation of IDistributedCache.
 services.AddDistributedMemoryCache();
