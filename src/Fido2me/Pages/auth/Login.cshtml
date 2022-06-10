@@ -7,23 +7,18 @@
     ViewData["Title"] = "Login";
     Layout = "~/Pages/Shared/_LayoutAuth.cshtml";
 }
-@functions
-{
-    public string GetAntiXsrfRequestToken()
-    {
-        return Xsrf.GetAndStoreTokens(HttpContext).RequestToken;
-    }
-}
 
 <div class="row h-100">
     <div class="col-lg-5 col-12">
         <div id="auth-left">
             <div class="auth-logo">                
             </div>
-            <h1 class="auth-title">Fido 2 Me</h1>
+            <h1 class="auth-title">Fido2Me</h1>
             <p class="auth-subtitle mb-5">Sign in without username and password!</p>
 
-            <form method="POST" name="loginForm" id="loginForm">
+            <div asp-validation-summary="ModelOnly" class="field-validation-error mt-3"></div>
+
+            <form method="POST" name="loginForm" id="loginForm" asp-route-returnUrl="@Model.ReturnUrl">
                 <button type="submit" class="btn btn-primary btn-block btn-lg shadow-lg mt-5">Sign in</button>                
             </form>
             <div class="text-center mt-5 text-lg fs-4">
@@ -41,7 +36,8 @@
 
 <script type="text/javascript">
 let assertionOptions = JSON.parse('@Html.Raw(Model.AssertionOptions)');
-document.getElementById("loginForm").addEventListener('submit', handleSignInSubmit);
+let loginForm = document.getElementById("loginForm");
+loginForm.addEventListener('submit', handleSignInSubmit);
 
 async function handleSignInSubmit(event) {
    event.preventDefault();
@@ -53,17 +49,15 @@ async function handleSignInSubmit(event) {
     });
 
     console.log("Assertion options", assertionOptions);
-    /*
+    
     Swal.fire({
         title: 'Logging In...',
-        text: 'Tap your security key to login.',
-        imageUrl: "/images/securitykey.min.svg",
+        text: 'Unlock your authenticator to login.',
         showCancelButton: true,
         showConfirmButton: false,
         focusConfirm: false,
         focusCancel: false
-    });
-    */
+    });    
 
     // ask browser for credentials (browser will ask connected authenticators)
     let credential;
@@ -101,26 +95,12 @@ function verifyAssertionWithServer(assertedCredential) {
         }
     };
 
-    fetch("/auth/login?" + new URLSearchParams({ ReturnUrl: '@Model.ReturnUrl' }),
-        {
-            method: 'POST',
-            body: JSON.stringify(data),
-            redirect: 'follow',
-            headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-            'RequestVerificationToken': '@GetAntiXsrfRequestToken()'
-            }            
-        })
-    .then(response => {
-        if (response.redirected) {
-            window.location.href = response.url;
-        }
-    })
-    .catch(function(err) {
-        console.info(err);
-    });
-
+    var input = document.createElement('input');
+    input.setAttribute('name', 'assertionResponse');
+    input.setAttribute('value', JSON.stringify(data));
+    input.setAttribute('type', 'hidden');
+    loginForm.appendChild(input);   
+    loginForm.submit();   
 }
 
 </script>

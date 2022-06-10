@@ -7,20 +7,13 @@
     ViewData["Title"] = "Register";
     Layout = "~/Pages/Shared/_LayoutAuth.cshtml";
 }
-@functions
-{
-    public string GetAntiXsrfRequestToken()
-    {
-        return Xsrf.GetAndStoreTokens(HttpContext).RequestToken;
-    }
-}
 
 <div class="row h-100">
     <div class="col-lg-5 col-12">
         <div id="auth-left">
             <div class="auth-logo">                
             </div>
-            <h1 class="auth-title">Fido 2 me</h1>
+            <h1 class="auth-title">Fido2Me</h1>
             <p class="auth-subtitle mb-5">Sign up with</p>
 
             
@@ -137,7 +130,8 @@
 
 let credOptions = JSON.parse('@Html.Raw(Model.RegistrationOptions)');
 
-document.getElementById('registerForm').addEventListener('submit', handleRegisterSubmit);
+let registerForm = document.getElementById('registerForm');
+registerForm.addEventListener('submit', handleRegisterSubmit);
 
 async function handleRegisterSubmit(event) {
     event.preventDefault();
@@ -159,17 +153,16 @@ async function handleRegisterSubmit(event) {
         credOptions.authenticatorSelection["authenticatorAttachment"] = authrType;
 
     console.log("Credential Options Formatted", credOptions);
-/*
+
     Swal.fire({
         title: 'Registering...',
-        text: 'Tap your security key to finish registration.',
-        imageUrl: "/images/securitykey.min.svg",
+        text: 'Unlock your authenticator to finish registration.',
         showCancelButton: true,
         showConfirmButton: false,
         focusConfirm: false,
         focusCancel: false
     });
-*/
+
 
         
     console.log("Creating PublicKeyCredential...");
@@ -216,24 +209,12 @@ function registerNewCredential(newCredential) {
         }
     };
 
-    fetch("/auth/register", {
-            method: 'POST',
-            body: JSON.stringify(data),
-            redirect: 'follow',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'RequestVerificationToken': '@GetAntiXsrfRequestToken()'
-            }            
-        })
-    .then(response => {
-        if (response.redirected) {
-            window.location.href = response.url;
-        }
-    })
-    .catch(function(err) {
-        console.info(err);
-    });
+    var input = document.createElement('input');
+    input.setAttribute('name', 'attestationResponse');
+    input.setAttribute('value', JSON.stringify(data));
+    input.setAttribute('type', 'hidden');
+    registerForm.appendChild(input);   
+    registerForm.submit();
 }
 
 </script>

@@ -28,7 +28,6 @@ config.AddAzureKeyVault(
         ExcludeVisualStudioCredential = true,
         ExcludeAzureCliCredential = builder.Environment.IsProduction(),
         ExcludeManagedIdentityCredential = !builder.Environment.IsProduction(),
-
     }));
 
 StartupConfigurationHelper.ConfigureApplicationInsights(services, config["tracing-key"]);
@@ -83,6 +82,7 @@ builder.Services.AddAuthentication(options =>
     options.ExpireTimeSpan = TimeSpan.FromHours(8);
     options.SlidingExpiration = true;
     options.LoginPath = new PathString("/auth/login");
+    options.Cookie.SameSite = SameSiteMode.Strict;
 });
 
 builder.Services.ConfigureApplicationCookie(options =>
@@ -94,6 +94,7 @@ builder.Services.ConfigureApplicationCookie(options =>
      options.LoginPath = new PathString("/auth/login");
      options.ReturnUrlParameter = CookieAuthenticationDefaults.ReturnUrlParameter;
      options.SlidingExpiration = true;
+     options.Cookie.SameSite = SameSiteMode.Strict;
  });
 
 /*
@@ -143,10 +144,6 @@ builder.Services.AddTransient<IAccountService, AccountService>();
 builder.Services.AddTransient<IOidcBasicClientService, OidcBasicClientService>();
 builder.Services.AddTransient<IDeviceService, DeviceService>();
 
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-// builder.Services.AddEndpointsApiExplorer();
-// builder.Services.AddSwaggerGen();
-
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -154,8 +151,6 @@ if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
     config.AddApplicationInsightsSettings(developerMode: true);
-    // app.UseSwagger();
-    // app.UseSwaggerUI();
 
     using (var scope = app.Services.GetRequiredService<IServiceScopeFactory>().CreateScope())
     using (var context = scope.ServiceProvider.GetService<DataContext>())
@@ -184,7 +179,7 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
-app.UseIdentityServer(); // includes this app.UseAuthentication();
+app.UseIdentityServer();
 app.UseAuthorization();
 
 app.UseEndpoints(endpoints =>
