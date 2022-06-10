@@ -1,59 +1,37 @@
 ﻿@page
 @model IndexModel
 @{
-    ViewData["Title"] = "Home page";
+    ViewData["Title"] = "Home";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="page-heading">
+    <h3>Welcome</h3>
 </div>
-<div class="m-4 d-flex justify-content-center">
-    <div class="btn-group">
-        <input type="radio" class="btn-check" name="options" id="radio1" autocomplete="off">
-        <label class="btn btn-outline-primary" for="radio1">Platform</label>
-    
-        <input type="radio" class="btn-check" name="options" id="radio2" autocomplete="off" checked>
-        <label class="btn btn-outline-primary" for="radio2">Any</label>
-    
-        <input type="radio" class="btn-check" name="options" id="radio3" autocomplete="off">
-        <label class="btn btn-outline-primary" for="radio3">Roaming</label>
-    </div>
-</div>
+<div class="page-content">
+    <table class="table">
+      <tbody>
+        <tr>
+          <th>Account ID</th>
+          <td>@Model.Account.Id</td>
+        </tr>
+        <tr>
+          <th>Account Type</th>
+          <td>@Model.Account.AccountType</td>
+        </tr>
+        <tr>
+          <th>Email</th>
+          <td>@Model.Account.Email</td>
+        </tr>
+        <tr>
+          <th>Email Verified</th>
+          <td>@Model.Account.EmailVerified</td>
+        </tr>
+      </tbody>
+    </table>
 
-<div class="row">
-  <div class="col-sm-6">
-    <div class="card text-center bg-light-secondary" >
-      <div class="card-body">
-        <h5 class="card-title">Platform / Internal authenticators</h5>
-        <p class="card-subtitle">Integrated with a device</p>
-         <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
-        <a href="#" class="btn btn-primary">Go somewhere</a>
-      </div>
-    </div>
-  </div>
-  <div class="col-sm-6">
-    <div class="card text-center">
-      <div class="card-body">
-        <h5 class="card-title">Roaming / External authenticators</h5>
-        <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
-        <a href="#" class="btn btn-primary">Go somewhere</a>
-      </div>
-    </div>
-  </div>
-  <div class="card sm-3" style="max-width: 540px;">
-  <div class="row g-0">
-    <div class="col-md-4">
-      <img src="/assets/images/fido2/windowshello.png" class="img-fluid rounded-start" alt="...">
-    </div>
-    <div class="col-md-8">
-      <div class="card-body">
-        <h5 class="card-title">Card title</h5>
-        <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
-        <p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p>
-      </div>
-    </div>
-  </div>
+    @if (!Model.Account.EmailVerified.HasValue || !Model.Account.EmailVerified.Value)
+    {
+        <p>Please verify your email address to be able to create OAuth applications. We will use this email address only for important service notifications.</p>
+        <p><a asp-page="/profile/EmailVerification">Verify Email</a></p>
+    }
 </div>
-</div>
-

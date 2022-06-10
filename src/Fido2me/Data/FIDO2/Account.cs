@@ -8,9 +8,11 @@ namespace Fido2me.Data.FIDO2
         public Guid Id { get; set; }
 
         public string AccountType => "User";
- 
 
-        public string Email { get; set; }
+
+        public string? Email { get; set; }
+
+        public bool? EmailVerified { get; set; }
 
 
 

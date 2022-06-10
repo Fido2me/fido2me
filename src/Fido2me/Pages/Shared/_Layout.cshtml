@@ -13,8 +13,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="~/assets/css/bootstrap.css">
 
-    <link rel="stylesheet" href="~/assets/vendors/iconly/bold.css">
-
+   
     <link rel="stylesheet" href="~/assets/vendors/perfect-scrollbar/perfect-scrollbar.css">
     <link rel="stylesheet" href="~/assets/vendors/bootstrap-icons/bootstrap-icons.css">
     <link rel="stylesheet" href="~/assets/css/app.css">
@@ -27,9 +26,7 @@
             <div class="sidebar-wrapper active">
                 <div class="sidebar-header">
                     <div class="d-flex justify-content-between">
-                        <div class="logo">
-                            <a href="index.html"><img src="~/assets/images/logo/logo.png" alt="Logo" srcset=""></a>
-                        </div>
+                        <h1 class="auth-title">Fido2Me</h1>
                         <div class="toggler">
                             <a href="#" class="sidebar-hide d-xl-none d-block"><i class="bi bi-x bi-middle"></i></a>
                         </div>
@@ -37,17 +34,17 @@
                 </div>
                 <div class="sidebar-menu">
                     <ul class="menu">
-                        <li class="sidebar-item" asp-page="/dashboard" is-active-page>
-                            <a asp-page="/dashboard" class='sidebar-link'>
+                        <li class="sidebar-item" asp-page="/" is-active-page>
+                            <a href="/" class='sidebar-link'>
                                 <i class="bi bi-grid-fill"></i>
-                                <span>Dashboard</span>
+                                <span>Home</span>
                             </a>
                         </li>
 
                         <li class="sidebar-item" asp-page="/profile/" is-active-page>
-                            <a asp-page="/profile/" class='sidebar-link'>
+                            <a href="/profile/" class='sidebar-link'>
                                 <i class="bi bi-grid-fill"></i>
-                                <span>User Profile</span>
+                                <span>Profile</span>
                             </a>
                         </li>
 
@@ -72,10 +69,10 @@
                             </a>
                         </li>
 
-                        <li class="sidebar-title">Raise Support</li>
+                        <li class="sidebar-title">Support</li>
 
                         <li class="sidebar-item  ">
-                            <a href="https://zuramai.github.io/mazer/docs" class='sidebar-link'>
+                            <a href="https://github.com/Fido2me/fido2me/wiki" target="_blank" class='sidebar-link'>
                                 <i class="bi bi-life-preserver"></i>
                                 <span>Documentation</span>
                             </a>

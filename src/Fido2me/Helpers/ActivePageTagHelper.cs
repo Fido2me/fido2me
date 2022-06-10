@@ -36,9 +36,18 @@ namespace Fido2me.Helpers
         {
             string currentPage = ViewContext.RouteData.Values["Page"].ToString();
 
-            if (!string.IsNullOrWhiteSpace(Page) && !currentPage.ToLower().Contains(Page.ToLower()))
+            if (!string.IsNullOrWhiteSpace(Page)) 
             {
-                return false;
+                // special case
+                if (Page == "/")
+                {
+                    return currentPage == "/Index";                    
+                }
+                
+                if (!currentPage.ToLower().Contains(Page.ToLower()))
+                {
+                    return false;
+                }
             }
 
             return true;
