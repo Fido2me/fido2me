@@ -26,8 +26,6 @@ namespace Fido2me.Pages
         private readonly IFidoLoginService _fidoLogin;
 
 
-
-
         public LoginModel(ILogger<LoginModel> logger, IFidoLoginService fidoLogin,  IDataProtectionProvider provider)
         {
             _logger = logger;   
@@ -50,11 +48,13 @@ namespace Fido2me.Pages
             AssertionOptions = options.ToJson();
         }
 
-        public async Task<IActionResult> OnPostAsync([FromBody] AuthenticatorAssertionRawResponse assertionResponse)
+        public async Task<IActionResult> OnPostAsync([FromForm] string assertionResponse)
         {
+            var assertionResponseJson = JsonSerializer.Deserialize<AuthenticatorAssertionRawResponse>(assertionResponse);
+            
             ReturnUrl = ReturnUrl ?? Url.Content("~/");
 
-            var loginResponse = await _fidoLogin.LoginCompleteAsync(assertionResponse, default(CancellationToken));
+            var loginResponse = await _fidoLogin.LoginCompleteAsync(assertionResponseJson, default(CancellationToken));
 
             if (loginResponse.LoginResponseStatus == Responses.LoginResponseStatus.Success)
             {
@@ -72,7 +72,7 @@ namespace Fido2me.Pages
                 };
 
                 _logger.LogInformation("User logged in.");
-                await HttpContext.SignInAsync(user).ConfigureAwait(false);                
+                await HttpContext.SignInAsync(user).ConfigureAwait(false);
 
                 if (Url.IsLocalUrl(ReturnUrl))
                 {
@@ -80,9 +80,11 @@ namespace Fido2me.Pages
                 }
             }
 
-            ModelState.AddModelError(string.Empty, "Invalid login attempt.");
-            return Page();         
-            
+            ErrorMessage = loginResponse.ErrorMessage;
+            ModelState.AddModelError(string.Empty, loginResponse.ErrorMessage);
+            //return new JsonResult("Invalid login attempt.");        
+            return RedirectToPage("./Login", new { ReturnUrl = ReturnUrl});
+
 
         }
     }

@@ -10,6 +10,8 @@ namespace Fido2me.Services
         Task AddCredentialAsync(Credential fidoCredential);
         Task<Credential> GetCredentialAsync(byte[] credentialId);
 
+        Task<Account> GetAccountAsync(Guid accountId);
+
         Task UpdateCredentialAsync(Credential fidoCredential);
     }
 
@@ -46,6 +48,12 @@ namespace Fido2me.Services
             _context.Credentials.Update(fidoCredential);
             await _context.SaveChangesAsync();
             
+        }
+
+        public async Task<Account> GetAccountAsync(Guid accountId)
+        {
+            var account = await _context.Accounts.FirstOrDefaultAsync(a => a.Id == accountId);
+            return account;
         }
     }
 }

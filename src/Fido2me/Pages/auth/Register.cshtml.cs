@@ -2,6 +2,7 @@ using Fido2me.Services;
 using Fido2NetLib;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using System.Text.Json;
 
 namespace Fido2me.Pages
 {
@@ -22,9 +23,10 @@ namespace Fido2me.Pages
             RegistrationOptions = options.ToJson();
         }
 
-        public async Task<IActionResult> OnPostAsync([FromBody] AuthenticatorAttestationRawResponse attestationResponse)
+        public async Task<IActionResult> OnPostAsync([FromForm] string attestationResponse)
         {
-            var registrationResponse = await _fidoRegistration.RegistrationCompleteAsync(attestationResponse, default(CancellationToken));
+            var attestationResponseJson = JsonSerializer.Deserialize<AuthenticatorAttestationRawResponse>(attestationResponse);
+            var registrationResponse = await _fidoRegistration.RegistrationCompleteAsync(attestationResponseJson, default(CancellationToken));
 
             return RedirectToPage("/auth/login");
 

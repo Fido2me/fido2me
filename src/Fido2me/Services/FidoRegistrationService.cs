@@ -73,7 +73,7 @@ namespace Fido2me.Services
             var options = _fido2.RequestNewCredential(user, existingKeys, authenticatorSelection, AttestationConveyancePreference.Direct, exts);
             var registrationOptionModel = new RegistrationOptionsModel(options);
             string protectedPayload = _protector.Protect(options.ToJson());
-            _contextAccessor.HttpContext.Response.Cookies.Append(Constants.CookieRegistration, protectedPayload, new CookieOptions { HttpOnly = true, IsEssential = true, Secure = true });
+            _contextAccessor.HttpContext.Response.Cookies.Append(Constants.CookieRegistration, protectedPayload, new CookieOptions { HttpOnly = true, IsEssential = true, Secure = true, SameSite = SameSiteMode.Strict, Expires = DateTime.Now.AddMinutes(5) });
 
             return await Task.FromResult(options);
         }
@@ -158,6 +158,14 @@ namespace Fido2me.Services
                 };
                 await _dataContext.Attestations.AddAsync(attestation);
             }
+
+            var account = new Account()
+            {
+                Id = credential.AccountId,
+                EmailVerified = false,                
+            };
+            
+            await _dataContext.Accounts.AddAsync(account);
 
             await _dataContext.SaveChangesAsync();
 

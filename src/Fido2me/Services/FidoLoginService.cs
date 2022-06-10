@@ -57,7 +57,7 @@ namespace Fido2me.Services
 
             // 4. Temporarily store options, session/in-memory cache/redis/db
             string protectedPayload = _protector.Protect(options.ToJson());
-            _contextAccessor.HttpContext.Response.Cookies.Append(Constants.CookieLogin, protectedPayload, new CookieOptions { HttpOnly = true, IsEssential = true, Secure = true, Expires = DateTime.Now.AddMinutes(5) });
+            _contextAccessor.HttpContext.Response.Cookies.Append(Constants.CookieLogin, protectedPayload, new CookieOptions { HttpOnly = true, IsEssential = true, Secure = true, SameSite = SameSiteMode.Strict,  Expires = DateTime.Now.AddMinutes(5) });
 
             // 5. Return options to client
             return await Task.FromResult(options);
