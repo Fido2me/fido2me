@@ -35,14 +35,14 @@ namespace Fido2me.Pages.devices
 
         }
 
-        public async Task<IActionResult> OnPostDeleteAsync(Guid credentialId)
+        public async Task<IActionResult> OnPostDeleteAsync(string credentialId)
         {
             var accountId = new Guid(User.FindFirst(c => c.Type == "sub").Value);
             await _deviceService.DeleteDeviceAsync(credentialId, accountId);
             return RedirectToPage("./Index");
         }
 
-        public async Task<IActionResult> OnPostEnableAsync(Guid credentialId)
+        public async Task<IActionResult> OnPostEnableAsync(string credentialId)
         {
             var accountId = new Guid(User.FindFirst(c => c.Type == "sub").Value);
             await _deviceService.ChangeDeviceStatusAsync(credentialId, accountId);

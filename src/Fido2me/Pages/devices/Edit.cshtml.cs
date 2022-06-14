@@ -28,7 +28,7 @@ namespace Fido2me.Pages.devices
         [BindProperty]
         public DeviceViewModel Device { get; set; } = default!;
 
-        public async Task<IActionResult> OnGetAsync(Guid credentialId)
+        public async Task<IActionResult> OnGetAsync(string credentialId)
         {
             var device = await _deviceService.GetDeviceByCredentialIdAsync(credentialId);
             if (device == null)

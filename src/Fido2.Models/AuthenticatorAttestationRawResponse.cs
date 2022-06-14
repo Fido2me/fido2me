@@ -26,6 +26,9 @@ namespace Fido2NetLib
         [JsonPropertyName("displayName")]
         public string DisplayName { get; set; }
 
+        [JsonPropertyName("name")]
+        public string Name { get; set; }
+
         public sealed class ResponseData
         {
             [JsonConverter(typeof(Base64UrlConverter))]

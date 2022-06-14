@@ -10,7 +10,7 @@ namespace Fido2me.Data.FIDO2
         public byte[] Id { get; set; }
         public Guid AccountId { get; set; }
         public bool Enabled { get; set; }
-        public Guid CredentialId { get; set; }
+        public string CredentialId { get; set; }
 
         [Required]
         public string DeviceName { get; set; }

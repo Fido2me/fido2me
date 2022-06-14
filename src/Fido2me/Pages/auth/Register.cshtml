@@ -139,8 +139,9 @@ async function handleRegisterSubmit(event) {
     // Turn the challenge back into the accepted format of padded base64
     credOptions.challenge = coerceToArrayBuffer(credOptions.challenge);
     // Turn ID into a UInt8Array Buffer for some reason
-    credOptions.user.id = coerceToArrayBuffer(credOptions.user.id);    
-    credOptions.user.displayName = this.device.value;
+    credOptions.user.id = coerceToArrayBuffer(credOptions.user.id);
+    credOptions.user.name = this.device.value;
+    credOptions.user.displayName = this.device.value + ' ' + credOptions.user.displayName;
     credOptions.excludeCredentials = credOptions.excludeCredentials.map((c) => {
         c.id = coerceToArrayBuffer(c.id);
         return c;
@@ -202,6 +203,7 @@ function registerNewCredential(newCredential) {
         rawId: coerceToBase64Url(rawId),
         type: newCredential.type,
         displayName: credOptions.user.displayName,
+        name: credOptions.user.name,
         extensions: newCredential.getClientExtensionResults(),
         response: {
             attestationObject: coerceToBase64Url(attestationObject),
