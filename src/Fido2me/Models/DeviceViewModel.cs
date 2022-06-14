@@ -5,7 +5,7 @@ namespace Fido2me.Models
     public class DeviceViewModel
     {
         [Required]
-        public Guid CredentialId { get; set; }
+        public string CredentialId { get; set; }
 
         public string? DeviceDescription { get; set; }
 

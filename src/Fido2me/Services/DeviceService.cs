@@ -8,10 +8,10 @@ namespace Fido2me.Services
     public interface IDeviceService
     {
         Task<List<DeviceViewModel>> GetDevicesByAccountIdAsync(Guid accountId);
-        Task<DeviceViewModel> GetDeviceByCredentialIdAsync(Guid credentialId);
+        Task<DeviceViewModel> GetDeviceByCredentialIdAsync(string credentialId);
         Task<bool> UpdateDeviceAsync(DeviceViewModel device, Guid accountId);
-        Task DeleteDeviceAsync(Guid credentialId, Guid accountId);
-        Task ChangeDeviceStatusAsync(Guid credentialId, Guid accountId);
+        Task DeleteDeviceAsync(string credentialId, Guid accountId);
+        Task ChangeDeviceStatusAsync(string credentialId, Guid accountId);
     }
 
     public class DeviceService : IDeviceService
@@ -25,7 +25,7 @@ namespace Fido2me.Services
             _logger = logger;
         }
 
-        public async Task ChangeDeviceStatusAsync(Guid credentialId, Guid accountId)
+        public async Task ChangeDeviceStatusAsync(string credentialId, Guid accountId)
         {
             var device = await _dataContext.Credentials.FirstOrDefaultAsync(c => c.CredentialId == credentialId && c.AccountId == accountId);
             if (device != null)
@@ -35,7 +35,7 @@ namespace Fido2me.Services
             }
         }
 
-        public async Task DeleteDeviceAsync(Guid credentialId, Guid accountId)
+        public async Task DeleteDeviceAsync(string credentialId, Guid accountId)
         {
             var device = await _dataContext.Credentials.FirstOrDefaultAsync(c => c.CredentialId == credentialId && c.AccountId == accountId);
             if (device != null)
@@ -45,7 +45,7 @@ namespace Fido2me.Services
             }
         }
 
-        public async Task<DeviceViewModel> GetDeviceByCredentialIdAsync(Guid credentialId)
+        public async Task<DeviceViewModel> GetDeviceByCredentialIdAsync(string credentialId)
         {
             var device = await _dataContext.Credentials.Where(c => c.CredentialId == credentialId).AsNoTracking()
                 .Select(c => new DeviceViewModel() 

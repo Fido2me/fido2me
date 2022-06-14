@@ -16,7 +16,7 @@ namespace Fido2me.Services
 
         Task<RegistrationResponse> RegistrationCompleteAsync(AuthenticatorAttestationRawResponse attestationResponse, CancellationToken cancellationToken);
 
-        Task CompleteAttestation(BaseAttestationVerification attestationResult);
+        Task CompleteAttestation(BaseAttestationVerification attestationResult, Guid accountId);
     }
 
 
@@ -42,13 +42,13 @@ namespace Fido2me.Services
         public async Task<CredentialCreateOptions> RegistrationStartAsync()
         {
             // we will allow to change it later
-            var name = $"Fido2me initiated at {DateTimeOffset.Now}";
+            var displayName = $"({DateTimeOffset.Now})";
 
             // 1. Create a temporary user to store in an encrypted cookie
             var user = new Fido2User
             {
-                DisplayName = "",
-                Name = name,
+                DisplayName = displayName,
+                Name = displayName,
                 Id = Guid.NewGuid().ToByteArray() // byte representation of userID is required
             };
 
@@ -91,8 +91,9 @@ namespace Fido2me.Services
                 var unprotectedOptions = _protector.Unprotect(protectedOptions);
 
                 var options = CredentialCreateOptions.FromJson(unprotectedOptions);
-                // display name was not a part of initial registration
+                // display name and name were not a part of initial registration
                 options.User.DisplayName = attestationResponse.DisplayName;
+                options.User.Name = attestationResponse.Name;
                 _contextAccessor.HttpContext.Response.Cookies.Delete(Constants.CookieRegistration);
 
                 // 2. Create callback so that lib can verify credential id is unique to this user
@@ -103,8 +104,8 @@ namespace Fido2me.Services
                 if (attestation.Result.AttestationVerificationStatus == AttestationVerificationStatus.Failed)
                 { }// bad request
 
-
-                await CompleteAttestation(attestation.Result);
+                // new registration - new account Id
+                await CompleteAttestation(attestation.Result, Guid.NewGuid());
 
                 return new RegistrationResponse(attestation.Result.AttestationVerificationStatus);
             }
@@ -116,7 +117,7 @@ namespace Fido2me.Services
             }
         }
 
-        public async Task CompleteAttestation(BaseAttestationVerification attestationResult)
+        public async Task CompleteAttestation(BaseAttestationVerification attestationResult, Guid accountId)
         {
             string desc = "";
             if (_mds != null)
@@ -129,7 +130,7 @@ namespace Fido2me.Services
             {
                 Id = attestationResult.CredentialId,
                 Enabled = true,
-                CredentialId = new Guid(attestationResult.CredentialId),
+                CredentialId = Convert.ToHexString(attestationResult.CredentialId),
                 DeviceName = attestationResult.User.Name,
                 DeviceDisplayName = attestationResult.User.DisplayName,
                 AaGuid = attestationResult.Aaguid,
@@ -139,7 +140,7 @@ namespace Fido2me.Services
                 UserHandle = attestationResult.User.Id,
                 RegDate = DateTimeOffset.Now,
                 SignatureCounter = attestationResult.Counter,
-                AccountId = new Guid(attestationResult.User.Id),
+                AccountId = accountId,
                 AttestionResult = attestationResult.AttestationVerificationStatus.ToString()
             };
             await _dataContext.Credentials.AddAsync(credential);
