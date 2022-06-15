@@ -6,32 +6,33 @@
     Layout = "~/Pages/Shared/_Layout.cshtml";
 }
 
-<h1>Index</h1>
+<div class="page-heading">
+    <h3>Welcome</h3>
+</div>
+<div class="page-content">
+    <table class="table">
+      <tbody>
+        <tr>
+          <th>Account ID</th>
+          <td>@Model.Account.Id</td>
+        </tr>
+        <tr>
+          <th>Account Type</th>
+          <td>@Model.Account.AccountType</td>
+        </tr>
+        <tr>
+          <th>Email</th>
+          <td>@Model.Account.Email</td>
+        </tr>
+        <tr>
+          <th>Email Verified</th>
+          <td>@Model.Account.EmailVerified</td>
+        </tr>
+      </tbody>
+    </table>
+   <p>
+        <a class="btn btn-outline-primary" asp-page="/profile/Edit">Edit</a>
+   </p>
 
-<p>
-    <a asp-page="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Account[0].Email)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model.Account) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Email)
-            </td>
-            <td>
-                <a asp-page="./Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-page="./Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-page="./Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+
+</div>

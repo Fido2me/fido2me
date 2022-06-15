@@ -24,6 +24,7 @@ namespace Fido2me.Pages
         {
             var accountId = new Guid(User.FindFirst(c => c.Type == "sub").Value);
             Account = await _accountService.GetAccountAsync(accountId);
+
         }
     }
 }
