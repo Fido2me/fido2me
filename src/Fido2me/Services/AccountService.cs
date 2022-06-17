@@ -1,6 +1,7 @@
 ﻿using Fido2me.Data;
 using Fido2me.Data.FIDO2;
 using Fido2me.Models;
+using Fido2me.Responses;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fido2me.Services
@@ -14,6 +15,7 @@ namespace Fido2me.Services
         Task<AccountViewModel> GetAccountAsync(Guid accountId);
 
         Task UpdateCredentialAsync(Credential fidoCredential);
+        Task<EmailVerificationResponse> VerifyEmailAsync(Guid accountId, int code);
     }
 
     public class AccountService : IAccountService
@@ -63,6 +65,31 @@ namespace Fido2me.Services
                     DeviceEnabledCount = a.DeviceEnabledCount,
                 }).FirstOrDefaultAsync();
             return accountVM;
+        }
+
+        public async Task<EmailVerificationResponse> VerifyEmailAsync(Guid accountId, int code)
+        {
+            var account = await _context.Accounts.FirstOrDefaultAsync(a => a.Id == accountId);
+
+            if (account == null || account.EmailVerification == null)
+            {
+                return new EmailVerificationResponse(EmailVerificationResponseStatus.Error, "Email verification has not been requested.");
+            }
+
+            if (code != account.EmailVerification.Code)
+            {
+                account.EmailVerification = null; // nulify the challenge
+                await _context.SaveChangesAsync();
+                return new EmailVerificationResponse(EmailVerificationResponseStatus.Error, "Code mismatch. Start email verification method again.");
+            }
+
+            // all good
+            account.Email = account.EmailVerification.Email;
+            account.EmailVerified = true;
+            account.EmailVerification = null;
+            await _context.SaveChangesAsync();
+
+            return new EmailVerificationResponse(EmailVerificationResponseStatus.Success, "All good");
         }
     }
 }
