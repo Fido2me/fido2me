@@ -1,4 +1,5 @@
 ﻿using Fido2me.Data.FIDO2;
+using Fido2me.Models;
 using Fido2me.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -12,7 +13,7 @@ namespace Fido2me.Pages
         private readonly IAccountService _accountService;
 
         [BindProperty]
-        public Account Account { get; set; } = default!;
+        public AccountViewModel Account { get; set; } = default!;
 
         public IndexModel(ILogger<IndexModel> logger, IAccountService accountService)
         {

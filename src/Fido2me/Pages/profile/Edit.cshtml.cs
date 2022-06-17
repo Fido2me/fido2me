@@ -8,34 +8,30 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Fido2me.Data;
 using Fido2me.Data.FIDO2;
+using Fido2me.Services;
+using Fido2me.Pages.Shared;
+using Fido2me.Models;
 
 namespace Fido2me.Pages.profile
 {
-    public class EditModel : PageModel
+    public class EditModel : BasePageModel
     {
-        private readonly Fido2me.Data.DataContext _context;
+        private readonly IAccountService _accountService;
+        private readonly ILogger<EditModel> _logger;
 
-        public EditModel(Fido2me.Data.DataContext context)
+        public EditModel(IAccountService accountService, ILogger<EditModel> logger)
         {
-            _context = context;
+            _accountService = accountService;
+            _logger = logger;
         }
 
         [BindProperty]
-        public Account Account { get; set; } = default!;
+        public AccountViewModel Account { get; set; } = default!;
 
-        public async Task<IActionResult> OnGetAsync(Guid? id)
+        public async Task<IActionResult> OnGetAsync()
         {
-            if (id == null || _context.Accounts == null)
-            {
-                return NotFound();
-            }
-
-            var account =  await _context.Accounts.FirstOrDefaultAsync(m => m.Id == id);
-            if (account == null)
-            {
-                return NotFound();
-            }
-            Account = account;
+            Account = await _accountService.GetAccountAsync(AccountId);
+            
             return Page();
         }
 
@@ -43,35 +39,7 @@ namespace Fido2me.Pages.profile
         // For more details, see https://aka.ms/RazorPagesCRUD.
         public async Task<IActionResult> OnPostAsync()
         {
-            if (!ModelState.IsValid)
-            {
-                return Page();
-            }
-
-            _context.Attach(Account).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!AccountExists(Account.Id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return RedirectToPage("./Index");
-        }
-
-        private bool AccountExists(Guid id)
-        {
-          return (_context.Accounts?.Any(e => e.Id == id)).GetValueOrDefault();
+            return Page();
         }
     }
 }

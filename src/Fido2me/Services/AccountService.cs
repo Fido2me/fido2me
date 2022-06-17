@@ -1,5 +1,6 @@
 ﻿using Fido2me.Data;
 using Fido2me.Data.FIDO2;
+using Fido2me.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fido2me.Services
@@ -10,7 +11,7 @@ namespace Fido2me.Services
         Task AddCredentialAsync(Credential fidoCredential);
         Task<Credential> GetCredentialAsync(byte[] credentialId);
 
-        Task<Account> GetAccountAsync(Guid accountId);
+        Task<AccountViewModel> GetAccountAsync(Guid accountId);
 
         Task UpdateCredentialAsync(Credential fidoCredential);
     }
@@ -50,10 +51,18 @@ namespace Fido2me.Services
             
         }
 
-        public async Task<Account> GetAccountAsync(Guid accountId)
+        public async Task<AccountViewModel> GetAccountAsync(Guid accountId)
         {
-            var account = await _context.Accounts.FirstOrDefaultAsync(a => a.Id == accountId);
-            return account;
+            var accountVM = await _context.Accounts.Where(a => a.Id == accountId).AsNoTracking()
+                .Select(a => new AccountViewModel() 
+                {  
+                    Email = a.Email,
+                    EmailVerified = a.EmailVerified,
+                    EmailVerification = a.EmailVerification,
+                    DeviceAllCount = a.DeviceAllCount,
+                    DeviceEnabledCount = a.DeviceEnabledCount,
+                }).FirstOrDefaultAsync();
+            return accountVM;
         }
     }
 }
