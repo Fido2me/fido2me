@@ -28,6 +28,12 @@ namespace Fido2me.Pages.profile
         public async Task<IActionResult> OnPostAsync([FromForm] int code)
         {
             var r = await _accountService.VerifyEmailAsync(AccountId, code);
+            if (r.EmailVerificationResponseStatus == Responses.EmailVerificationResponseStatus.Success)
+            {
+                return RedirectToPage("./Index");
+            }
+
+            // display errors
             return Page();
         }
     }

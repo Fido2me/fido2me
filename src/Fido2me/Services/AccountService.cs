@@ -3,6 +3,7 @@ using Fido2me.Data.FIDO2;
 using Fido2me.Models;
 using Fido2me.Responses;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Cryptography;
 
 namespace Fido2me.Services
 {
@@ -16,6 +17,7 @@ namespace Fido2me.Services
 
         Task UpdateCredentialAsync(Credential fidoCredential);
         Task<EmailVerificationResponse> VerifyEmailAsync(Guid accountId, int code);
+        Task<bool> UpdateAccountAsync(Guid accountId, AccountViewModel account);
     }
 
     public class AccountService : IAccountService
@@ -71,16 +73,22 @@ namespace Fido2me.Services
         {
             var account = await _context.Accounts.FirstOrDefaultAsync(a => a.Id == accountId);
 
-            if (account == null || account.EmailVerification == null)
+            if (account == null || account.EmailVerification == null || account.EmailVerification.Code == 0)
             {
                 return new EmailVerificationResponse(EmailVerificationResponseStatus.Error, "Email verification has not been requested.");
             }
 
+            if (account.EmailVerification.FailedAttempts > 5)
+            {
+                return new EmailVerificationResponse(EmailVerificationResponseStatus.Error, "Too many failed attemts to verify your email address. Contact support.");
+            }
+
             if (code != account.EmailVerification.Code)
             {
-                account.EmailVerification = null; // nulify the challenge
+                account.EmailVerification.Code = 0; // nulify the challenge
+                account.EmailVerification.FailedAttempts++;
                 await _context.SaveChangesAsync();
-                return new EmailVerificationResponse(EmailVerificationResponseStatus.Error, "Code mismatch. Start email verification method again.");
+                return new EmailVerificationResponse(EmailVerificationResponseStatus.Error, "Code mismatch. Start email verification process again.");
             }
 
             // all good
@@ -90,6 +98,58 @@ namespace Fido2me.Services
             await _context.SaveChangesAsync();
 
             return new EmailVerificationResponse(EmailVerificationResponseStatus.Success, "All good");
+        }
+
+        public async Task<bool> UpdateAccountAsync(Guid accountId, AccountViewModel accountVM)
+        {
+            if (accountVM.OldEmail?.ToLower().Trim() == accountVM.Email.ToLower().Trim())
+            {
+                // nothing to change at this point
+                return false;
+            }
+            
+            var account = await _context.Accounts.FirstOrDefaultAsync(a => a.Id == accountId);
+            if (account == null)
+                throw new ArgumentNullException("Account not found");
+
+            account.Email = accountVM.Email.ToLower().Trim();
+            account.EmailVerified = false;
+
+            var code = GenerateChallengeCode();
+            if (account.EmailVerification == null)
+            {
+                // initial challenge request (first ever or after successful email verification)
+                account.EmailVerification = new EmailVerification()
+                {
+                    Created = DateTimeOffset.Now,
+                    Email = account.Email,
+                    FailedAttempts = 0,
+                    Code = code
+                };
+            }
+            else
+            {
+                // account.EmailVerification.Created vs DateTimeOffset.Now + 1 day
+
+                if (account.Email == accountVM.Email.ToLower().Trim())
+                {
+                    // not first attempt for this email - legit use case?
+                }
+
+                account.EmailVerification.Code = code;
+                account.EmailVerification.Email = account.Email;
+                // do not change failed attempts here
+                account.EmailVerification.Created = DateTimeOffset.Now;
+            }
+            await _context.SaveChangesAsync();
+
+            return true;
+        }
+
+        private int GenerateChallengeCode()
+        {
+            var random = RandomNumberGenerator.GetInt32(1000000, int.MaxValue);
+            return random;
         }
     }
 }

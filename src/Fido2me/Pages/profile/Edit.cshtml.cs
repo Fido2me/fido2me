@@ -31,6 +31,7 @@ namespace Fido2me.Pages.profile
         public async Task<IActionResult> OnGetAsync()
         {
             Account = await _accountService.GetAccountAsync(AccountId);
+            Account.OldEmail = Account.Email;
             
             return Page();
         }
@@ -39,7 +40,18 @@ namespace Fido2me.Pages.profile
         // For more details, see https://aka.ms/RazorPagesCRUD.
         public async Task<IActionResult> OnPostAsync([FromForm] AccountViewModel account)
         {
+            ModelState.Remove("Account.OldEmail");
+            if (ModelState.IsValid)
+            {
+                // Save changes
+                var requireEmailVerification = await _accountService.UpdateAccountAsync(AccountId, account);
 
+                if (requireEmailVerification)
+                {
+                    // need to verify email again
+                    return RedirectToPage("./EmailVerification");
+                }
+            }
             return Page();
         }
     }
