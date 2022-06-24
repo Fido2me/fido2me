@@ -1,15 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using Fido2me.Data;
-using Fido2me.Data.FIDO2;
+﻿using Microsoft.AspNetCore.Mvc;
 using Fido2me.Services;
-using Fido2me.Pages.Shared;
 using Fido2me.Models;
 
 namespace Fido2me.Pages.profile

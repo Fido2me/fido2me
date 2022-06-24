@@ -1,10 +1,6 @@
-﻿using Fido2me.Data.FIDO2;
-using Fido2me.Models;
-using Fido2me.Pages.Shared;
+﻿using Fido2me.Models;
 using Fido2me.Services;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace Fido2me.Pages
 {

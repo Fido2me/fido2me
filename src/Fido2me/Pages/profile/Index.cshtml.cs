@@ -1,8 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
-using Fido2me.Data.FIDO2;
 using Fido2me.Services;
-using Fido2me.Pages.Shared;
 using Fido2me.Models;
 
 namespace Fido2me.Pages.profile

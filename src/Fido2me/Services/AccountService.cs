@@ -23,10 +23,15 @@ namespace Fido2me.Services
     public class AccountService : IAccountService
     {
         private readonly DataContext _context;
+        private readonly IEmailService _emailService;
+        private readonly ILogger<AccountService> _logger;
 
-        public AccountService(DataContext context)
+        public AccountService(DataContext context, IEmailService emailService, ILogger<AccountService> logger)
         {
-            _context = context;
+            _context = context; 
+            _emailService = emailService;
+
+            _logger = logger;
         }
 
         public async Task<Account> CreateChallengeAsync(string displayName)
@@ -104,6 +109,7 @@ namespace Fido2me.Services
         {
             if (accountVM.OldEmail?.ToLower().Trim() == accountVM.Email.ToLower().Trim())
             {
+                // this one will return false if initial attempt was unsuccessful, but you still want to use the email, so this code needs to be rewritten
                 // nothing to change at this point
                 return false;
             }
@@ -143,7 +149,9 @@ namespace Fido2me.Services
             }
             await _context.SaveChangesAsync();
 
-            return true;
+            var emailSent = await _emailService.SendEmailAsync(account.Email, code);
+
+            return emailSent;
         }
 
         private int GenerateChallengeCode()
