@@ -4,34 +4,52 @@
     ViewData["Title"] = "Home";
 }
 
+@{
+    var labelEmailProvided = string.IsNullOrWhiteSpace(@Model.Account.Email) ? "" : "checked";
+    var labelEmailVerified = @Model.Account.EmailVerified ? "checked" : "";
+    var labelMultipleDevicesAdded = @Model.Account.DeviceAllCount > 1 ? "checked" : "";
+    var labelMultipleDevicesActive = @Model.Account.DeviceEnabledCount > 1? "checked" : "";
+}
+
+
 <div class="page-heading">
     <h3>Welcome</h3>
 </div>
 <div class="page-content">
-    <table class="table">
-      <tbody>
-        <tr>
-          <th>Account ID</th>
-          <td>@Model.Account.Id</td>
-        </tr>
-        <tr>
-          <th>Account Type</th>
-          <td>@Model.Account.AccountType</td>
-        </tr>
-        <tr>
-          <th>Email</th>
-          <td>@Model.Account.Email</td>
-        </tr>
-        <tr>
-          <th>Email Verified</th>
-          <td>@Model.Account.EmailVerified</td>
-        </tr>
-      </tbody>
-    </table>
+    
+    <div class="card">
+        <div class="card-header">
+            <h4 class="card-title">Summary</h4>
+        </div>
+        <div class="card-content">
+            <div class="card-body">
+                <p>In order to create OAuth Applications you need to provide and verify your email address. We will use this email address only for important service notifications.</p>
+                <p>Account recovery is not available by design. Please make sure you added multiple devices / authenticators.</p>
+                <ul class="list-group">
+                    <li class="list-group-item">
+                        <input class="form-check-input me-1" type="checkbox" value="" @labelEmailProvided disabled>
+                        Email Provided
+                    </li>
+                    <li class="list-group-item">
+                        <input class="form-check-input me-1" type="checkbox" value="" @labelEmailVerified disabled>
+                        Email Verified
+                    </li>
+                    <li class="list-group-item">
+                        <input class="form-check-input me-1" type="checkbox" value="" @labelMultipleDevicesAdded disabled>
+                        Multiple devices added
+                    </li>
+                    <li class="list-group-item">
+                        <input class="form-check-input me-1" type="checkbox" value="" @labelMultipleDevicesActive disabled>
+                        Multiple devices active
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>    
 
-    @if (!Model.Account.EmailVerified.HasValue || !Model.Account.EmailVerified.Value)
-    {
-        <p>Please verify your email address to be able to create OAuth applications. We will use this email address only for important service notifications.</p>
-        <p><a asp-page="/profile/EmailVerification">Verify Email</a></p>
-    }
+   <p>
+        <a class="btn btn-outline-primary" asp-page="/profile/edit">Edit</a>
+   </p>
+
+
 </div>
