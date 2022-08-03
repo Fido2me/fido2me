@@ -1,32 +1,28 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.EntityFrameworkCore;
-using Fido2me.Data;
-using Fido2me.Data.FIDO2;
+﻿using Microsoft.AspNetCore.Mvc;
+using Fido2me.Services;
+using Fido2me.Models;
 
 namespace Fido2me.Pages.profile
 {
-    public class IndexModel : PageModel
+    public class IndexModel : BasePageModel
     {
-        private readonly Fido2me.Data.DataContext _context;
+        private readonly ILogger<IndexModel> _logger;
+        private readonly IAccountService _accountService;
 
-        public IndexModel(Fido2me.Data.DataContext context)
+        [BindProperty]
+        public AccountViewModel Account { get; set; } = default!;
+
+        public IndexModel(ILogger<IndexModel> logger, IAccountService accountService)
         {
-            _context = context;
+            _logger = logger;
+            _accountService = accountService;
         }
-
-        public IList<Account> Account { get;set; } = default!;
 
         public async Task OnGetAsync()
         {
-            if (_context.Accounts != null)
-            {
-                Account = await _context.Accounts.ToListAsync();
-            }
+            //var accountId = new Guid(User.FindFirst(c => c.Type == "sub").Value);
+            Account = await _accountService.GetAccountAsync(AccountId);
+            
         }
     }
 }

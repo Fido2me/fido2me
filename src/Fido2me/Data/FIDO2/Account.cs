@@ -10,11 +10,15 @@ namespace Fido2me.Data.FIDO2
         public string AccountType => "User";
 
 
-        public string? Email { get; set; }
+        public string Email { get; set; } = "";
 
-        public bool? EmailVerified { get; set; }
+        public bool EmailVerified { get; set; } = false;
 
+        public EmailVerification? EmailVerification { get; set; } = null;
 
+        public int DeviceAllCount { get; set; } = 0;
+
+        public int DeviceEnabledCount { get; set; } = 0;
 
         public Account() { }
     }

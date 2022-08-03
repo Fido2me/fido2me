@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
+using SendGrid.Extensions.DependencyInjection;
 
 // useful link: https://docs.microsoft.com/en-us/aspnet/core/migration/50-to-60-samples?view=aspnetcore-6.0
 
@@ -133,8 +134,11 @@ services.AddIdentityServer(options =>
     .AddClientStore<ClientStore>()
     .AddCorsPolicyService<CorsPolicyService>()
     .AddResourceStore<ResourceStore>();
-       
-    
+
+services.AddSendGrid(options =>
+{
+    options.ApiKey = config["sendgrid-apikey"];
+});    
 
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 builder.Services.AddTransient<IFidoService, FidoService>();
@@ -143,6 +147,7 @@ builder.Services.AddTransient<IFidoLoginService, FidoLoginService>();
 builder.Services.AddTransient<IAccountService, AccountService>();
 builder.Services.AddTransient<IOidcBasicClientService, OidcBasicClientService>();
 builder.Services.AddTransient<IDeviceService, DeviceService>();
+builder.Services.AddTransient<IEmailService, EmailService>();
 
 var app = builder.Build();
 
