@@ -103,7 +103,7 @@ namespace Fido2me.Services
                     AaGuid = credential.AaGuid,
                     AccountId = credential.AccountId,
                     CredentialId = credential.Id.ToString(),
-                    DeviceName = credential.DeviceName,
+                    DeviceName = credential.Username,
                     DeviceDisplayName = credential.DeviceDisplayName,               
                     ErrorMessage = res.ErrorMessage,                    
                 };

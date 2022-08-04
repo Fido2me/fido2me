@@ -10,17 +10,10 @@ namespace Fido2me.Pages
     {
         private readonly IFidoRegistrationService _fidoRegistration;
 
-        [BindProperty]
-        public string RegistrationOptions { get; private set; }
-
+       
         public RegisterModel(IFidoRegistrationService fidoRegistration)
         {
             _fidoRegistration = fidoRegistration;
-        }
-        public async Task OnGetAsync()
-        {
-            var options = await _fidoRegistration.RegistrationStartAsync();
-            RegistrationOptions = options.ToJson();
         }
 
         public async Task<IActionResult> OnPostAsync([FromForm] string attestationResponse)
@@ -32,14 +25,21 @@ namespace Fido2me.Pages
 
         }
 
-        public async Task<JsonResult> OnGetCheckAsync([FromBody] string body)
+
+        public async Task<JsonResult> OnPostCheckAsync([FromBody] AuthCheck authCheck)
         {
-            return new JsonResult(body);
+            var options = await _fidoRegistration.RegistrationStartAsync(authCheck.Username, authCheck.IsResident);
+            
+            return new JsonResult(options);
         }
 
-        public async Task<JsonResult> OnPostCheckAsync([FromBody] string body)
-        {
-            return new JsonResult(body);
-        }
+       
+    }
+
+    public class AuthCheck
+    {
+        public bool IsResident { get; set; }
+        public string Username { get; set; }
+
     }
 }

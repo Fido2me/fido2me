@@ -12,7 +12,7 @@ namespace Fido2me.Services
 {
     public interface IFidoRegistrationService
     {
-        Task<CredentialCreateOptions> RegistrationStartAsync();
+        Task<CredentialCreateOptions> RegistrationStartAsync(string username, bool isResidentKey);
 
         Task<RegistrationResponse> RegistrationCompleteAsync(AuthenticatorAttestationRawResponse attestationResponse, CancellationToken cancellationToken);
 
@@ -39,21 +39,20 @@ namespace Fido2me.Services
             _logger = logger;
         }
 
-        public async Task<CredentialCreateOptions> RegistrationStartAsync()
+        public async Task<CredentialCreateOptions> RegistrationStartAsync(string username, bool isResidentKey)
         {
-            // we will allow to change it later
-            var displayName = $"({DateTimeOffset.Now})";
 
             // 1. Create a temporary user to store in an encrypted cookie
             var user = new Fido2User
             {
-                DisplayName = displayName,
-                Name = displayName,
+                DisplayName = "",
+                Name = username,
                 Id = Guid.NewGuid().ToByteArray() // byte representation of userID is required
             };
 
             // 2. Get user existing keys by username            
             // it's a new registration, we will try to add more credentials or merge accounts later, RP will allow to create multiple accounts on the same single authenticator
+            var existingCreds = _dataContext.Credentials.Where(c => c.Username == username);
             var existingKeys = new List<PublicKeyCredentialDescriptor>();
 
             // 3. Create options
@@ -131,7 +130,7 @@ namespace Fido2me.Services
                 Id = attestationResult.CredentialId,
                 Enabled = true,
                 CredentialId = Convert.ToHexString(attestationResult.CredentialId),
-                DeviceName = attestationResult.User.Name,
+                Username = attestationResult.User.Name,
                 DeviceDisplayName = attestationResult.User.DisplayName,
                 AaGuid = attestationResult.Aaguid,
                 DeviceDescription = desc,   

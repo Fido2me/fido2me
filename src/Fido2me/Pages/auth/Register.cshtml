@@ -31,6 +31,13 @@
                         <i class="bi bi-envelope"></i>
                     </div>
                 </div>
+                <div class="form-check form-check-lg d-flex align-items-end">
+                    <input class="form-check-input me-2" type="checkbox" value="" id="isResidentKey">
+                    <label class="form-check-label text-gray-600" for="flexCheckDefault">
+                        Resident Key
+                    </label>
+                </div>
+
                 <button type="submit" class="btn btn-primary btn-block btn-lg shadow-lg mt-5">Sign Up with</button>
 
 
@@ -135,40 +142,38 @@
         });
     }
 
-let credOptions = JSON.parse('@Html.Raw(Model.RegistrationOptions)');
-
 let registerForm = document.getElementById('registerForm');
 registerForm.addEventListener('submit', handleRegisterSubmit);
+
+let credOptions = '';
 
 async function handleRegisterSubmit(event) {
     event.preventDefault();
 
-    fetch('/auth/register/check',
+    
+    const authCheck = {
+        username: this.email.value,
+        isResident: this.isResidentKey.checked
+    };
+    credOptions = await fetch('/auth/register/check',
         {
             method: "POST",
-            body: JSON.stringify(
-                {
-                    name: "myname",
-                    value: 1,
-                    date:new Date()
-                }
-            ),
-            headers: {
-                'X-CSRF-TOKEN': document.getElementsByName("__RequestVerificationToken")[0].value,
+            body: JSON.stringify(authCheck),
+            headers: {            
                 'Content-Type': 'application/json',
                 'Accept': 'application/json',
-                'RequestVerificationToken': '@GetAntiXsrfRequestToken()'
+                'RequestVerificationToken': document.getElementsByName("__RequestVerificationToken")[0].value
             }
         })
         .then(function (res) { return res.json(); })
-        .then(function (data) { alert((data)) })
+        .then(function (resData) { return resData; })
 
     // Turn the challenge back into the accepted format of padded base64
     credOptions.challenge = coerceToArrayBuffer(credOptions.challenge);
     // Turn ID into a UInt8Array Buffer for some reason
     credOptions.user.id = coerceToArrayBuffer(credOptions.user.id);
-    credOptions.user.name = this.device.value;
-    credOptions.user.displayName = this.device.value + ' ' + credOptions.user.displayName;
+    credOptions.user.name = this.email.value;
+    credOptions.user.displayName = this.email.value + ' ' + credOptions.user.displayName;
     credOptions.excludeCredentials = credOptions.excludeCredentials.map((c) => {
         c.id = coerceToArrayBuffer(c.id);
         return c;
@@ -214,7 +219,7 @@ async function handleRegisterSubmit(event) {
         registerNewCredential(newCredential);
 
     } catch (e) {
-        showErrorAlert(err.message ? err.message : err);
+        showErrorAlert(e.message ? e.message : e);
     }
 }
 
