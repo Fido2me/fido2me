@@ -1,4 +1,4 @@
-﻿@page "/auth/register";
+﻿@page "/auth/register/{handler?}";
 
 @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
 
@@ -6,6 +6,13 @@
 @{
     ViewData["Title"] = "Register";
     Layout = "~/Pages/Shared/_LayoutAuth.cshtml";
+}
+@functions
+{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(HttpContext).RequestToken;
+    }
 }
 
 <div class="row h-100">
@@ -19,9 +26,9 @@
             
             <form method="POST" name="registerForm" id="registerForm">
                 <div class="form-group position-relative has-icon-left mb-4">
-                    <input type="text" class="form-control form-control-xl" id="device" name="device" placeholder="Device Nickname (optional)" />
+                    <input type="text" class="form-control form-control-xl" id="email" name="email" placeholder="Email" required />
                     <div class="form-control-icon">
-                        <i class="bi bi-phone"></i>
+                        <i class="bi bi-envelope"></i>
                     </div>
                 </div>
                 <button type="submit" class="btn btn-primary btn-block btn-lg shadow-lg mt-5">Sign Up with</button>
@@ -135,6 +142,26 @@ registerForm.addEventListener('submit', handleRegisterSubmit);
 
 async function handleRegisterSubmit(event) {
     event.preventDefault();
+
+    fetch('/auth/register/check',
+        {
+            method: "POST",
+            body: JSON.stringify(
+                {
+                    name: "myname",
+                    value: 1,
+                    date:new Date()
+                }
+            ),
+            headers: {
+                'X-CSRF-TOKEN': document.getElementsByName("__RequestVerificationToken")[0].value,
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'RequestVerificationToken': '@GetAntiXsrfRequestToken()'
+            }
+        })
+        .then(function (res) { return res.json(); })
+        .then(function (data) { alert((data)) })
 
     // Turn the challenge back into the accepted format of padded base64
     credOptions.challenge = coerceToArrayBuffer(credOptions.challenge);

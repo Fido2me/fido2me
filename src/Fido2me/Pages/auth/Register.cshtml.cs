@@ -31,5 +31,15 @@ namespace Fido2me.Pages
             return RedirectToPage("/auth/login");
 
         }
+
+        public async Task<JsonResult> OnGetCheckAsync([FromBody] string body)
+        {
+            return new JsonResult(body);
+        }
+
+        public async Task<JsonResult> OnPostCheckAsync([FromBody] string body)
+        {
+            return new JsonResult(body);
+        }
     }
 }
