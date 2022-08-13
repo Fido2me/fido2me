@@ -7,6 +7,14 @@
     ViewData["Title"] = "Login";
     Layout = "~/Pages/Shared/_LayoutAuth.cshtml";
 }
+@functions
+{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(HttpContext).RequestToken;
+    }
+}
+
 
 <div class="row h-100">
     <div class="col-lg-5 col-12">

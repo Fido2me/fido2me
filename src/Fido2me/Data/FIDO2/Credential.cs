@@ -13,7 +13,7 @@ namespace Fido2me.Data.FIDO2
         public string CredentialId { get; set; }
 
         [Required]
-        public string DeviceName { get; set; }
+        public string Username { get; set; }
 
         public string DeviceDisplayName { get; set; }
 

@@ -1,3 +1,4 @@
+using Fido2me.Helpers;
 using Fido2me.Services;
 using Fido2NetLib;
 using Microsoft.AspNetCore.Mvc;
@@ -10,26 +11,50 @@ namespace Fido2me.Pages
     {
         private readonly IFidoRegistrationService _fidoRegistration;
 
-        [BindProperty]
-        public string RegistrationOptions { get; private set; }
-
+       
         public RegisterModel(IFidoRegistrationService fidoRegistration)
         {
             _fidoRegistration = fidoRegistration;
         }
-        public async Task OnGetAsync()
-        {
-            var options = await _fidoRegistration.RegistrationStartAsync();
-            RegistrationOptions = options.ToJson();
-        }
 
         public async Task<IActionResult> OnPostAsync([FromForm] string attestationResponse)
         {
+            
             var attestationResponseJson = JsonSerializer.Deserialize<AuthenticatorAttestationRawResponse>(attestationResponse);
             var registrationResponse = await _fidoRegistration.RegistrationCompleteAsync(attestationResponseJson, default(CancellationToken));
 
             return RedirectToPage("/auth/login");
 
         }
+
+
+        public async Task<JsonResult> OnPostCheckAsync([FromBody] AuthCheck authCheck)
+        {
+            /* expect username only
+            if (!EmailHelper.IsValidEmail(authCheck.Username))
+            {
+                return new JsonResult(new CredentialCreateOptions() 
+                { 
+                    Status = "Invalid email format.",
+                    ErrorMessage = "Invalid email format."
+                });
+            }
+            */
+
+            var username = authCheck.Username.Trim().ToLowerInvariant();
+            // https://www.w3.org/TR/webauthn-2/#enum-residentKeyRequirement
+            var options = await _fidoRegistration.RegistrationStartAsync(username, authCheck.IsResident);
+            
+            return new JsonResult(options);
+        }
+
+       
+    }
+
+    public class AuthCheck
+    {
+        public bool IsResident { get; set; }
+        public string Username { get; set; }
+
     }
 }

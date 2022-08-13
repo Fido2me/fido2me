@@ -5,6 +5,7 @@ using Fido2me.Responses;
 using Fido2NetLib;
 using Fido2NetLib.Objects;
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using static Fido2NetLib.Fido2;
 
@@ -12,7 +13,7 @@ namespace Fido2me.Services
 {
     public interface IFidoRegistrationService
     {
-        Task<CredentialCreateOptions> RegistrationStartAsync();
+        Task<CredentialCreateOptions> RegistrationStartAsync(string username, bool isResidentKey);
 
         Task<RegistrationResponse> RegistrationCompleteAsync(AuthenticatorAttestationRawResponse attestationResponse, CancellationToken cancellationToken);
 
@@ -39,31 +40,30 @@ namespace Fido2me.Services
             _logger = logger;
         }
 
-        public async Task<CredentialCreateOptions> RegistrationStartAsync()
+        public async Task<CredentialCreateOptions> RegistrationStartAsync(string username, bool isResidentKey)
         {
-            // we will allow to change it later
-            var displayName = $"({DateTimeOffset.Now})";
+
+            var isNewUser = await _dataContext.Credentials.Where(c => c.Username == username).CountAsync();
+
+            if (isNewUser > 0)
+            {
+                return new CredentialCreateOptions() { Status = "User exists.", ErrorMessage = "User exists." };
+            }
 
             // 1. Create a temporary user to store in an encrypted cookie
             var user = new Fido2User
             {
-                DisplayName = displayName,
-                Name = displayName,
+                Name = username,
                 Id = Guid.NewGuid().ToByteArray() // byte representation of userID is required
             };
 
-            // 2. Get user existing keys by username            
-            // it's a new registration, we will try to add more credentials or merge accounts later, RP will allow to create multiple accounts on the same single authenticator
+            // system controlled options
             var existingKeys = new List<PublicKeyCredentialDescriptor>();
-
-            // 3. Create options
             var authenticatorSelection = new AuthenticatorSelection
             {
-                RequireResidentKey = true,
+                RequireResidentKey = isResidentKey,
                 UserVerification = UserVerificationRequirement.Required,
             };
-
-            // accepting any authenticator attachment    
             var exts = new AuthenticationExtensionsClientInputs()
             {
                 Extensions = true,
@@ -71,7 +71,7 @@ namespace Fido2me.Services
             };
 
             var options = _fido2.RequestNewCredential(user, existingKeys, authenticatorSelection, AttestationConveyancePreference.Direct, exts);
-            var registrationOptionModel = new RegistrationOptionsModel(options);
+            //var registrationOptionModel = new RegistrationOptionsModel(options);
             string protectedPayload = _protector.Protect(options.ToJson());
             _contextAccessor.HttpContext.Response.Cookies.Append(Constants.CookieRegistration, protectedPayload, new CookieOptions { HttpOnly = true, IsEssential = true, Secure = true, SameSite = SameSiteMode.Strict, Expires = DateTime.Now.AddMinutes(5) });
 
@@ -131,7 +131,7 @@ namespace Fido2me.Services
                 Id = attestationResult.CredentialId,
                 Enabled = true,
                 CredentialId = Convert.ToHexString(attestationResult.CredentialId),
-                DeviceName = attestationResult.User.Name,
+                Username = attestationResult.User.Name,
                 DeviceDisplayName = attestationResult.User.DisplayName,
                 AaGuid = attestationResult.Aaguid,
                 DeviceDescription = desc,   

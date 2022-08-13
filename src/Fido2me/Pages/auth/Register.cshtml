@@ -1,4 +1,4 @@
-﻿@page "/auth/register";
+﻿@page "/auth/register/{handler?}";
 
 @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
 
@@ -6,6 +6,13 @@
 @{
     ViewData["Title"] = "Register";
     Layout = "~/Pages/Shared/_LayoutAuth.cshtml";
+}
+@functions
+{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(HttpContext).RequestToken;
+    }
 }
 
 <div class="row h-100">
@@ -19,11 +26,18 @@
             
             <form method="POST" name="registerForm" id="registerForm">
                 <div class="form-group position-relative has-icon-left mb-4">
-                    <input type="text" class="form-control form-control-xl" id="device" name="device" placeholder="Device Nickname (optional)" />
+                    <input type="text" class="form-control form-control-xl" id="username" name="username" placeholder="Username" required pattern="[a-zA-Z0-9]+" title="Alphanumeric only" />
                     <div class="form-control-icon">
-                        <i class="bi bi-phone"></i>
+                        <i class="bi bi-person"></i>
                     </div>
                 </div>
+                <div class="form-check form-check-lg d-flex align-items-end">
+                    <input class="form-check-input me-2" type="checkbox" value="" id="isResidentKey">
+                    <label class="form-check-label text-gray-600" for="flexCheckDefault">
+                        Resident Key
+                    </label>
+                </div>
+
                 <button type="submit" class="btn btn-primary btn-block btn-lg shadow-lg mt-5">Sign Up with</button>
 
 
@@ -128,20 +142,38 @@
         });
     }
 
-let credOptions = JSON.parse('@Html.Raw(Model.RegistrationOptions)');
-
 let registerForm = document.getElementById('registerForm');
 registerForm.addEventListener('submit', handleRegisterSubmit);
 
+let credOptions = '';
+
 async function handleRegisterSubmit(event) {
     event.preventDefault();
+
+    
+    const authCheck = {
+        username: this.username.value,
+        isResident: this.isResidentKey.checked
+    };
+    credOptions = await fetch('/auth/register/check',
+        {
+            method: "POST",
+            body: JSON.stringify(authCheck),
+            headers: {            
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'RequestVerificationToken': document.getElementsByName("__RequestVerificationToken")[0].value
+            }
+        })
+        .then(function (res) { return res.json(); })
+        .then(function (resData) { return resData; })
 
     // Turn the challenge back into the accepted format of padded base64
     credOptions.challenge = coerceToArrayBuffer(credOptions.challenge);
     // Turn ID into a UInt8Array Buffer for some reason
     credOptions.user.id = coerceToArrayBuffer(credOptions.user.id);
-    credOptions.user.name = this.device.value;
-    credOptions.user.displayName = this.device.value + ' ' + credOptions.user.displayName;
+    credOptions.user.name = this.username.value;
+    credOptions.user.displayName = '';//this.email.value + ' ' + credOptions.user.displayName;
     credOptions.excludeCredentials = credOptions.excludeCredentials.map((c) => {
         c.id = coerceToArrayBuffer(c.id);
         return c;
@@ -154,7 +186,7 @@ async function handleRegisterSubmit(event) {
         credOptions.authenticatorSelection["authenticatorAttachment"] = authrType;
 
     console.log("Credential Options Formatted", credOptions);
-
+/*
     Swal.fire({
         title: 'Registering...',
         text: 'Unlock your authenticator to finish registration.',
@@ -164,7 +196,7 @@ async function handleRegisterSubmit(event) {
         focusCancel: false
     });
 
-
+*/
         
     console.log("Creating PublicKeyCredential...");
 
@@ -187,7 +219,7 @@ async function handleRegisterSubmit(event) {
         registerNewCredential(newCredential);
 
     } catch (e) {
-        showErrorAlert(err.message ? err.message : err);
+        showErrorAlert(e.message ? e.message : e);
     }
 }
 
