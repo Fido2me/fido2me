@@ -11,7 +11,7 @@ namespace Fido2me.Data
         public DbSet<DataProtectionKey> DataProtectionKeys { get; set; } = null!;
         public DbSet<Account> Accounts { get; set; }
 
-        public DbSet<Credential?> Credentials { get; set; }
+        public DbSet<Credential> Credentials { get; set; }
 
         public DbSet<Attestation> Attestations { get; set; }
 
