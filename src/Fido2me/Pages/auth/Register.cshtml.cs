@@ -30,7 +30,7 @@ namespace Fido2me.Pages
 
         public async Task<JsonResult> OnPostCheckAsync([FromBody] AuthCheck authCheck)
         {
-            // validate email address
+            /* expect username only
             if (!EmailHelper.IsValidEmail(authCheck.Username))
             {
                 return new JsonResult(new CredentialCreateOptions() 
@@ -39,8 +39,11 @@ namespace Fido2me.Pages
                     ErrorMessage = "Invalid email format."
                 });
             }
+            */
 
-            var options = await _fidoRegistration.RegistrationStartAsync(authCheck.Username, authCheck.IsResident);
+            var username = authCheck.Username.Trim().ToLowerInvariant();
+            // https://www.w3.org/TR/webauthn-2/#enum-residentKeyRequirement
+            var options = await _fidoRegistration.RegistrationStartAsync(username, authCheck.IsResident);
             
             return new JsonResult(options);
         }

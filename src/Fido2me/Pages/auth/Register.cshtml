@@ -26,9 +26,9 @@
             
             <form method="POST" name="registerForm" id="registerForm">
                 <div class="form-group position-relative has-icon-left mb-4">
-                    <input type="text" class="form-control form-control-xl" id="email" name="email" placeholder="Email" required />
+                    <input type="text" class="form-control form-control-xl" id="username" name="username" placeholder="Username" required pattern="[a-zA-Z0-9]+" title="Alphanumeric only" />
                     <div class="form-control-icon">
-                        <i class="bi bi-envelope"></i>
+                        <i class="bi bi-person"></i>
                     </div>
                 </div>
                 <div class="form-check form-check-lg d-flex align-items-end">
@@ -152,7 +152,7 @@ async function handleRegisterSubmit(event) {
 
     
     const authCheck = {
-        username: this.email.value,
+        username: this.username.value,
         isResident: this.isResidentKey.checked
     };
     credOptions = await fetch('/auth/register/check',
@@ -172,8 +172,8 @@ async function handleRegisterSubmit(event) {
     credOptions.challenge = coerceToArrayBuffer(credOptions.challenge);
     // Turn ID into a UInt8Array Buffer for some reason
     credOptions.user.id = coerceToArrayBuffer(credOptions.user.id);
-    credOptions.user.name = this.email.value;
-    credOptions.user.displayName = this.email.value + ' ' + credOptions.user.displayName;
+    credOptions.user.name = this.username.value;
+    credOptions.user.displayName = '';//this.email.value + ' ' + credOptions.user.displayName;
     credOptions.excludeCredentials = credOptions.excludeCredentials.map((c) => {
         c.id = coerceToArrayBuffer(c.id);
         return c;
