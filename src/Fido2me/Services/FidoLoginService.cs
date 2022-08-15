@@ -58,8 +58,7 @@ namespace Fido2me.Services
                 {
                     existingCredentials.Add(new PublicKeyCredentialDescriptor(cred));
                 }
-            }       
-
+            }
             
             var exts = new AuthenticationExtensionsClientInputs()
             {
