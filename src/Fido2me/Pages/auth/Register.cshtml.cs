@@ -54,6 +54,5 @@ namespace Fido2me.Pages
     public class AuthCheck
     {
         public string Username { get; set; }
-
     }
 }

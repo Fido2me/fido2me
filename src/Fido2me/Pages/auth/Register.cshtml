@@ -1,4 +1,4 @@
-﻿@page "/auth/register/{handler?}";
+@page "/auth/register/{handler?}";
 
 @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
 
@@ -185,7 +185,7 @@ async function handleRegisterSubmit(event) {
         credOptions.authenticatorSelection["authenticatorAttachment"] = authrType;
 
     console.log("Credential Options Formatted", credOptions);
-
+/*
     Swal.fire({
         title: 'Registering...',
         text: 'Unlock your authenticator to finish registration.',
@@ -195,7 +195,7 @@ async function handleRegisterSubmit(event) {
         focusCancel: false
     });
 
-
+*/
         
     console.log("Creating PublicKeyCredential...");
 
