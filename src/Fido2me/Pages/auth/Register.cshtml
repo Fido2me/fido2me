@@ -1,4 +1,4 @@
-﻿@page "/auth/register/{handler?}";
+@page "/auth/register/{handler?}";
 
 @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
 
@@ -152,8 +152,7 @@ async function handleRegisterSubmit(event) {
 
     
     const authCheck = {
-        username: this.username.value,
-        isResident: this.isResidentKey.checked
+        username: this.username.value
     };
     credOptions = await fetch('/auth/register/check',
         {

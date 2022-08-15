@@ -1,4 +1,4 @@
-﻿@page "/auth/login";
+﻿@page "/auth/login/{handler?}";
 
 @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
 
@@ -22,11 +22,17 @@
             <div class="auth-logo">                
             </div>
             <h1 class="auth-title">Fido2Me</h1>
-            <p class="auth-subtitle mb-5">Sign in without username and password!</p>
+            <p class="auth-subtitle mb-5">Sign in without a password!</p>
 
             <div asp-validation-summary="ModelOnly" class="field-validation-error mt-3"></div>
 
             <form method="POST" name="loginForm" id="loginForm" asp-route-returnUrl="@Model.ReturnUrl">
+                <div class="form-group position-relative has-icon-left mb-4">
+                    <input type="text" class="form-control form-control-xl" id="username" name="username" placeholder="Username (optional)"  />
+                    <div class="form-control-icon">
+                        <i class="bi bi-person"></i>
+                    </div>
+                </div>
                 <button type="submit" class="btn btn-primary btn-block btn-lg shadow-lg mt-5">Sign in</button>                
             </form>
             <div class="text-center mt-5 text-lg fs-4">
@@ -43,12 +49,29 @@
 </div>
 
 <script type="text/javascript">
-let assertionOptions = JSON.parse('@Html.Raw(Model.AssertionOptions)');
+let assertionOptions = '';
+@* let assertionOptions = JSON.parse('@Html.Raw(Model.AssertionOptions)'); *@
 let loginForm = document.getElementById("loginForm");
 loginForm.addEventListener('submit', handleSignInSubmit);
 
 async function handleSignInSubmit(event) {
    event.preventDefault();
+
+        const loginCheck = {
+            username: this.username.value
+        };
+        assertionOptions = await fetch('/auth/login/check',
+            {
+                method: "POST",
+                body: JSON.stringify(loginCheck),
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'RequestVerificationToken': document.getElementsByName("__RequestVerificationToken")[0].value
+                }
+            })
+            .then(function (res) { return res.json(); })
+            .then(function (resData) { return resData; })
 
     assertionOptions.challenge = coerceToArrayBuffer(assertionOptions.challenge); 
     assertionOptions.allowCredentials = assertionOptions.allowCredentials.map((c) => {
@@ -65,7 +88,8 @@ async function handleSignInSubmit(event) {
         showConfirmButton: false,
         focusConfirm: false,
         focusCancel: false
-    });    
+    }); 
+    
 
     // ask browser for credentials (browser will ask connected authenticators)
     let credential;

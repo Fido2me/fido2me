@@ -13,7 +13,7 @@ namespace Fido2me.Services
 {
     public interface IFidoLoginService
     {
-        Task<AssertionOptions> LoginStartAsync();
+        Task<AssertionOptions> LoginStartAsync(string username);
 
         Task<LoginResponse> LoginCompleteAsync(AuthenticatorAssertionRawResponse clientResponse, CancellationToken cancellationToken);
 
@@ -41,8 +41,26 @@ namespace Fido2me.Services
             _logger = logger;
         }
 
-        public async Task<AssertionOptions> LoginStartAsync()
+        public async Task<AssertionOptions> LoginStartAsync(string username)
         {
+            var existingCredentials = new List<PublicKeyCredentialDescriptor>();
+            if (string.IsNullOrWhiteSpace(username))
+            {
+                // usernameless flow with a resident key
+            }
+            else
+            {
+                // get a list of credentials
+                var creds = await _dataContext.Credentials.Where(x => x.Username == username).Select(c => c.Id).ToListAsync();
+                // TODO: rework with a proper select statement
+                // Probably exclude all residential keys from the response?
+                foreach (var cred in creds)
+                {
+                    existingCredentials.Add(new PublicKeyCredentialDescriptor(cred));
+                }
+            }       
+
+        
             var exts = new AuthenticationExtensionsClientInputs()
             {
                 UserVerificationMethod = true
@@ -50,7 +68,7 @@ namespace Fido2me.Services
 
             // 3. Create options
             var options = _fido2.GetAssertionOptions(
-                allowedCredentials: new List<PublicKeyCredentialDescriptor>(),
+                allowedCredentials: existingCredentials,
                 UserVerificationRequirement.Required,
                 exts
             );
