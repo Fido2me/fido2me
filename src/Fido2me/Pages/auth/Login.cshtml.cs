@@ -43,9 +43,15 @@ namespace Fido2me.Pages
 
             // Clear the existing external cookie to ensure a clean login process
             // await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme).ConfigureAwait(false);
+        }
 
-            var options = await _fidoLogin.LoginStartAsync();
-            AssertionOptions = options.ToJson();
+        public async Task<JsonResult> OnPostCheckAsync([FromBody] AuthCheck authCheck)
+        {
+            var username = authCheck.Username.Trim().ToLowerInvariant();
+            // https://www.w3.org/TR/webauthn-2/#enum-residentKeyRequirement
+            var options = await _fidoLogin.LoginStartAsync(username);
+
+            return new JsonResult(options);
         }
 
         public async Task<IActionResult> OnPostAsync([FromForm] string assertionResponse)
