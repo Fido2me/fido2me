@@ -60,11 +60,12 @@ namespace Fido2me.Services
                 }
             }       
 
-        
+            
             var exts = new AuthenticationExtensionsClientInputs()
             {
-                UserVerificationMethod = true
+                // UserVerificationMethod = true,
             };
+            
 
             // 3. Create options
             var options = _fido2.GetAssertionOptions(
