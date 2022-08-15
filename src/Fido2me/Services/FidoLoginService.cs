@@ -58,13 +58,13 @@ namespace Fido2me.Services
                 {
                     existingCredentials.Add(new PublicKeyCredentialDescriptor(cred));
                 }
-            }       
-
-        
+            }
+            
             var exts = new AuthenticationExtensionsClientInputs()
             {
-                UserVerificationMethod = true
+                // UserVerificationMethod = true,
             };
+            
 
             // 3. Create options
             var options = _fido2.GetAssertionOptions(

@@ -172,7 +172,7 @@ async function handleRegisterSubmit(event) {
     // Turn ID into a UInt8Array Buffer for some reason
     credOptions.user.id = coerceToArrayBuffer(credOptions.user.id);
     credOptions.user.name = this.username.value;
-    credOptions.user.displayName = '';//this.email.value + ' ' + credOptions.user.displayName;
+    credOptions.user.displayName = this.username.value;//this.email.value + ' ' + credOptions.user.displayName;
     credOptions.excludeCredentials = credOptions.excludeCredentials.map((c) => {
         c.id = coerceToArrayBuffer(c.id);
         return c;

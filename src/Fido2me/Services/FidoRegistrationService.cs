@@ -61,13 +61,14 @@ namespace Fido2me.Services
             var existingKeys = new List<PublicKeyCredentialDescriptor>();
             var authenticatorSelection = new AuthenticatorSelection
             {
-                RequireResidentKey = isResidentKey,
+                RequireResidentKey = false,
+                ResidentKey = ResidentKeyRequirement.Preferred,
                 UserVerification = UserVerificationRequirement.Required,
             };
             var exts = new AuthenticationExtensionsClientInputs()
             {
-                Extensions = true,
-                UserVerificationMethod = true,
+                // Extensions = true,
+                // UserVerificationMethod = true,
             };
 
             var options = _fido2.RequestNewCredential(user, existingKeys, authenticatorSelection, AttestationConveyancePreference.Direct, exts);
