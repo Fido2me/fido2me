@@ -114,7 +114,7 @@ function verifyAssertionWithServer(assertedCredential) {
     let rawId = new Uint8Array(assertedCredential.rawId);
     let sig = new Uint8Array(assertedCredential.response.signature);
     let userHandle = null;
-    if (typeof assertedCredential.response.userHandle !== 'undefined' && assertedCredential.response.userHandle === null)
+    if (typeof assertedCredential.response.userHandle !== 'undefined' && assertedCredential.response.userHandle !== null)
          userHandle = new Uint8Array(assertedCredential.response.userHandle);
     const data = {
         id: assertedCredential.id,
