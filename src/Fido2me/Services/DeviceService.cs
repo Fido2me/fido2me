@@ -53,7 +53,7 @@ namespace Fido2me.Services
                     Enabled = c.Enabled,
                     CredentialId = c.CredentialId,
                     DeviceDescription = c.DeviceDescription,
-                    Username = c.Username,
+                    Nickname = c.Username,
                     RegDate = c.RegDate,
                 }).FirstOrDefaultAsync();
 
@@ -68,7 +68,7 @@ namespace Fido2me.Services
                     CredentialId = c.CredentialId,
                     Enabled = c.Enabled,
                     DeviceDescription = c.DeviceDescription,               
-                    Username = c.Username,
+                    Nickname = c.Nickname,
                     RegDate = c.RegDate,
                 }).ToListAsync();
             return asd;
@@ -83,7 +83,7 @@ namespace Fido2me.Services
                 if (credential == null)
                     return false;
             
-                credential.Username = device.Username;   
+                credential.Nickname = device.Nickname;   
                 credential.Enabled = device.Enabled;
 
                 _dataContext.Update(credential);

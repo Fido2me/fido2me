@@ -13,7 +13,7 @@ using Fido2me.Models;
 
 namespace Fido2me.Pages.devices
 {
-    public class IndexModel : PageModel
+    public class IndexModel : BasePageModel
     {
         private readonly IDeviceService _deviceService;
         private readonly ILogger<IndexModel> _logger;
@@ -28,24 +28,24 @@ namespace Fido2me.Pages.devices
 
         public async Task OnGetAsync()
         {
-
-            
-            var accountId = new Guid(User.FindFirst(c => c.Type == "sub").Value);
-            Devices = await _deviceService.GetDevicesByAccountIdAsync(accountId);
-
+            Devices = await _deviceService.GetDevicesByAccountIdAsync(AccountId);
         }
 
-        public async Task<IActionResult> OnPostDeleteAsync(string credentialId)
+        public async Task<IActionResult> OnPostAddAsync()
         {
-            var accountId = new Guid(User.FindFirst(c => c.Type == "sub").Value);
-            await _deviceService.DeleteDeviceAsync(credentialId, accountId);
+            
             return RedirectToPage("./Index");
         }
 
         public async Task<IActionResult> OnPostEnableAsync(string credentialId)
         {
-            var accountId = new Guid(User.FindFirst(c => c.Type == "sub").Value);
-            await _deviceService.ChangeDeviceStatusAsync(credentialId, accountId);
+            await _deviceService.ChangeDeviceStatusAsync(credentialId, AccountId);
+            return RedirectToPage("./Index");
+        }
+
+        public async Task<IActionResult> OnPostDeleteAsync(string credentialId)
+        {
+            await _deviceService.DeleteDeviceAsync(credentialId, AccountId);
             return RedirectToPage("./Index");
         }
     }

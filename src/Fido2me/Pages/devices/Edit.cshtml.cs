@@ -13,7 +13,7 @@ using Fido2me.Models;
 
 namespace Fido2me.Pages.devices
 {
-    public class EditModel : PageModel
+    public class EditModel : BasePageModel
     {
         private readonly IDeviceService _deviceService;
         private readonly ILogger<EditModel> _logger;
@@ -51,8 +51,7 @@ namespace Fido2me.Pages.devices
                 return Page();
             }
 
-            var accountId = new Guid(User.FindFirst(c => c.Type == "sub").Value);
-            var result = await _deviceService.UpdateDeviceAsync(Device, accountId);
+            var result = await _deviceService.UpdateDeviceAsync(Device, AccountId);
             
 
             return RedirectToPage("./Index");

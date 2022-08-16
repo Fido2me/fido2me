@@ -15,6 +15,8 @@ namespace Fido2me.Data.FIDO2
         [Required]
         public string Username { get; set; }
 
+        public string Nickname { get; set; }
+
         public string DeviceDescription { get; set; }     
 
         public byte[] PublicKey { get; set; }
