@@ -93,8 +93,8 @@ namespace Fido2me.Services
 
                 var options = CredentialCreateOptions.FromJson(unprotectedOptions);
                 // display name and name were not a part of initial registration
-                options.User.DisplayName = attestationResponse.DisplayName;
-                options.User.Name = attestationResponse.Name;
+                //options.User.DisplayName = attestationResponse.DisplayName;
+                //options.User.Name = attestationResponse.Name;
                 _contextAccessor.HttpContext.Response.Cookies.Delete(Constants.CookieRegistration);
 
                 // 2. Create callback so that lib can verify credential id is unique to this user
@@ -132,8 +132,7 @@ namespace Fido2me.Services
                 Id = attestationResult.CredentialId,
                 Enabled = true,
                 CredentialId = Convert.ToHexString(attestationResult.CredentialId),
-                Username = attestationResult.User.Name,
-                DeviceDisplayName = attestationResult.User.DisplayName,
+                Username = attestationResult.User.Name.ToLowerInvariant().Trim(),               
                 AaGuid = attestationResult.Aaguid,
                 DeviceDescription = desc,   
                 CredType = attestationResult.CredType,

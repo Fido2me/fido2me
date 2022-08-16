@@ -67,8 +67,7 @@ namespace Fido2me.Pages
                 var claims = new Claim[]
                 {
                     new Claim("credId", loginResponse.CredentialId),
-                    new Claim("name", loginResponse.DeviceName),
-                    new Claim("displayName", loginResponse.DeviceDisplayName),
+                    new Claim("name", loginResponse.Username),
                     new Claim("aaGuid", loginResponse.AaGuid.ToString()),
                 };
 

@@ -9,9 +9,7 @@ namespace Fido2me.Models
 
         public string? DeviceDescription { get; set; }
 
-        public string DeviceName { get; set; }
-
-        public string DeviceDisplayName { get; set; }
+        public string Username { get; set; }
 
         [Required]
         public bool Enabled { get; set; }

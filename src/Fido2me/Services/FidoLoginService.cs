@@ -51,13 +51,7 @@ namespace Fido2me.Services
             else
             {
                 // get a list of credentials
-                var creds = await _dataContext.Credentials.Where(x => x.Username == username).Select(c => c.Id).ToListAsync();
-                // TODO: rework with a proper select statement
-                // Probably exclude all residential keys from the response?
-                foreach (var cred in creds)
-                {
-                    existingCredentials.Add(new PublicKeyCredentialDescriptor(cred));
-                }
+                existingCredentials = await _dataContext.Credentials.Where(x => x.Username == username).Select(c => new PublicKeyCredentialDescriptor(c.Id)).ToListAsync();
             }
             
             var exts = new AuthenticationExtensionsClientInputs()
@@ -120,9 +114,8 @@ namespace Fido2me.Services
                 {
                     AaGuid = credential.AaGuid,
                     AccountId = credential.AccountId,
-                    CredentialId = credential.Id.ToString(),
-                    DeviceName = credential.Username,
-                    DeviceDisplayName = credential.DeviceDisplayName,               
+                    CredentialId = Convert.ToHexString(credential.Id),
+                    Username = credential.Username,                   
                     ErrorMessage = res.ErrorMessage,                    
                 };
                 

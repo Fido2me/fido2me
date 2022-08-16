@@ -8,11 +8,9 @@
 
         public Guid AaGuid { get; set; }
 
-        public string DeviceName { get; set; }
+        public string Username { get; set; }
 
-        public string DeviceDisplayName { get; set; }
-
-
+       
         public LoginResponseStatus LoginResponseStatus { get; private set; }
 
         public string ErrorMessage { get; set; } = string.Empty;
