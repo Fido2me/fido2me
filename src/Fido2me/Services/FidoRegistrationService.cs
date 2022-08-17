@@ -13,11 +13,15 @@ namespace Fido2me.Services
 {
     public interface IFidoRegistrationService
     {
-        Task<CredentialCreateOptions> RegistrationStartAsync(string username, bool isResidentKey);
+        Task<CredentialCreateOptions> RegistrationStartAsync(string usernamey);
 
         Task<RegistrationResponse> RegistrationCompleteAsync(AuthenticatorAttestationRawResponse attestationResponse, CancellationToken cancellationToken);
 
         Task CompleteAttestation(BaseAttestationVerification attestationResult, Guid accountId);
+
+        Task<CredentialCreateOptions> RegistrationAddNewDeviceStartAsync(string username);
+
+        Task<RegistrationResponse> RegistrationAddNewDeviceCompleteAsync(AuthenticatorAttestationRawResponse attestationResponseJson, Guid accountId, CancellationToken cancellationToken);
     }
 
 
@@ -40,7 +44,7 @@ namespace Fido2me.Services
             _logger = logger;
         }
 
-        public async Task<CredentialCreateOptions> RegistrationStartAsync(string username, bool isResidentKey)
+        public async Task<CredentialCreateOptions> RegistrationStartAsync(string username)
         {
 
             var isNewUser = await _dataContext.Credentials.Where(c => c.Username == username).CountAsync();
@@ -170,6 +174,82 @@ namespace Fido2me.Services
 
             await _dataContext.SaveChangesAsync();
 
+        }
+
+        /// <summary>
+        /// Prepare a challenge and other objects to add a new authenticator.
+        /// </summary>
+        /// <param name="username">Provide a current username from a session.</param>
+        /// <returns></returns> 
+        public async Task<CredentialCreateOptions> RegistrationAddNewDeviceStartAsync(string username)
+        {
+            // no need account?
+            // var account = await _dataContext.Accounts.Where(a => a.Username == username).AsNoTracking().FirstOrDefaultAsync();
+            var excludeCredentials = await _dataContext.Credentials.Where(c => c.Username == username).Select(c => new PublicKeyCredentialDescriptor(c.Id)).ToListAsync();
+
+            var user = new Fido2User
+            {
+                Name = username,
+                Id = Guid.NewGuid().ToByteArray(), 
+            };
+  
+            var authenticatorSelection = new AuthenticatorSelection
+            {
+                RequireResidentKey = false,
+                ResidentKey = ResidentKeyRequirement.Preferred,
+                UserVerification = UserVerificationRequirement.Required,
+            };
+            var exts = new AuthenticationExtensionsClientInputs()
+            {
+                // Extensions = true,
+                // UserVerificationMethod = true,
+            };
+
+            var options = _fido2.RequestNewCredential(user, excludeCredentials, authenticatorSelection, AttestationConveyancePreference.Direct, exts);
+
+            string protectedPayload = _protector.Protect(options.ToJson());
+            _contextAccessor.HttpContext.Response.Cookies.Append(Constants.CookieAddNewDevice, protectedPayload, new CookieOptions { HttpOnly = true, IsEssential = true, Secure = true, SameSite = SameSiteMode.Strict, Expires = DateTime.Now.AddMinutes(5) });
+
+            return await Task.FromResult(options);
+        }
+
+        public async Task<RegistrationResponse> RegistrationAddNewDeviceCompleteAsync(AuthenticatorAttestationRawResponse attestationResponse, Guid accountId, CancellationToken cancellationToken)
+        {
+            try
+            {
+                // 1. get the options we sent the client                
+                var protectedOptions = _contextAccessor.HttpContext.Request.Cookies[Constants.CookieAddNewDevice];
+                if (protectedOptions == null)
+                {
+                    return new RegistrationResponse(AttestationVerificationStatus.Failed) { ErrorMessage = "Missing add new device cookie" };
+                }
+                var unprotectedOptions = _protector.Unprotect(protectedOptions);
+
+                var options = CredentialCreateOptions.FromJson(unprotectedOptions);
+                // display name and name were not a part of initial registration
+                //options.User.DisplayName = attestationResponse.DisplayName;
+                //options.User.Name = attestationResponse.Name;
+                _contextAccessor.HttpContext.Response.Cookies.Delete(Constants.CookieAddNewDevice);
+
+                // 2. Create callback so that lib can verify credential id is unique to this user
+                // GUID will be unique
+
+                // 2. Verify and make the credentials
+                var attestation = await _fido2.MakeNewCredentialAsync(attestationResponse, options, null, lazyAttestation: true, cancellationToken: cancellationToken);
+                if (attestation.Result.AttestationVerificationStatus == AttestationVerificationStatus.Failed)
+                { }// bad request
+
+                // add to existing account ID
+                await CompleteAttestation(attestation.Result, accountId);
+
+                return new RegistrationResponse(attestation.Result.AttestationVerificationStatus);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message, e.StackTrace);
+                return new RegistrationResponse(AttestationVerificationStatus.Failed) { ErrorMessage = e.Message };
+
+            }
         }
     }
 }

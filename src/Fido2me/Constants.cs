@@ -7,5 +7,7 @@
         public static readonly string CookieRegistration = "registration";
 
         public static readonly string CookieLogin = "login";
+
+        public static readonly string CookieAddNewDevice = "add";
     }
 }

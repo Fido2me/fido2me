@@ -9,7 +9,7 @@
 <h1>Index</h1>
 
 <p>
-    <a asp-page="Create">Create New</a>
+    <a class="btn btn-outline-primary" asp-page="/devices/Add">Add New Device</a>
 </p>
 <table class="table">
     <thead>
@@ -21,7 +21,7 @@
                 Type
             </th>
             <th>
-                Username
+                Nickname
             </th>
             <th>
                 Registration
@@ -48,7 +48,7 @@
                 @Html.DisplayFor(modelItem => item.DeviceDescription)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Username)
+                @Html.DisplayFor(modelItem => item.Nickname)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.RegDate)

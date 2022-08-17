@@ -1,0 +1,104 @@
+﻿@page
+
+@model Fido2me.Pages.devices.AddModel
+@{
+    ViewData["Title"] = "Add New Device";
+    Layout = "~/Pages/Shared/_Layout.cshtml";
+}
+
+<div class="page-heading">
+    <h3>Add New Device (Authenticator)</h3>
+</div>
+<div class="page-content">
+    <p>You can try to add a new device from the exisiting session. You cannot add the same device twice.</p>
+    <hr />
+    <div class="row">
+        <div class="col-md-4">
+            <form method="post" id="addForm">
+                <div class="form-group">
+                    <input type="submit" value="Create" class="btn btn-primary" />
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+
+let credOptions = JSON.parse('@Html.Raw(Model.AddOptions)');
+let addForm = document.getElementById('addForm');
+addForm.addEventListener('submit', handleRegisterSubmit);
+
+async function handleRegisterSubmit(event) {
+    event.preventDefault();
+
+    // Turn the challenge back into the accepted format of padded base64
+    credOptions.challenge = coerceToArrayBuffer(credOptions.challenge);
+    // Turn ID into a UInt8Array Buffer for some reason
+    credOptions.user.id = coerceToArrayBuffer(credOptions.user.id);
+
+    credOptions.excludeCredentials = credOptions.excludeCredentials.map((c) => {
+        c.id = coerceToArrayBuffer(c.id);
+        return c;
+    });
+
+
+    console.log("Credential Options Formatted", credOptions);
+    Swal.fire({
+        title: 'Adding new device...',
+        text: 'Unlock your authenticator to finish registration. Press `Esc` key to try another device if you have both Platform and Roaming authenticators connected.',
+        showCancelButton: true,
+        showConfirmButton: false,
+        focusConfirm: false,
+        focusCancel: false
+    });
+        
+    console.log("Creating PublicKeyCredential...");
+    let newCredential;
+    try {
+        newCredential = await navigator.credentials.create({
+            publicKey: credOptions
+        });
+    } catch (e) {
+        var msg = "Could not create credentials in browser. Probably because the username is already registered with your authenticator. Please change authenticator."
+        console.error(msg, e);
+        showErrorAlert(msg, e);
+    }
+
+    if (newCredential) {
+        console.log("PublicKeyCredential Created", newCredential);
+        console.log("Credential Extenstions", newCredential.getClientExtensionResults());
+
+        try {
+            registerNewCredential(newCredential);
+        } catch (e) {
+            showErrorAlert(err.message ? err.message : err);
+        }
+    }
+}
+// This should be used to verify the auth data with the server
+function registerNewCredential(newCredential) {
+    // Move data into Arrays incase it is super long
+    let attestationObject = new Uint8Array(newCredential.response.attestationObject);
+    let clientDataJSON = new Uint8Array(newCredential.response.clientDataJSON);
+    let rawId = new Uint8Array(newCredential.rawId);
+    const data = {
+        id: newCredential.id,
+        rawId: coerceToBase64Url(rawId),
+        type: newCredential.type,
+        displayName: credOptions.user.displayName,
+        name: credOptions.user.name,
+        extensions: newCredential.getClientExtensionResults(),
+        response: {
+            attestationObject: coerceToBase64Url(attestationObject),
+            clientDataJSON: coerceToBase64Url(clientDataJSON)
+        }
+    };
+    var input = document.createElement('input');
+    input.setAttribute('name', 'attestationResponse');
+    input.setAttribute('value', JSON.stringify(data));
+    input.setAttribute('type', 'hidden');
+    addForm.appendChild(input);   
+    addForm.submit();
+}
+</script>

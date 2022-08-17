@@ -43,7 +43,7 @@ namespace Fido2me.Pages
 
             var username = authCheck.Username.Trim().ToLowerInvariant();
             // https://www.w3.org/TR/webauthn-2/#enum-residentKeyRequirement
-            var options = await _fidoRegistration.RegistrationStartAsync(username, false);
+            var options = await _fidoRegistration.RegistrationStartAsync(username);
             
             return new JsonResult(options);
         }
