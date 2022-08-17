@@ -53,7 +53,7 @@ namespace Fido2me.Services
                     Enabled = c.Enabled,
                     CredentialId = c.CredentialId,
                     DeviceDescription = c.DeviceDescription,
-                    Nickname = c.Username,
+                    Nickname = c.Nickname,
                     RegDate = c.RegDate,
                 }).FirstOrDefaultAsync();
 

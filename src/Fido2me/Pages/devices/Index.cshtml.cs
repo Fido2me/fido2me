@@ -31,12 +31,6 @@ namespace Fido2me.Pages.devices
             Devices = await _deviceService.GetDevicesByAccountIdAsync(AccountId);
         }
 
-        public async Task<IActionResult> OnPostAddAsync()
-        {
-            
-            return RedirectToPage("./Index");
-        }
-
         public async Task<IActionResult> OnPostEnableAsync(string credentialId)
         {
             await _deviceService.ChangeDeviceStatusAsync(credentialId, AccountId);

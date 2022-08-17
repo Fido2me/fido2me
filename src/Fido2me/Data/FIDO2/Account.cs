@@ -9,6 +9,8 @@ namespace Fido2me.Data.FIDO2
 
         public string AccountType => "User";
 
+        [Required]
+        public string Username { get; set; }
 
         public string Email { get; set; } = "";
 
