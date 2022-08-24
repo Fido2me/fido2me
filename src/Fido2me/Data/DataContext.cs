@@ -1,5 +1,6 @@
 ﻿using Fido2me.Data.FIDO2;
 using Fido2me.Data.OIDC;
+using Fido2me.Data.OIDC.ciba;
 using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
@@ -21,7 +22,8 @@ namespace Fido2me.Data
         public DbSet<OidcClient> OidcClients { get; set; }
 
         public DbSet<OidcBasicClient> OidcBasicClients { get; set; }
-        
+
+        public DbSet<CibaLoginRequest> CibaLoginRequests { get; set; }
 
 
 
@@ -99,6 +101,9 @@ namespace Fido2me.Data
                 v => v.Split(',', StringSplitOptions.RemoveEmptyEntries)
             );
 
+            modelBuilder.Entity<CibaLoginRequest>()
+            .ToContainer("CibaLoginRequests")
+            .HasNoDiscriminator();
 
             if (_env.EnvironmentName == "Development")
             {
