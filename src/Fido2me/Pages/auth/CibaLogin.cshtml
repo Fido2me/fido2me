@@ -1,0 +1,36 @@
+﻿@page "/auth/external"
+
+@model Fido2me.Pages.auth.CibaLoginModel
+@{
+    ViewData["Title"] = "External Login";
+    Layout = "~/Pages/Shared/_LayoutAuth.cshtml";
+}
+
+<div class="row h-100">
+    <div class="col-lg-5 col-12">
+        <div id="auth-left">
+            <div class="auth-logo">                
+            </div>
+            <h1 class="auth-title">Fido2Me</h1>
+            <p class="auth-subtitle mb-5">External Login</p>
+
+            <div asp-validation-summary="ModelOnly" class="field-validation-error mt-3"></div>
+
+            <form method="POST" name="loginForm" id="loginForm">
+                <div class="form-group position-relative has-icon-left mb-4">
+                    <input type="text" class="form-control form-control-xl" id="username" name="username" placeholder="Username (optional)"  />
+                    <div class="form-control-icon">
+                        <i class="bi bi-person"></i>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block btn-lg shadow-lg mt-5">External sign in</button>                
+            </form>
+
+        </div>
+    </div>
+    <div class="col-lg-7 d-none d-lg-block">
+        <div id="auth-right">
+
+        </div>
+    </div>
+</div>

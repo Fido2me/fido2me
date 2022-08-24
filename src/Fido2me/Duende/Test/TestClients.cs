@@ -1,4 +1,5 @@
-﻿using Duende.IdentityServer.Models;
+﻿using Duende.IdentityServer;
+using Duende.IdentityServer.Models;
 
 namespace Fido2me.Duende.Test
 {
@@ -7,16 +8,22 @@ namespace Fido2me.Duende.Test
         public static IEnumerable<Client> Get()
         {
             return new List<Client>
-        {
-            new Client
             {
-                ClientId = "oauthClient",
-                ClientName = "Example client application using client credentials",
-                AllowedGrantTypes = GrantTypes.ClientCredentials,
-                ClientSecrets = new List<Secret> {new Secret("SuperSecretPassword".Sha256())}, // change me!
-                AllowedScopes = new List<string> {"api1.read"}
-            }
-        };
+                new Client
+                {
+                    ClientId = "ciba",
+                    ClientName = "ciba",
+                    ClientSecrets = { new Secret("secret".Sha256()) },
+                    AllowedGrantTypes = GrantTypes.Ciba,
+                    RequireConsent = true,
+                    AllowOfflineAccess = true,
+                    AllowedScopes =
+                    {
+                        IdentityServerConstants.StandardScopes.OpenId,
+                        IdentityServerConstants.StandardScopes.Profile,
+                    }
+                },            
+            };
         }
     }
 }

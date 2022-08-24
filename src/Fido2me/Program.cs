@@ -1,4 +1,7 @@
 using Azure.Identity;
+using Duende.IdentityServer.Services;
+using Duende.IdentityServer.Stores;
+using Duende.IdentityServer.Validation;
 using Fido2me;
 using Fido2me.Data;
 using Fido2me.Duende;
@@ -85,6 +88,7 @@ builder.Services.AddAuthentication(options =>
     options.LoginPath = new PathString("/auth/login");
     options.Cookie.SameSite = SameSiteMode.Strict;
 });
+//.AddOpenIdConnect();
 
 builder.Services.ConfigureApplicationCookie(options =>
  {
@@ -148,6 +152,9 @@ builder.Services.AddTransient<IAccountService, AccountService>();
 builder.Services.AddTransient<IOidcBasicClientService, OidcBasicClientService>();
 builder.Services.AddTransient<IDeviceService, DeviceService>();
 builder.Services.AddTransient<IEmailService, EmailService>();
+builder.Services.AddTransient<IBackChannelAuthenticationRequestStore, BackChannelAuthenticationRequestStore>();
+builder.Services.AddTransient<IBackchannelAuthenticationUserValidator, BackchannelAuthenticationUserValidator>();
+builder.Services.AddTransient<IBackchannelAuthenticationUserNotificationService, BackchannelAuthenticationUserNotificationService>();
 
 var app = builder.Build();
 
