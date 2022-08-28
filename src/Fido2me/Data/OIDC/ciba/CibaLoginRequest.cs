@@ -34,6 +34,12 @@ namespace Fido2me.Data.OIDC.ciba
         /// </summary>
         public string IdP { get; set; }
 
+        public string[] RequestedScopes { get; set; }
+
+        public string[] AuthorizedScopes { get; set; }
+
+        public bool IsComplete { get; set; }
+
         /// <summary>
         /// Gets or sets the resource indicator.
         /// </summary>

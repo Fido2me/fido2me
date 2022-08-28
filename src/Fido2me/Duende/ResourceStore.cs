@@ -33,7 +33,12 @@ namespace Fido2me.Duende
 
         public Task<IEnumerable<ApiScope>> FindApiScopesByNameAsync(IEnumerable<string> scopeNames)
         {
-            return Task.FromResult(Enumerable.Empty<ApiScope>());
+            // openid,profile,offline_access - that's all that we support
+            var apiScopes = new List<ApiScope>()
+            {
+                
+            };
+            return Task.FromResult(apiScopes.AsEnumerable());
         }
 
         public Task<IEnumerable<IdentityResource>> FindIdentityResourcesByScopeNameAsync(IEnumerable<string> scopeNames)

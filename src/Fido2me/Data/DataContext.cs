@@ -105,6 +105,16 @@ namespace Fido2me.Data
             .ToContainer("CibaLoginRequests")
             .HasNoDiscriminator();
 
+            modelBuilder.Entity<CibaLoginRequest>().Property(p => p.RequestedScopes).HasConversion(
+                v => string.Join(',', v),
+                v => v.Split(',', StringSplitOptions.RemoveEmptyEntries)
+            );
+
+            modelBuilder.Entity<CibaLoginRequest>().Property(p => p.AuthorizedScopes).HasConversion(
+                v => string.Join(',', v),
+                v => v.Split(',', StringSplitOptions.RemoveEmptyEntries)
+            );
+
             if (_env.EnvironmentName == "Development")
             {
                 //modelBuilder.SeedDevData();                               

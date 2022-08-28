@@ -1,6 +1,7 @@
 ﻿using Duende.IdentityServer.Models;
 using Duende.IdentityServer.Stores;
 using Fido2me.Data;
+using Fido2me.Helpers;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
@@ -25,7 +26,9 @@ namespace Fido2me.Duende
                 BindingMessage = request.BindingMessage,
                 IdP = request.IdP,
                 SubjectId = request.Subject.FindFirst(c => c.Type == "sub").Value,
-                Tenant = request.Tenant,                
+                Tenant = request.Tenant, 
+                RequestedScopes = request.RequestedScopes.ToArray(),
+                AuthorizedScopes = null,
             };
             var r = await _context.CibaLoginRequests.AddAsync(cibaLoginRequest);
             await _context.SaveChangesAsync();
@@ -33,24 +36,40 @@ namespace Fido2me.Duende
             return "success?";
         }
 
-        public Task<BackChannelAuthenticationRequest> GetByAuthenticationRequestIdAsync(string requestId)
+        public async Task<BackChannelAuthenticationRequest> GetByAuthenticationRequestIdAsync(string requestId)
         {
-            throw new NotImplementedException();
+            return null;
+            //var loginRequest = await _context.CibaLoginRequests
+            //    .AsNoTracking()
+            //    .Where(c => c.)
         }
 
-        public Task<BackChannelAuthenticationRequest> GetByInternalIdAsync(string id)
+        public async Task<BackChannelAuthenticationRequest> GetByInternalIdAsync(string id)
         {
-            throw new NotImplementedException();
+            var loginRequest = await _context.CibaLoginRequests
+                .AsNoTracking()
+               .Where(c => c.InternalId == id)
+               .Select(c => new BackChannelAuthenticationRequest()
+               {
+                   BindingMessage = c.BindingMessage,
+                   InternalId = c.InternalId,
+                   Subject = IdentityServerHelper.GenerateSubjectById(c.SubjectId), // if no entries, our subject doesn't matter, so reuse the parameter
+                   ClientId = "", // from db?
+                   RequestedScopes = c.RequestedScopes,
+                   AuthorizedScopes = c.AuthorizedScopes,
+
+
+               }).FirstOrDefaultAsync();
+               
+            return loginRequest;
         }
 
         public async Task<IEnumerable<BackChannelAuthenticationRequest>> GetLoginsForUserAsync(string subjectId, string clientId = null)
         {
-            var claims = new Claim[] {
-                    new Claim("sub", subjectId)
-                };
-            var identity = new ClaimsIdentity(claims, "ciba");
-            var subject = new ClaimsPrincipal(identity);
-   
+
+            var subject = IdentityServerHelper.GenerateSubjectById(subjectId);
+
+
 
             var loginRequests = await _context.CibaLoginRequests
                 .Where(c => c.SubjectId == subjectId)
@@ -60,8 +79,8 @@ namespace Fido2me.Duende
                     InternalId = c.InternalId,
                     Subject = subject, // if no entries, our subject doesn't matter, so reuse the parameter
                     ClientId = clientId, // from db?
-                    
-                    
+                    RequestedScopes = c.RequestedScopes,
+                    AuthorizedScopes = c.AuthorizedScopes,
                 })
                 .ToListAsync();
 
@@ -73,9 +92,17 @@ namespace Fido2me.Duende
             throw new NotImplementedException();
         }
 
-        public Task UpdateByInternalIdAsync(string id, BackChannelAuthenticationRequest request)
+        public async Task UpdateByInternalIdAsync(string id, BackChannelAuthenticationRequest request)
         {
-            throw new NotImplementedException();
+            var loginRequest = await _context.CibaLoginRequests
+                .Where(c => c.InternalId == id)
+                .FirstOrDefaultAsync();
+
+            loginRequest.IsComplete = request.IsComplete;
+            loginRequest.AuthorizedScopes = request.AuthorizedScopes.ToArray();
+            await _context.SaveChangesAsync();
+
+            return;
         }
     }
 }
