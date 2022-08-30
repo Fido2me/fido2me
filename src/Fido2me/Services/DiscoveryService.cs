@@ -5,6 +5,8 @@ namespace Fido2me.Services
     public interface IDiscoveryService
     {
         Task<string> GetCibaEndpointAsync();
+
+        Task<string> GetTokenEndpointAsync();
     }
 
     public class DiscoveryService : IDiscoveryService
@@ -27,6 +29,15 @@ namespace Fido2me.Services
                 throw new Exception(disco.Error);
 
             return disco.BackchannelAuthenticationEndpoint;
+        }
+
+        public async Task<string> GetTokenEndpointAsync()
+        {
+            var disco = await _cache.GetAsync();
+            if (disco.IsError)
+                throw new Exception(disco.Error);
+
+            return disco.TokenEndpoint;
         }
     }
 }

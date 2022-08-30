@@ -11,12 +11,15 @@ namespace Fido2me.Pages.auth
         [BindProperty]
         public CibaLoginViewModel CibaLoginVM { get; set; }
 
+        [BindProperty]
+        public CibaLoginContinueViewModel CibaLoginContinueVM { get; set; }
+
         public CibaLoginModel(ICibaService cibaService)
         {
             _cibaService = cibaService;
         }
 
-        public async Task OnGetAsync()
+        public async Task<IActionResult> OnGetAsync()
         {
             var cibaVm = _cibaService.GetAuthenticationRequestDetails();
 
@@ -24,10 +27,11 @@ namespace Fido2me.Pages.auth
             if (cibaVm == null)
             {
                 CibaLoginVM = null;
-                return;
+                return Page();
             }
 
             CibaLoginVM = cibaVm;
+            return Page();
         }
 
         public async Task<IActionResult> OnPostAsync([FromForm] string username)
@@ -41,13 +45,33 @@ namespace Fido2me.Pages.auth
             if (loginResponse.IsError)
                 throw new Exception(loginResponse.Error);
 
-            CibaLoginVM = new CibaLoginViewModel()
+            return Page();
+        }
+
+
+        public async Task<IActionResult> OnPostContinueAsync()
+        {
+            var cibaVm = _cibaService.GetAuthenticationRequestDetails();
+            if (cibaVm == null)
             {
-                Message = bindingMessage,
-                Username = usernameNormalized,
-            };
+                CibaLoginContinueVM = new CibaLoginContinueViewModel() { IsError = false, Error = "Expired" };
+                return Page();
+            }
+
+            var completeResponse = await _cibaService.CibaTryLoginCompleteAsync(cibaVm.RequestId);
+
+            if (completeResponse.IsError)
+            {
+                CibaLoginContinueVM = new CibaLoginContinueViewModel() { IsError = false, Error = "Expired" };
+                return Page();
+            }
+            else
+            {
+                string token = completeResponse.IdentityToken;
+            }
 
             return Page();
+
         }
 
 
@@ -59,5 +83,11 @@ namespace Fido2me.Pages.auth
         public string Username { get; set; }
         public string RequestId { get; set; }
         public string Message { get; set; }
+    }
+
+    public class CibaLoginContinueViewModel
+    {
+        public bool IsError { get; set; }
+        public string Error { get; set; }
     }
 }

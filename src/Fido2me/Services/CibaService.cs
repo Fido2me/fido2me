@@ -1,5 +1,7 @@
 ﻿using Fido2me.Pages.auth;
+using IdentityModel;
 using IdentityModel.Client;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.DataProtection;
 using System.Text.Json;
 using BackchannelAuthenticationResponse = IdentityModel.Client.BackchannelAuthenticationResponse;
@@ -10,6 +12,7 @@ namespace Fido2me.Services
     {
         Task<BackchannelAuthenticationResponse> CibaLoginStartAsync(string username, string bindingMessage);
         CibaLoginViewModel GetAuthenticationRequestDetails();
+        Task<TokenResponse> CibaTryLoginCompleteAsync(string authRequestId);
         //BackchannelAuthenticationResponse
     }
 
@@ -19,14 +22,15 @@ namespace Fido2me.Services
         private readonly IHttpContextAccessor _contextAccessor;
         private readonly IDiscoveryService _discoveryService;
         private readonly ILogger<CibaService> _logger;
+        private readonly ISystemClock _systemClock;
 
-        public CibaService(IDiscoveryService discoveryService, ILogger<CibaService> logger, IDataProtectionProvider provider, IHttpContextAccessor contextAccessor)
+        public CibaService(IDiscoveryService discoveryService, ILogger<CibaService> logger, IDataProtectionProvider provider, IHttpContextAccessor contextAccessor, ISystemClock systemClock)
         {
             _protector = provider.CreateProtector(Constants.DataProtectorName);
             _contextAccessor = contextAccessor;
             _discoveryService = discoveryService;
+            _systemClock = systemClock;
         }
-
         public async Task<BackchannelAuthenticationResponse> CibaLoginStartAsync(string username, string bindingMessage)
         {
             var cibaEndpoint = await _discoveryService.GetCibaEndpointAsync();            
@@ -60,12 +64,6 @@ namespace Fido2me.Services
             return response;
         }
 
-        public async Task Do()
-        {
-            //string protectedPayload = _protector.Protect(options.ToJson());
-            //_contextAccessor.HttpContext.Response.Cookies.Append(Constants.CookieRegistration, protectedPayload, new CookieOptions { HttpOnly = true, IsEssential = true, Secure = true, SameSite = SameSiteMode.Strict, Expires = DateTime.Now.AddMinutes(5) });
-        }
-
         public CibaLoginViewModel GetAuthenticationRequestDetails()
         {
             var protectedResponse = _contextAccessor.HttpContext.Request.Cookies[Constants.CookieCibaRequest];
@@ -81,5 +79,27 @@ namespace Fido2me.Services
             // delete on success only?
             // _contextAccessor.HttpContext.Response.Cookies.Delete(Constants.CookieRegistration);
         }
+
+
+        public async Task<TokenResponse> CibaTryLoginCompleteAsync(string authRequestId)
+        {
+            var tokenEndpoint = await _discoveryService.GetTokenEndpointAsync();
+
+            var client = new HttpClient();
+            var t = _systemClock.UtcNow.UtcDateTime;
+
+            // https://github.com/DuendeSoftware/IdentityServer/blob/50e71c72eb3905acc9fda4e0fa86c2510db665ea/src/IdentityServer/Validation/Default/BackchannelAuthenticationRequestIdValidator.cs
+            var response = await client.RequestBackchannelAuthenticationTokenAsync(new BackchannelAuthenticationTokenRequest
+            {
+                Address = tokenEndpoint,
+                ClientId = "ciba",
+                ClientSecret = "secret",
+                AuthenticationRequestId = authRequestId,
+            });
+
+            
+            return response;
+        }
+        
     }
 }

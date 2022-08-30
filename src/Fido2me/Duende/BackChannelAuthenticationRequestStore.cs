@@ -20,6 +20,7 @@ namespace Fido2me.Duende
 
         public async Task<string> CreateRequestAsync(BackChannelAuthenticationRequest request)
         {
+            
             var cibaLoginRequest = new Fido2me.Data.OIDC.ciba.CibaLoginRequest()
             {
                 Id = Guid.NewGuid().ToString("N"),
@@ -30,6 +31,9 @@ namespace Fido2me.Duende
                 Tenant = request.Tenant, 
                 RequestedScopes = request.RequestedScopes.ToArray(),
                 AuthorizedScopes = null,
+                ClientId = request.ClientId,
+                CreatedAt = DateTimeOffset.Now,
+                Lifetime = request.Lifetime,
             };
             var r = await _context.CibaLoginRequests.AddAsync(cibaLoginRequest);
             await _context.SaveChangesAsync();
@@ -41,15 +45,18 @@ namespace Fido2me.Duende
         {
             var loginRequest = await _context.CibaLoginRequests
             .AsNoTracking()
-            .Where(c => c.Id == requestId)
+            .Where(c => c.RequestId == requestId)
             .Select(c => new BackChannelAuthenticationRequest()
             {               
                BindingMessage = c.BindingMessage,
                InternalId = c.Id,
                Subject = IdentityServerHelper.GenerateSubjectById(c.SubjectId),
-               ClientId = "", // from db?
+               ClientId = c.ClientId,
                RequestedScopes = c.RequestedScopes,
                AuthorizedScopes = c.AuthorizedScopes,
+               CreationTime = c.CreatedAt.UtcDateTime,
+               Lifetime = c.Lifetime,
+               IsComplete = c.IsComplete,
 
             }).FirstOrDefaultAsync();
 
@@ -66,10 +73,12 @@ namespace Fido2me.Duende
                    BindingMessage = c.BindingMessage,
                    InternalId = c.Id,
                    Subject = IdentityServerHelper.GenerateSubjectById(c.SubjectId),
-                   ClientId = "", // from db?
+                   ClientId = c.ClientId,
                    RequestedScopes = c.RequestedScopes,
                    AuthorizedScopes = c.AuthorizedScopes,
-
+                   CreationTime = c.CreatedAt.UtcDateTime,
+                   Lifetime = c.Lifetime,
+                   IsComplete = c.IsComplete,
 
                }).FirstOrDefaultAsync();
                
@@ -78,10 +87,7 @@ namespace Fido2me.Duende
 
         public async Task<IEnumerable<BackChannelAuthenticationRequest>> GetLoginsForUserAsync(string subjectId, string clientId = null)
         {
-
             var subject = IdentityServerHelper.GenerateSubjectById(subjectId);
-
-
 
             var loginRequests = await _context.CibaLoginRequests
                 .Where(c => c.SubjectId == subjectId)
@@ -89,10 +95,13 @@ namespace Fido2me.Duende
                 {
                     BindingMessage = c.BindingMessage,
                     InternalId = c.Id,
-                    Subject = subject, // if no entries, our subject doesn't matter, so reuse the parameter
-                    ClientId = clientId, // from db?
+                    Subject = subject,
+                    ClientId = clientId, 
                     RequestedScopes = c.RequestedScopes,
                     AuthorizedScopes = c.AuthorizedScopes,
+                    CreationTime = c.CreatedAt.UtcDateTime,
+                    Lifetime= c.Lifetime,
+                    IsComplete = c.IsComplete,
                 })
                 .ToListAsync();
 

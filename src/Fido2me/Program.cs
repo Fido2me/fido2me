@@ -131,12 +131,13 @@ services.AddFido2(options =>
 services.AddIdentityServer(options =>
 {
     options.Authentication.CookieLifetime = TimeSpan.FromMinutes(60);
-    options.Authentication.CookieSlidingExpiration = true;  
+    options.Authentication.CookieSlidingExpiration = true;
 
 })
     .AddInMemoryClients(TestClients.Get())
     .AddClientStore<ClientStore>()
     .AddCorsPolicyService<CorsPolicyService>()
+    .AddPersistedGrantStore<PersistedGrantStore>()
     .AddResourceStore<ResourceStore>();
 
 services.AddSendGrid(options =>

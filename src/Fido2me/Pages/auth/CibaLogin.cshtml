@@ -1,4 +1,4 @@
-﻿@page "/auth/ciba"
+﻿@page "/auth/ciba/{handler?}"
 
 @model Fido2me.Pages.auth.CibaLoginModel
 @{
@@ -18,24 +18,26 @@
             {
                 <p>Username: @Model.CibaLoginVM.Username</p>
                 <p>Binding Message: @Model.CibaLoginVM.Message</p>
-
+               
                 <p>I authorized the request with and ready to continue</p>
-                <form method="POST" name="continueForm" id="continueForm">
-                
-                <button type="submit" class="btn btn-primary btn-block btn-lg shadow-lg mt-5">Continue</button>                
+                <form asp-page-handler="continue" method="post">                
+                    <button type="submit" class="btn btn-primary btn-block btn-lg shadow-lg mt-5">Continue</button>                
                 </form>
             }
-            <div asp-validation-summary="ModelOnly" class="field-validation-error mt-3"></div>
+            else
+            {
+                <div asp-validation-summary="ModelOnly" class="field-validation-error mt-3"></div>
 
-            <form method="POST" name="loginForm" id="loginForm">
-                <div class="form-group position-relative has-icon-left mb-4">
-                    <input type="text" class="form-control form-control-xl" id="username" name="username"  placeholder="Username" required pattern="[a-zA-Z0-9]+" title="Alphanumeric only" />
-                    <div class="form-control-icon">
-                        <i class="bi bi-person"></i>
+                <form method="POST" name="loginForm" id="loginForm">
+                    <div class="form-group position-relative has-icon-left mb-4">
+                        <input type="text" class="form-control form-control-xl" id="username" name="username"  placeholder="Username" required pattern="[a-zA-Z0-9]+" title="Alphanumeric only" />
+                        <div class="form-control-icon">
+                            <i class="bi bi-person"></i>
+                        </div>
                     </div>
-                </div>
-                <button type="submit" class="btn btn-primary btn-block btn-lg shadow-lg mt-5">Sign in as</button>                
-            </form>
+                    <button type="submit" class="btn btn-primary btn-block btn-lg shadow-lg mt-5">Sign in as</button>                
+                </form>
+            }
 
         </div>
     </div>

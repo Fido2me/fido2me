@@ -42,6 +42,12 @@ namespace Fido2me.Data.OIDC.ciba
 
         public bool IsComplete { get; set; }
 
+        public string ClientId { get; set; }
+
+        public DateTimeOffset CreatedAt { get; set; }
+
+        public int Lifetime { get; set; }
+
         /// <summary>
         /// Gets or sets the resource indicator.
         /// </summary>
