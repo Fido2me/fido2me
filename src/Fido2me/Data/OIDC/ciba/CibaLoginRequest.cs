@@ -7,7 +7,9 @@ namespace Fido2me.Data.OIDC.ciba
     public class CibaLoginRequest
     {
         [Key]
-        public string InternalId { get; set; }
+        public string Id { get; set; }
+
+        public string RequestId { get; set; }
 
         /// <summary>
         /// Gets or sets the subject.

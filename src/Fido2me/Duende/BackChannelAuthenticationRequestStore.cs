@@ -22,7 +22,8 @@ namespace Fido2me.Duende
         {
             var cibaLoginRequest = new Fido2me.Data.OIDC.ciba.CibaLoginRequest()
             {
-                InternalId = Guid.NewGuid().ToString("N"),
+                Id = Guid.NewGuid().ToString("N"),
+                RequestId = Guid.NewGuid().ToString("N"),
                 BindingMessage = request.BindingMessage,
                 IdP = request.IdP,
                 SubjectId = request.Subject.FindFirst(c => c.Type == "sub").Value,
@@ -33,27 +34,38 @@ namespace Fido2me.Duende
             var r = await _context.CibaLoginRequests.AddAsync(cibaLoginRequest);
             await _context.SaveChangesAsync();
 
-            return "success?";
+            return cibaLoginRequest.RequestId;
         }
 
         public async Task<BackChannelAuthenticationRequest> GetByAuthenticationRequestIdAsync(string requestId)
         {
-            return null;
-            //var loginRequest = await _context.CibaLoginRequests
-            //    .AsNoTracking()
-            //    .Where(c => c.)
+            var loginRequest = await _context.CibaLoginRequests
+            .AsNoTracking()
+            .Where(c => c.Id == requestId)
+            .Select(c => new BackChannelAuthenticationRequest()
+            {               
+               BindingMessage = c.BindingMessage,
+               InternalId = c.Id,
+               Subject = IdentityServerHelper.GenerateSubjectById(c.SubjectId),
+               ClientId = "", // from db?
+               RequestedScopes = c.RequestedScopes,
+               AuthorizedScopes = c.AuthorizedScopes,
+
+            }).FirstOrDefaultAsync();
+
+            return loginRequest;
         }
 
         public async Task<BackChannelAuthenticationRequest> GetByInternalIdAsync(string id)
         {
             var loginRequest = await _context.CibaLoginRequests
                 .AsNoTracking()
-               .Where(c => c.InternalId == id)
+               .Where(c => c.Id == id)
                .Select(c => new BackChannelAuthenticationRequest()
                {
                    BindingMessage = c.BindingMessage,
-                   InternalId = c.InternalId,
-                   Subject = IdentityServerHelper.GenerateSubjectById(c.SubjectId), // if no entries, our subject doesn't matter, so reuse the parameter
+                   InternalId = c.Id,
+                   Subject = IdentityServerHelper.GenerateSubjectById(c.SubjectId),
                    ClientId = "", // from db?
                    RequestedScopes = c.RequestedScopes,
                    AuthorizedScopes = c.AuthorizedScopes,
@@ -76,7 +88,7 @@ namespace Fido2me.Duende
                 .Select(c => new BackChannelAuthenticationRequest() 
                 {
                     BindingMessage = c.BindingMessage,
-                    InternalId = c.InternalId,
+                    InternalId = c.Id,
                     Subject = subject, // if no entries, our subject doesn't matter, so reuse the parameter
                     ClientId = clientId, // from db?
                     RequestedScopes = c.RequestedScopes,
@@ -87,15 +99,17 @@ namespace Fido2me.Duende
             return loginRequests;
         }
 
-        public Task RemoveByInternalIdAsync(string id)
+        public async Task RemoveByInternalIdAsync(string id)
         {
-            throw new NotImplementedException();
+            var cibaRequest = await _context.CibaLoginRequests.FirstOrDefaultAsync(c => c.Id == id);
+            _context.CibaLoginRequests.Remove(cibaRequest);
+            await _context.SaveChangesAsync();
         }
 
         public async Task UpdateByInternalIdAsync(string id, BackChannelAuthenticationRequest request)
         {
             var loginRequest = await _context.CibaLoginRequests
-                .Where(c => c.InternalId == id)
+                .Where(c => c.Id == id)
                 .FirstOrDefaultAsync();
 
             loginRequest.IsComplete = request.IsComplete;
