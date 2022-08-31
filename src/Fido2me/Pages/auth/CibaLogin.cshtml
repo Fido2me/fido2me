@@ -1,0 +1,49 @@
+﻿@page "/auth/ciba/{handler?}"
+
+@model Fido2me.Pages.auth.CibaLoginModel
+@{
+    ViewData["Title"] = "Client Initiated Backchannel Authentication Login";
+    Layout = "~/Pages/Shared/_LayoutAuth.cshtml";
+}
+
+<div class="row h-100">
+    <div class="col-lg-5 col-12">
+        <div id="auth-left">
+            <div class="auth-logo">                
+            </div>
+            <h1 class="auth-title">Fido2Me</h1>
+            <p class="auth-subtitle mb-5">CIBA Sign in</p>
+
+            @if (Model.CibaLoginVM != null)
+            {
+                <p>Username: @Model.CibaLoginVM.Username</p>
+                <p>Binding Message: @Model.CibaLoginVM.Message</p>
+               
+                <p>I authorized the request with and ready to continue</p>
+                <form asp-page-handler="continue" method="post">                
+                    <button type="submit" class="btn btn-primary btn-block btn-lg shadow-lg mt-5">Continue</button>                
+                </form>
+            }
+            else
+            {
+                <div asp-validation-summary="ModelOnly" class="field-validation-error mt-3"></div>
+
+                <form method="POST" name="loginForm" id="loginForm">
+                    <div class="form-group position-relative has-icon-left mb-4">
+                        <input type="text" class="form-control form-control-xl" id="username" name="username"  placeholder="Username" required pattern="[a-zA-Z0-9]+" title="Alphanumeric only" />
+                        <div class="form-control-icon">
+                            <i class="bi bi-person"></i>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block btn-lg shadow-lg mt-5">Sign in as</button>                
+                </form>
+            }
+
+        </div>
+    </div>
+    <div class="col-lg-7 d-none d-lg-block">
+        <div id="auth-right">
+
+        </div>
+    </div>
+</div>

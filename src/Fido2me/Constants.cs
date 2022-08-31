@@ -9,5 +9,7 @@
         public static readonly string CookieLogin = "login";
 
         public static readonly string CookieAddNewDevice = "add";
+
+        public static readonly string CookieCibaRequest = "cibarequest";
     }
 }

@@ -14,6 +14,7 @@ namespace Fido2me.Duende
 
         public Task<IEnumerable<PersistedGrant>> GetAllAsync(PersistedGrantFilter filter)
         {
+            
             throw new NotImplementedException();
         }
 
@@ -34,6 +35,7 @@ namespace Fido2me.Duende
 
         public Task StoreAsync(PersistedGrant grant)
         {
+            return Task.CompletedTask;
             throw new NotImplementedException();
         }
     }
