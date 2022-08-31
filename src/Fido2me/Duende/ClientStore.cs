@@ -22,11 +22,10 @@ namespace Fido2me.Duende
                 ClientSecrets = { new Secret("secret".Sha256()) },
                 AllowedGrantTypes = GrantTypes.Ciba,
                 RequireConsent = true,
-                AllowOfflineAccess = true,
+                AllowOfflineAccess = false,
                 AllowedScopes =
                 {
                     IdentityServerConstants.StandardScopes.OpenId,
-                    IdentityServerConstants.StandardScopes.Profile,
                 },
             };
                 

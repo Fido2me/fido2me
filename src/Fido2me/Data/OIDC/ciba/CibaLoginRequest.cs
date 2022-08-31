@@ -16,6 +16,10 @@ namespace Fido2me.Data.OIDC.ciba
         /// </summary>
         public string SubjectId { get; set; }
 
+        public string Username { get; set; }
+
+        public string CredentialId { get; set; }
+
         /// <summary>
         /// Gets or sets the binding message.
         /// </summary>

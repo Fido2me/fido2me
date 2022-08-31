@@ -47,7 +47,6 @@ namespace Fido2me.Duende
                 new List<IdentityResource>()
                 {
                     new IdentityResources.OpenId(),
-                    new IdentityResources.Profile(),
                 }.AsEnumerable<IdentityResource>()
             );
         }
@@ -61,9 +60,8 @@ namespace Fido2me.Duende
                 new IdentityResource[]
                 {
                     new IdentityResources.OpenId(),
-                    new IdentityResources.Profile(),
                 },
-                OfflineAccess = true,
+                OfflineAccess = false,
                 ApiResources = new ApiResource[] { },
             };
             return Task.FromResult(resoures);

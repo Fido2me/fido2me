@@ -1,11 +1,8 @@
-﻿using Duende.IdentityServer;
-using Fido2me.Pages.auth;
-using IdentityModel;
+﻿using Fido2me.Data;
 using IdentityModel.Client;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.DataProtection;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
+using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
 using BackchannelAuthenticationResponse = IdentityModel.Client.BackchannelAuthenticationResponse;
 
@@ -13,10 +10,10 @@ namespace Fido2me.Services
 {
     public interface ICibaService
     {
-        Task<BackchannelAuthenticationResponse> CibaLoginStartAsync(string username, string bindingMessage);
+        Task<CibaLoginResponse> CibaLoginStartAsync(string username, string bindingMessage);
         CibaLoginViewModel GetAuthenticationRequestDetails();
         Task<TokenResponse> CibaTryLoginCompleteAsync(string authRequestId);
-        //BackchannelAuthenticationResponse
+        Task<CibaSubjectVM> GetClaimsToCompleteCibaAsync(string subjectId, string requestId);
     }
 
     public class CibaService : ICibaService
@@ -26,15 +23,17 @@ namespace Fido2me.Services
         private readonly IDiscoveryService _discoveryService;
         private readonly ILogger<CibaService> _logger;
         private readonly ISystemClock _systemClock;
+        private readonly DataContext _dataContext;
 
-        public CibaService(IDiscoveryService discoveryService, ILogger<CibaService> logger, IDataProtectionProvider provider, IHttpContextAccessor contextAccessor, ISystemClock systemClock)
+        public CibaService(DataContext dataContext, IDiscoveryService discoveryService, ILogger<CibaService> logger, IDataProtectionProvider provider, IHttpContextAccessor contextAccessor, ISystemClock systemClock)
         {
+            _dataContext = dataContext;
             _protector = provider.CreateProtector(Constants.DataProtectorName);
             _contextAccessor = contextAccessor;
             _discoveryService = discoveryService;
             _systemClock = systemClock;
         }
-        public async Task<BackchannelAuthenticationResponse> CibaLoginStartAsync(string username, string bindingMessage)
+        public async Task<CibaLoginResponse> CibaLoginStartAsync(string username, string bindingMessage)
         {
             var cibaEndpoint = await _discoveryService.GetCibaEndpointAsync();            
 
@@ -43,7 +42,7 @@ namespace Fido2me.Services
                 Address = cibaEndpoint,
                 ClientId = "ciba",
                 ClientSecret = "secret",
-                Scope = "openid profile offline_access",
+                Scope = "openid",
                 LoginHint = username,
                 BindingMessage = bindingMessage,
                 RequestedExpiry = 200
@@ -62,9 +61,20 @@ namespace Fido2me.Services
                 }; 
                 string protectedRequestId = _protector.Protect(JsonSerializer.Serialize(cibaVm));
                 _contextAccessor.HttpContext.Response.Cookies.Append(Constants.CookieCibaRequest, protectedRequestId, new CookieOptions { HttpOnly = true, IsEssential = true, Secure = true, SameSite = SameSiteMode.Strict, Expires = DateTime.Now.AddSeconds(response.ExpiresIn) });
+
+                return new CibaLoginResponse()
+                {
+                    CibaLoginVM = cibaVm,
+                    IsError = false,
+                };
             }
 
-            return response;
+            return new CibaLoginResponse()
+            {
+                CibaLoginVM = null,
+                IsError = true,
+                Error = response.Error,
+            };
         }
 
         public CibaLoginViewModel GetAuthenticationRequestDetails()
@@ -102,6 +112,40 @@ namespace Fido2me.Services
 
             return response;
         }
-        
+
+        public async Task<CibaSubjectVM> GetClaimsToCompleteCibaAsync(string subjectId, string requestId)
+        {      
+            var cibaSubjectVm = await _dataContext.CibaLoginRequests
+                .AsNoTracking()
+                .Where(c => c.SubjectId == subjectId && c.RequestId == c.RequestId)
+                .Select(c => new CibaSubjectVM() 
+                {   
+                    Username = c.Username,
+                    CredentialId = c.CredentialId,
+                })
+                .FirstOrDefaultAsync();
+
+            return cibaSubjectVm;
+        }
+    }
+
+    public class CibaSubjectVM
+    {
+        public string Username { get; set; }
+        public string CredentialId { get; set; }
+    }
+
+    public class CibaLoginViewModel
+    {
+        public string Username { get; set; }
+        public string RequestId { get; set; }
+        public string Message { get; set; }
+    }
+
+    public class CibaLoginResponse
+    {
+        public bool IsError { get; set; }
+        public string Error { get; set; }
+        public CibaLoginViewModel CibaLoginVM { get; set; }
     }
 }

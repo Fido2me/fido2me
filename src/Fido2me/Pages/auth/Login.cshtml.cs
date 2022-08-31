@@ -1,16 +1,14 @@
 ﻿using Duende.IdentityServer;
 using Fido2me.Services;
 using Fido2NetLib;
-using Fido2NetLib.Objects;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Security.Claims;
 using System.Text.Json;
 
 namespace Fido2me.Pages
 {
-    public class LoginModel : PageModel
+    public class LoginModel : BasePageModel
     {
         private readonly ILogger<LoginModel> _logger;
 
@@ -68,7 +66,7 @@ namespace Fido2me.Pages
                 {
                     new Claim("credId", loginResponse.CredentialId),
                     new Claim("name", loginResponse.Username),
-                    new Claim("aaGuid", loginResponse.AaGuid.ToString()),
+                    // new Claim("aaGuid", loginResponse.AaGuid.ToString()),
                 };
 
                 var user = new IdentityServerUser(loginResponse.AccountId.ToString())
@@ -87,7 +85,7 @@ namespace Fido2me.Pages
 
             ErrorMessage = loginResponse.ErrorMessage;
             ModelState.AddModelError(string.Empty, loginResponse.ErrorMessage);
-            //return new JsonResult("Invalid login attempt.");        
+                  
             return RedirectToPage("./Login", new { ReturnUrl = ReturnUrl});
 
 
