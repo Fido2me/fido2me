@@ -63,7 +63,7 @@ public class Consent : PageModel
         if (request == null || request.Subject.GetSubjectId() != User.GetSubjectId())
         {
             _logger.LogError("Invalid id {id}", Input.Id);
-            return RedirectToPage("/Home/Error/Index");
+            return RedirectToPage("/general/error");
         }
 
         CompleteBackchannelLoginRequest result = null;

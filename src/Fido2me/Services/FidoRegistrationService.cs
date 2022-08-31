@@ -164,13 +164,26 @@ namespace Fido2me.Services
                 await _dataContext.Attestations.AddAsync(attestation);
             }
 
-            var account = new Account()
+            var account = await _dataContext.Accounts.FirstOrDefaultAsync(a => a.Id == credential.AccountId);
+            if (account == null)
             {
-                Id = credential.AccountId,
-                EmailVerified = false,                
-            };
-            
-            await _dataContext.Accounts.AddAsync(account);
+                // new registration
+                account = new Account()
+                {
+                    Id = credential.AccountId,
+                    EmailVerified = false,
+                    Username = credential.Username,
+                    DeviceAllCount = 1,
+                    DeviceEnabledCount = 1,
+                };
+                await _dataContext.Accounts.AddAsync(account);
+            }
+            else
+            {
+                // adding new device to existing account
+                account.DeviceAllCount++;
+                account.DeviceEnabledCount++;
+            }        
 
             await _dataContext.SaveChangesAsync();
 

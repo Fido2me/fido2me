@@ -35,7 +35,7 @@ namespace Fido2me.Duende
                 AuthorizedScopes = null,
                 ClientId = request.ClientId,
                 CreatedAt = DateTimeOffset.Now,
-                Lifetime = request.Lifetime,
+                Lifetime = request.Lifetime,  
             };
             var r = await _context.CibaLoginRequests.AddAsync(cibaLoginRequest);
             await _context.SaveChangesAsync();
