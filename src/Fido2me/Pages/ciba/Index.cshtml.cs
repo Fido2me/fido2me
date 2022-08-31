@@ -31,7 +31,7 @@ public class IndexModel : PageModel
         if (LoginRequest == null)
         {
             _logger.LogWarning("Invalid backchannel login id {id}", id);
-            return RedirectToPage("/home/error/index");
+            return RedirectToPage("/general/error");
         }
 
         return Page();

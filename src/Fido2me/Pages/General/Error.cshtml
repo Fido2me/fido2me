@@ -1,26 +1,25 @@
-﻿@page
+﻿@page "/general/error"
+
 @model ErrorModel
 @{
     ViewData["Title"] = "Error";
+    Layout = "~/Pages/Shared/_LayoutAuth.cshtml";
 }
 
-<h1 class="text-danger">Error.</h1>
-<h2 class="text-danger">An error occurred while processing your request.</h2>
 
-@if (Model.ShowRequestId)
-{
-    <p>
-        <strong>Request ID:</strong> <code>@Model.RequestId</code>
-    </p>
-}
-
-<h3>Development Mode</h3>
-<p>
-    Swapping to the <strong>Development</strong> environment displays detailed information about the error that occurred.
-</p>
-<p>
-    <strong>The Development environment shouldn't be enabled for deployed applications.</strong>
-    It can result in displaying sensitive information from exceptions to end users.
-    For local debugging, enable the <strong>Development</strong> environment by setting the <strong>ASPNETCORE_ENVIRONMENT</strong> environment variable to <strong>Development</strong>
-    and restarting the app.
-</p>
+<div class="error-page container">
+    <div class="col-md-8 col-12 offset-md-2">
+        <div class="text-center">
+            <img class="img-fluid" src="~/assets/images/samples/error-500.png" alt="Something is wrong">
+            <h1 class="error-title">Error</h1>
+            @if (Model.ShowRequestId)
+            {
+                <p>
+                    <strong>Request ID:</strong> <code>@Model.RequestId</code>
+                </p>
+            }
+            <p class="fs-5 text-gray-600">Ouch, try again. Or do not try if you did something that is not supported yet.</p>
+            <a href="/" class="btn btn-lg btn-outline-primary mt-3">Go Home</a>
+        </div>
+    </div>
+</div>
