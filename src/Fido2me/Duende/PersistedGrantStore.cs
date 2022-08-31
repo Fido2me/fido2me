@@ -35,6 +35,7 @@ namespace Fido2me.Duende
 
         public Task StoreAsync(PersistedGrant grant)
         {
+            return Task.CompletedTask;
             throw new NotImplementedException();
         }
     }

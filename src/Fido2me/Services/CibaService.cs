@@ -1,8 +1,11 @@
-﻿using Fido2me.Pages.auth;
+﻿using Duende.IdentityServer;
+using Fido2me.Pages.auth;
 using IdentityModel;
 using IdentityModel.Client;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.DataProtection;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Text.Json;
 using BackchannelAuthenticationResponse = IdentityModel.Client.BackchannelAuthenticationResponse;
 
@@ -97,7 +100,6 @@ namespace Fido2me.Services
                 AuthenticationRequestId = authRequestId,
             });
 
-            
             return response;
         }
         
