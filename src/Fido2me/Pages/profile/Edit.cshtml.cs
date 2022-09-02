@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Fido2me.Services;
 using Fido2me.Models;
+using Fido2me.Responses;
 
 namespace Fido2me.Pages.profile
 {
@@ -14,6 +15,9 @@ namespace Fido2me.Pages.profile
             _accountService = accountService;
             _logger = logger;
         }
+
+        [BindProperty]
+        public GenericResponse GenericResponse { get; set; } = default!;
 
         [BindProperty]
         public AccountViewModel Account { get; set; } = default!;
@@ -34,13 +38,15 @@ namespace Fido2me.Pages.profile
             if (ModelState.IsValid)
             {
                 // Save changes
-                var requireEmailVerification = await _accountService.UpdateAccountAsync(AccountId, account);
+                var accountUpdateResponse = await _accountService.UpdateAccountAsync(AccountId, account);
 
-                if (requireEmailVerification)
+                if (!accountUpdateResponse.IsError)
                 {
                     // need to verify email again
                     return RedirectToPage("./EmailVerification");
                 }
+
+                GenericResponse = accountUpdateResponse;
             }
             return Page();
         }

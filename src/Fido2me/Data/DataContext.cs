@@ -25,6 +25,8 @@ namespace Fido2me.Data
 
         public DbSet<CibaLoginRequest> CibaLoginRequests { get; set; }
 
+        public DbSet<OidcPersistedGrant> OidcPersistedGrants { get; set; }
+
 
 
         private IWebHostEnvironment _env;
@@ -114,6 +116,10 @@ namespace Fido2me.Data
                 v => string.Join(',', v),
                 v => v.Split(',', StringSplitOptions.RemoveEmptyEntries)
             );
+
+            modelBuilder.Entity<OidcPersistedGrant>()
+            .ToContainer("OidcPersistedGrants")
+            .HasNoDiscriminator();
 
             if (_env.EnvironmentName == "Development")
             {

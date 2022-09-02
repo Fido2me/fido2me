@@ -1,15 +1,20 @@
 ﻿using Duende.IdentityServer.Models;
 using Duende.IdentityServer.Stores;
 using Fido2me.Data;
+using Fido2me.Data.OIDC;
+using Microsoft.EntityFrameworkCore;
 
 namespace Fido2me.Duende
 {
     public class PersistedGrantStore : IPersistedGrantStore
     {
         private readonly DataContext _dataContext;
-        public PersistedGrantStore(DataContext dataContext)
+        private readonly ILogger<PersistedGrantStore> _logger;
+
+        public PersistedGrantStore(DataContext dataContext, ILogger<PersistedGrantStore> logger)
         {
             _dataContext = dataContext;
+            _logger = logger;
         }
 
         public Task<IEnumerable<PersistedGrant>> GetAllAsync(PersistedGrantFilter filter)
@@ -18,25 +23,52 @@ namespace Fido2me.Duende
             throw new NotImplementedException();
         }
 
-        public Task<PersistedGrant> GetAsync(string key)
+        public async Task<PersistedGrant> GetAsync(string key)
         {
-            throw new NotImplementedException();
+            var pGrant = await _dataContext.OidcPersistedGrants
+                                .AsNoTracking()
+                                .Where(g => g.Key == key)
+                                .Select(g => new PersistedGrant()
+                                {
+                                    Key = g.Key,
+                                    ClientId = g.ClientId,
+                                    CreationTime = g.CreationTime,
+                                    Data = g.Data,
+                                    Expiration = g.Expiration,
+                                    SubjectId = g.SubjectId,
+                                    Type = g.Type,
+                                })
+                                .FirstOrDefaultAsync();
+
+            return pGrant;
         }
 
         public Task RemoveAllAsync(PersistedGrantFilter filter)
         {
-            throw new NotImplementedException();
+            return Task.CompletedTask;
+           
         }
 
         public Task RemoveAsync(string key)
         {
-            throw new NotImplementedException();
+            return Task.CompletedTask;
+        
         }
 
-        public Task StoreAsync(PersistedGrant grant)
+        public async Task StoreAsync(PersistedGrant grant)
         {
-            return Task.CompletedTask;
-            throw new NotImplementedException();
+            var pGrant = new OidcPersistedGrant()
+            {
+                Key = grant.Key,
+                ClientId= grant.ClientId,
+                CreationTime = grant.CreationTime,
+                Data = grant.Data,
+                Expiration = grant.Expiration,
+                SubjectId = grant.SubjectId,
+                Type = grant.Type,
+            };
+            await _dataContext.OidcPersistedGrants.AddAsync(pGrant);
+            await _dataContext.SaveChangesAsync();            
         }
     }
 }

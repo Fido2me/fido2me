@@ -36,7 +36,7 @@ namespace Fido2me.Duende
             // openid,profile,offline_access - that's all that we support
             var apiScopes = new List<ApiScope>()
             {
-                
+                new ApiScope("openid2")
             };
             return Task.FromResult(apiScopes.AsEnumerable());
         }
@@ -47,6 +47,7 @@ namespace Fido2me.Duende
                 new List<IdentityResource>()
                 {
                     new IdentityResources.OpenId(),
+                    new IdentityResources.Profile(),
                 }.AsEnumerable<IdentityResource>()
             );
         }
