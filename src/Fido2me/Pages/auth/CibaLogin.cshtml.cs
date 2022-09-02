@@ -91,7 +91,9 @@ namespace Fido2me.Pages.auth
 
                 _logger.LogInformation("User logged in as ... with CIBA.");
                 await HttpContext.SignInAsync(user).ConfigureAwait(false);
+
                 return Redirect("~/");
+
             }     
 
         }
