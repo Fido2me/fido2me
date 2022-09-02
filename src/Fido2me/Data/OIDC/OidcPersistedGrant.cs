@@ -5,6 +5,7 @@ namespace Fido2me.Data.OIDC
 {
     public class OidcPersistedGrant
     {
+        [Key]
         public string Key { get; set; }
         public string Type { get; set; }
         public string SubjectId { get; set; }

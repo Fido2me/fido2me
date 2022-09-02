@@ -11,18 +11,40 @@
         <div id="auth-left">
             <div class="auth-logo">                
             </div>
-            <h1 class="auth-title">Fido2Me</h1>
-            <p class="auth-subtitle mb-5">CIBA Sign in</p>
+            <h1 class="auth-title">CIBA Sign in</h1>
+            <p class="auth-subtitle mb-5">Use another device for sign in</p>
+
+            <p class='text-gray-600'>
+                Client Initiated Backchannel Authentication (CIBA) allows to create a sign in request and approve it from another authenticated device.
+                <a class="" data-bs-toggle="collapse" data-bs-target="#cibaHelp" href="#cibaHelp">
+                    Expand...
+                </a>
+            </p>
+
+            <div class="collapse text-gray-600" id="cibaHelp">                
+                <ul>
+                    <li>1. Enter the username to "Sign in as"</li>
+                    <li>2. Click the "Sign in as" button. You will have 3 minutes to complete the approval from another device.</li>
+                    <li>3. Go to the Request page from another authenticated device</li>
+                    <li>4. Process the request and compare the binding message from this page.</li>
+                    <li>5. Provide a consent to authenticate the current device</li>
+                    <li>6. Go back to this page and click the "Continue" button</li>
+                    <li>7. It will completed the CIBA flow</li>
+                    <li>You may or not want to add the current device to the list of authenticators.</li>
+                </ul>
+            </div>
 
             @if (Model.CibaLoginVM != null)
-            {
-                <p>Username: @Model.CibaLoginVM.Username</p>
-                <p>Binding Message: @Model.CibaLoginVM.Message</p>
+            {   <div>
+                    <p class="fw-bold">Username: @Model.CibaLoginVM.Username</p>
+                    <p class="fw-bold">Binding Message: @Model.CibaLoginVM.Message</p>
                
-                <p>I authorized the request with and ready to continue</p>
-                <form asp-page-handler="continue" method="post">                
-                    <button type="submit" class="btn btn-primary btn-block btn-lg shadow-lg mt-5">Continue</button>                
-                </form>
+                    <p>Click "Continue" after completing the approval from another device.</p>
+
+                    <form asp-page-handler="continue" method="post">                
+                        <button type="submit" class="btn btn-primary btn-block btn-lg shadow-lg">Continue</button>                
+                    </form>
+                </div>
             }
             else
             {
@@ -35,10 +57,9 @@
                             <i class="bi bi-person"></i>
                         </div>
                     </div>
-                    <button type="submit" class="btn btn-primary btn-block btn-lg shadow-lg mt-5">Sign in as</button>                
+                    <button type="submit" class="btn btn-primary btn-block btn-lg shadow-lg">Sign in as</button>                
                 </form>
             }
-
         </div>
     </div>
     <div class="col-lg-7 d-none d-lg-block">

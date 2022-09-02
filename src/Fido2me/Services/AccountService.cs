@@ -17,7 +17,7 @@ namespace Fido2me.Services
 
         Task UpdateCredentialAsync(Credential fidoCredential);
         Task<EmailVerificationResponse> VerifyEmailAsync(Guid accountId, int code);
-        Task<bool> UpdateAccountAsync(Guid accountId, AccountViewModel account);
+        Task<AccountUpdateResponse> UpdateAccountAsync(Guid accountId, AccountViewModel account);
     }
 
     public class AccountService : IAccountService
@@ -105,20 +105,28 @@ namespace Fido2me.Services
             return new EmailVerificationResponse(EmailVerificationResponseStatus.Success, "All good");
         }
 
-        public async Task<bool> UpdateAccountAsync(Guid accountId, AccountViewModel accountVM)
+        public async Task<AccountUpdateResponse> UpdateAccountAsync(Guid accountId, AccountViewModel accountVM)
         {
-            if (accountVM.OldEmail?.ToLower().Trim() == accountVM.Email.ToLower().Trim())
+            var newEmail = accountVM.Email.Trim().ToLowerInvariant();
+            if (accountVM.OldEmail?.Trim().ToLowerInvariant() == newEmail)
             {
                 // this one will return false if initial attempt was unsuccessful, but you still want to use the email, so this code needs to be rewritten
                 // nothing to change at this point
-                return false;
+                return new AccountUpdateResponse() { IsError = true, Message = "You already have this email."};
             }
+
+            var uniqueEmail = await _context.Accounts.Where(a => a.Email == newEmail).CountAsync() == 0;
             
+            if (!uniqueEmail)
+            {
+                return new AccountUpdateResponse() { IsError = true, Message = "Email is taken." };
+            }
+
             var account = await _context.Accounts.FirstOrDefaultAsync(a => a.Id == accountId);
             if (account == null)
-                throw new ArgumentNullException("Account not found");
+                return new AccountUpdateResponse() { IsError = true, Message = "Account doesn't exist." };
 
-            account.Email = accountVM.Email.ToLower().Trim();
+            account.Email = newEmail;
             account.EmailVerified = false;
 
             var code = GenerateChallengeCode();
@@ -137,7 +145,7 @@ namespace Fido2me.Services
             {
                 // account.EmailVerification.Created vs DateTimeOffset.Now + 1 day
 
-                if (account.Email == accountVM.Email.ToLower().Trim())
+                if (account.Email == newEmail)
                 {
                     // not first attempt for this email - legit use case?
                 }
@@ -150,8 +158,10 @@ namespace Fido2me.Services
             await _context.SaveChangesAsync();
 
             var emailSent = await _emailService.SendEmailAsync(account.Email, code);
+            var message = emailSent ? "Email has been sent." : "Email has not been sent.";
 
-            return emailSent;
+
+            return new AccountUpdateResponse() { IsError = !emailSent, Message = message };
         }
 
         private int GenerateChallengeCode()
@@ -160,4 +170,7 @@ namespace Fido2me.Services
             return random;
         }
     }
+
+    public class AccountUpdateResponse : GenericResponse
+    {  }
 }

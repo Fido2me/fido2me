@@ -3,6 +3,7 @@ using Duende.IdentityServer.Stores;
 using Fido2me.Data;
 using Fido2me.Helpers;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 using System.Security.Claims;
 
 namespace Fido2me.Duende
@@ -92,20 +93,20 @@ namespace Fido2me.Duende
             var subject = IdentityServerHelper.GenerateSubjectById(subjectId);
 
             var loginRequests = await _context.CibaLoginRequests
-                .Where(c => c.SubjectId == subjectId)
-                .Select(c => new BackChannelAuthenticationRequest() 
+                .AsNoTracking() 
+                .Where(c => (c.SubjectId == subjectId) && (clientId != null ? c.ClientId == clientId : true == true))                
+                .Select(c => new BackChannelAuthenticationRequest()
                 {
                     BindingMessage = c.BindingMessage,
                     InternalId = c.Id,
                     Subject = subject,
-                    ClientId = clientId, 
+                    ClientId = c.ClientId,
                     RequestedScopes = c.RequestedScopes,
                     AuthorizedScopes = c.AuthorizedScopes,
                     CreationTime = c.CreatedAt.UtcDateTime,
-                    Lifetime= c.Lifetime,
+                    Lifetime = c.Lifetime,
                     IsComplete = c.IsComplete,
-                })
-                .ToListAsync();
+                }).ToListAsync();
 
             return loginRequests;
         }

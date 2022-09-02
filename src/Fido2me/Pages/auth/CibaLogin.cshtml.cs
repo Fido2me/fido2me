@@ -41,7 +41,7 @@ namespace Fido2me.Pages.auth
         {
             var usernameNormalized = username.Trim().ToLowerInvariant();
             var bindingMessage = Guid.NewGuid().ToString("N").Substring(0, 10);
-
+            // user doesn't exist?
             var loginResponse = await _cibaService.CibaLoginStartAsync(usernameNormalized, bindingMessage);
 
             // TODO: issue model error instead
