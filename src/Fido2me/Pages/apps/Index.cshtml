@@ -8,10 +8,11 @@
 <h1>Index</h1>
 
 <p>
-    <a asp-page="Create">Create New</a>
+    <a class="btn btn-outline-primary" asp-page="./Create" asp-route-clientType="public">New Public Client</a>
+    <a class="btn btn-outline-primary" asp-page="./Create" asp-route-clientType="private">New Private Client</a>
 </p>
 
-@if(Model.OidcBasicClients is null)
+@if(Model.OidcBasicClientVMs is null)
 {
     <p>No entries yet</p>
 }
@@ -21,44 +22,45 @@ else
         <thead>
             <tr>
                 <th>
-                    @Html.DisplayNameFor(model => model.OidcBasicClients[0].Enabled)
+                    @Html.DisplayNameFor(model => model.OidcBasicClientVMs[0].Enabled)
                 </th>
                 <th>
-                    @Html.DisplayNameFor(model => model.OidcBasicClients[0].ClientId)
+                    @Html.DisplayNameFor(model => model.OidcBasicClientVMs[0].ClientId)
                 </th>
                 <th>
-                    @Html.DisplayNameFor(model => model.OidcBasicClients[0].RequireClientSecret)
+                    @Html.DisplayNameFor(model => model.OidcBasicClientVMs[0].RequireClientSecret)
                 </th>
                 <th>
-                    @Html.DisplayNameFor(model => model.OidcBasicClients[0].ClientName)
+                    @Html.DisplayNameFor(model => model.OidcBasicClientVMs[0].ClientName)
                 </th>
                 <th>
-                    @Html.DisplayNameFor(model => model.OidcBasicClients[0].Description)
+                    @Html.DisplayNameFor(model => model.OidcBasicClientVMs[0].Description)
                 </th>
                 <th>
-                    @Html.DisplayNameFor(model => model.OidcBasicClients[0].RedirectUri)
+                    @Html.DisplayNameFor(model => model.OidcBasicClientVMs[0].RedirectUri)
                 </th>
                 <th>
-                    @Html.DisplayNameFor(model => model.OidcBasicClients[0].PostLoginUrl)
+                    @Html.DisplayNameFor(model => model.OidcBasicClientVMs[0].PostLoginUrl)
                 </th>
                 <th>
-                    @Html.DisplayNameFor(model => model.OidcBasicClients[0].PostLogoutUrl)
+                    @Html.DisplayNameFor(model => model.OidcBasicClientVMs[0].PostLogoutUrl)
                 </th>
                 <th>
                 <th>
-                    @Html.DisplayNameFor(model => model.OidcBasicClients[0].AllowOfflineAccess)
+                        @Html.DisplayNameFor(model => model.OidcBasicClientVMs[0].AllowOfflineAccess)
                 </th>
                 <th>
-                    @Html.DisplayNameFor(model => model.OidcBasicClients[0].Created)
+                    @Html.DisplayNameFor(model => model.OidcBasicClientVMs[0].Created)
                 </th>
                 <th>
-                    @Html.DisplayNameFor(model => model.OidcBasicClients[0].Updated)
+                        @Html.DisplayNameFor(model => model.OidcBasicClientVMs[0].Updated)
                 </th>
                 <th></th>
             </tr>
         </thead>
         <tbody>
-    @foreach (var item in Model.OidcBasicClients) {
+            @foreach (var item in Model.OidcBasicClientVMs)
+            {
             <tr>
                 <td>
                     @Html.DisplayFor(modelItem => item.Enabled)

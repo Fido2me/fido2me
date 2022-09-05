@@ -1,14 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Fido2me.Data;
-using Fido2me.Data.OIDC;
 using Fido2me.Services;
 using Fido2me.Models;
+using Microsoft.AspNetCore.Components;
 
 namespace Fido2me.Pages.OidcApp
 {
@@ -21,13 +15,25 @@ namespace Fido2me.Pages.OidcApp
             _oidcService = oidcService;
         }
 
-        public IActionResult OnGet()
-        {
-            return Page();
-        }
+        public string ClientType { get; set; }
 
         [BindProperty]
         public OidcBasicClientViewModel OidcBasicClientVM { get; set; } = default!;
+
+        public async Task<IActionResult> OnGetAsync(string clientType)
+        {
+            switch (clientType)
+            {
+                case "public":
+                    ClientType = "public";
+                    break;
+                default:
+                    ClientType = "private";
+                    break;
+            }
+            var r = await _oidcService.GenerateNewClientIdAndSecret(clientType);
+            return Page();
+        }
         
 
         // To protect from overposting attacks, see https://aka.ms/RazorPagesCRUD

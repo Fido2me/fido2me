@@ -166,7 +166,7 @@ namespace Fido2me.Services
 
         private int GenerateChallengeCode()
         {
-            var random = RandomNumberGenerator.GetInt32(1000000, int.MaxValue);
+            var random = RandomNumberGenerator.GetInt32(1000000, 9999999);
             return random;
         }
     }

@@ -12,22 +12,21 @@ using Fido2me.Services;
 
 namespace Fido2me.Pages.OidcApp
 {
-    public class IndexModel : PageModel
+    public class IndexModel : BasePageModel
     {
         private readonly IOidcBasicClientService _oidcService;
+
+        [BindProperty]
+        public List<OidcBasicClientViewModel> OidcBasicClientVMs { get; set; } = default!;
 
         public IndexModel(IOidcBasicClientService oidcService)
         {
             _oidcService = oidcService;
         }
 
-        public IList<OidcBasicClientViewModel> OidcBasicClients { get; set; } = default!;
-
         public async Task OnGetAsync()
         {
-            // get accountId
-            //User.Claims.
-            //OidcBasicClients = await _oidcService.GetBasicClientsByAccountIdAsync()
+            OidcBasicClientVMs = await _oidcService.GetBasicClientsByAccountIdAsync(AccountId);
 
         }
     }
