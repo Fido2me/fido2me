@@ -2,13 +2,13 @@
 using Fido2NetLib;
 using System.ComponentModel.DataAnnotations;
 
-namespace Fido2me.Models
+namespace Fido2me.Models.Applications
 {
     public class OidcBasicClientViewModel
     {
         public bool? Enabled { get; set; }
 
-        public string? ClientId { get; set; }
+        public string ClientId { get; set; }
 
         [Required]
         public string ClientType { get; set; } = "Public";
@@ -21,7 +21,7 @@ namespace Fido2me.Models
         public string ClientName { get; set; } = "";
 
         [MaxLength(1000)]
-        public string? Description { get; set; }
+        public string Description { get; set; }
 
         // public bool? RequireConsent { get; set; }
 
@@ -40,7 +40,7 @@ namespace Fido2me.Models
         public string CorsOrigin { get; set; } = "";
 
         [MaxLength(250)]
-        public string? GrantType { get; set; }
+        public string GrantType { get; set; }
 
         [Required]
         [MaxLength(200)]
@@ -56,10 +56,10 @@ namespace Fido2me.Models
 
 
         [MaxLength(200)]
-        public string? Scope { get; set; } = "openid profile email";
+        public string Scope { get; set; } = "openid profile email";
 
         [MaxLength(200)]
-        public string? ClientSecret { get; set; }
+        public string ClientSecret { get; set; }
 
 
     }

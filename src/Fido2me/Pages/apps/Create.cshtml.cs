@@ -1,12 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Fido2me.Services;
-using Fido2me.Models;
 using Microsoft.AspNetCore.Components;
+using Fido2me.Models.Applications;
 
 namespace Fido2me.Pages.OidcApp
 {
-    public class CreateModel : PageModel
+    public class CreateModel : BasePageModel
     {
         private readonly IOidcBasicClientService _oidcService;
 

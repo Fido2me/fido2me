@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Fido2me.Data;
 using Fido2me.Data.OIDC;
-using Fido2me.Models;
+using Fido2me.Models.Applications;
 
 namespace Fido2me.Pages.OidcApp
 {

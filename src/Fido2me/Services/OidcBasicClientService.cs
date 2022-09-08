@@ -2,7 +2,7 @@
 using Fido2me.Data;
 using Fido2me.Data.FIDO2;
 using Fido2me.Data.OIDC;
-using Fido2me.Models;
+using Fido2me.Models.Applications;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Cryptography;
 

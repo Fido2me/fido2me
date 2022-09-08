@@ -13,6 +13,22 @@
     <div class="col-md-4">
         <form method="post">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label class="control-label mr-3" for="scopes">Scopes</label>
+                   
+                <div class="form-check form-check-inline" id="scopes">
+                    <input class="form-check-input" type="checkbox" id="cb_openid" value="openid" disabled checked>
+                    <label class="form-check-label" for="cb_openid">openid</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" id="cb_profile" value="profile">
+                    <label class="form-check-label" for="cb_profile">profile</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" id="cb_email" value="email">
+                    <label class="form-check-label" for="cb_email">email</label>
+                </div>
+            </div>
             <div class="form-group form-check">
                 <label class="form-check-label">
                     <input class="form-check-input" asp-for="OidcBasicClientVM.Enabled" /> @Html.DisplayNameFor(model => model.OidcBasicClientVM.Enabled)
@@ -20,7 +36,7 @@
             </div>
             <div class="form-group">
                 <label asp-for="OidcBasicClientVM.ClientId" class="control-label"></label>
-                <input asp-for="OidcBasicClientVM.ClientId" class="form-control" />
+                <input asp-for="OidcBasicClientVM.ClientId" class="form-control" readonly />
                 <span asp-validation-for="OidcBasicClientVM.ClientId" class="text-danger"></span>
             </div>
             <div class="form-group form-check">
