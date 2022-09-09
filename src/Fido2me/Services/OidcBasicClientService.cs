@@ -1,4 +1,5 @@
-﻿using Duende.IdentityServer.Models;
+﻿using Duende.IdentityServer;
+using Duende.IdentityServer.Models;
 using Fido2me.Data;
 using Fido2me.Data.FIDO2;
 using Fido2me.Data.OIDC;
@@ -10,8 +11,8 @@ namespace Fido2me.Services
 {
     public interface IOidcBasicClientService
     {
-        Task AddBasicClientAsync(OidcBasicClientViewModel oidcBasicClientVM);
-        Task<OidcBasicClientViewModel> GenerateNewClientIdAndSecret(string clientType);
+        Task AddBasicClientAsync(OidcCreateClientViewModel oidcBasicClientVM, Guid accountId);
+        Task<OidcCreateClientViewModel> GenerateNewClientIdAndSecret();
         Task<List<OidcBasicClientViewModel>> GetBasicClientsByAccountIdAsync(Guid accountId);
     }
 
@@ -19,34 +20,57 @@ namespace Fido2me.Services
     {
         private readonly DataContext _context;
 
+        private const int ClientSecretLength = 32;
+
         public OidcBasicClientService(DataContext context)
         {
             _context = context;
         }
 
-        public async Task AddBasicClientAsync(OidcBasicClientViewModel oidcBasicClientVM)
+        public async Task AddBasicClientAsync(OidcCreateClientViewModel oidcBasicClientVM, Guid accountId)
         {
+            var currentTime = DateTimeOffset.UtcNow;
+
             var oidcBasicClient = new OidcBasicClient()
             {
-                
+                AccountId = accountId,
+
+                ClientId = oidcBasicClientVM.ClientId,
+                ClientSecrets = { new ClientSecret()
+                {
+                    Created = currentTime,
+                    Type = IdentityServerConstants.SecretTypes.SharedSecret,
+                    Value = oidcBasicClientVM.ClientSecret.Sha256(),
+                } },
+                AllowOfflineAccess = false, // delegate session management completely to relying party?
+                ClientGrantTypes = GrantTypes.Code.ToArray(), // use code + PKCE for both public and confidential clients
+                Enabled = true,
+                AllowRememberConsent = true,
+                RequireConsent = true,
+                ClientName = oidcBasicClientVM.ClientName,
+                Description = oidcBasicClientVM.Description,
+                Created = currentTime,
+                RequireClientSecret = oidcBasicClientVM.RequireClientSecret,
+                ClientScopes = oidcBasicClientVM.Scope.Split(' '),
+                ClientRedirectUris = new string[] { oidcBasicClientVM.RedirectUri },
             };
-            oidcBasicClient.ClientGrantTypes = GrantTypes.Code.ToArray();
+            
             //oidcBasicClient.ClientGrantTypes.Add(new ClientGrantType() { GrantType = "" });
-            if (oidcBasicClientVM.RequireClientSecret)
+            //if (oidcBasicClientVM.RequireClientSecret)
             {
-                oidcBasicClient.ClientCorsOrigins = new string[1] { oidcBasicClientVM.CorsOrigin };
+                //oidcBasicClient.ClientCorsOrigins = new string[1] { oidcBasicClientVM.CorsOrigin };
             }
 
             await _context.OidcBasicClients.AddAsync(oidcBasicClient);
             await _context.SaveChangesAsync();
         }
 
-        public async Task<OidcBasicClientViewModel> GenerateNewClientIdAndSecret(string clientType)
+        public async Task<OidcCreateClientViewModel> GenerateNewClientIdAndSecret()
         {
-            var generatedClientId = Guid.NewGuid().ToString("N").ToUpperInvariant();
-            var generatedClientSecret = GenerateCryptoRandomString(32);
+            var generatedClientId = Guid.NewGuid().ToString("N").ToLowerInvariant();
+            var generatedClientSecret = GenerateCryptoRandomString(ClientSecretLength).ToLowerInvariant();
 
-            var clientVM = new OidcBasicClientViewModel()
+            var clientVM = new OidcCreateClientViewModel()
             {
                 ClientId = generatedClientId,
                 ClientSecret = generatedClientSecret,
@@ -59,7 +83,7 @@ namespace Fido2me.Services
         private static string GenerateCryptoRandomString(int byteLength)
         {
             var random = RandomNumberGenerator.Create();
-            var bytes = new byte[32];
+            var bytes = new byte[byteLength];
             random.GetNonZeroBytes(bytes);
             return Convert.ToHexString(bytes);
         }

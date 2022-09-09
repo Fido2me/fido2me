@@ -20,7 +20,10 @@ namespace Fido2me.Models.Applications
         [MaxLength(1000)]
         public string Description { get; set; }
 
-        // public bool? RequireConsent { get; set; }
+        [Required]
+        public bool RequireClientSecret { get; set; } = true;
+
+        //public bool? RequireConsent { get; set; }
 
         //public bool? AllowRememberConsent { get; set; }
 
@@ -49,11 +52,20 @@ namespace Fido2me.Models.Applications
 
 
         [MaxLength(200)]
-        public string Scope { get; set; } = "openid profile email";
+        public string Scope { get; set; } = "openid";
+
+        public ClientScopes ClientScopes { get; set; }
 
         [MaxLength(200)]
         public string ClientSecret { get; set; }
 
 
+    }
+
+    public class ClientScopes
+    {
+        // note: openid is always set, but no reason to send it back and forth
+        public bool Email { get; set; }
+        public bool Profile { get; set; }
     }
 }

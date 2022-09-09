@@ -24,14 +24,14 @@ namespace Fido2me.Pages.OidcApp
         [BindProperty]
         public OidcBasicClientViewModel OidcBasicClient { get; set; } = default!;
 
-        public async Task<IActionResult> OnGetAsync(Guid? id)
+        public async Task<IActionResult> OnGetAsync(string? id)
         {
             if (id == null || _context.OidcBasicClients == null)
             {
                 return NotFound();
             }
 
-            var oidcbasicclient =  await _context.OidcBasicClients.FirstOrDefaultAsync(m => m.Id == id);
+            var oidcbasicclient =  await _context.OidcBasicClients.FirstOrDefaultAsync(m => m.ClientId == id);
             if (oidcbasicclient == null)
             {
                 return NotFound();
@@ -57,9 +57,9 @@ namespace Fido2me.Pages.OidcApp
             return RedirectToPage("./Index");
         }
 
-        private bool OidcBasicClientExists(Guid id)
+        private bool OidcBasicClientExists(string id)
         {
-          return (_context.OidcBasicClients?.Any(e => e.Id == id)).GetValueOrDefault();
+          return (_context.OidcBasicClients?.Any(e => e.ClientId == id)).GetValueOrDefault();
         }
     }
 }

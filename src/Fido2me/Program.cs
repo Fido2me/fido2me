@@ -66,7 +66,9 @@ services.AddDbContext<DataContext>(options =>
 
 // https://docs.microsoft.com/en-us/aspnet/core/security/data-protection/configuration/overview?view=aspnetcore-6.0.
 // use db context for now
-services.AddDataProtection().PersistKeysToDbContext<DataContext>();
+services.AddDataProtection()
+    .DisableAutomaticKeyGeneration() // TODO: manual rotation to avoid inserting duplicate records to DB?
+    .PersistKeysToDbContext<DataContext>();
 
 
 // Use the in-memory implementation of IDistributedCache.
