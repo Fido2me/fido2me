@@ -9,6 +9,7 @@ using Fido2me.Data;
 using Fido2me.Data.OIDC;
 using Fido2me.Services;
 using Fido2me.Models.Applications;
+using Fido2me.Models;
 
 namespace Fido2me.Pages.OidcApp
 {
@@ -28,6 +29,18 @@ namespace Fido2me.Pages.OidcApp
         {
             OidcBasicClientVMs = await _oidcService.GetBasicClientsByAccountIdAsync(AccountId);
 
+        }
+
+        public async Task<IActionResult> OnPostEnableAsync(string clientId)
+        {
+            //await _oidcService.ChangeDeviceStatusAsync(credentialId, AccountId);
+            return RedirectToPage("./Index");
+        }
+
+        public async Task<IActionResult> OnPostDeleteAsync(string clientId)
+        {
+            //await _oidcService.DeleteDeviceAsync(credentialId, AccountId);
+            return RedirectToPage("./Index");
         }
     }
 }

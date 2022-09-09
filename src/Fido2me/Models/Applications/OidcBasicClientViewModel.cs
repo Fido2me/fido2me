@@ -6,7 +6,7 @@ namespace Fido2me.Models.Applications
 {
     public class OidcBasicClientViewModel
     {
-        public bool? Enabled { get; set; }
+        public bool Enabled { get; set; }
 
         public string ClientId { get; set; }
 
