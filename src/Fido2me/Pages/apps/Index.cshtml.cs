@@ -18,7 +18,7 @@ namespace Fido2me.Pages.OidcApp
         private readonly IOidcBasicClientService _oidcService;
 
         [BindProperty]
-        public List<OidcBasicClientViewModel> OidcBasicClientVMs { get; set; } = default!;
+        public List<OidcClientIndexViewModel> OidcClientIndexVMs { get; set; } = default!;
 
         public IndexModel(IOidcBasicClientService oidcService)
         {
@@ -27,7 +27,7 @@ namespace Fido2me.Pages.OidcApp
 
         public async Task OnGetAsync()
         {
-            OidcBasicClientVMs = await _oidcService.GetBasicClientsByAccountIdAsync(AccountId);
+            OidcClientIndexVMs = await _oidcService.GetBasicClientsByAccountIdAsync(AccountId);
 
         }
 

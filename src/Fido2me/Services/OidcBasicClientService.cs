@@ -12,8 +12,10 @@ namespace Fido2me.Services
     public interface IOidcBasicClientService
     {
         Task AddBasicClientAsync(OidcCreateClientViewModel oidcBasicClientVM, Guid accountId);
+        Task<bool> EditClientAsync(OidcClientEditViewModel oidcBasicClient, Guid accountId);
         Task<OidcCreateClientViewModel> GenerateNewClientIdAndSecret();
-        Task<List<OidcBasicClientViewModel>> GetBasicClientsByAccountIdAsync(Guid accountId);
+        Task<List<OidcClientIndexViewModel>> GetBasicClientsByAccountIdAsync(Guid accountId);
+        Task<OidcClientEditViewModel> GetClientToEditAsync(string clientId, Guid accountId);
     }
 
     public class OidcBasicClientService : IOidcBasicClientService
@@ -88,20 +90,54 @@ namespace Fido2me.Services
             return Convert.ToHexString(bytes);
         }
 
-        public async Task<List<OidcBasicClientViewModel>> GetBasicClientsByAccountIdAsync(Guid accountId)
+        public async Task<List<OidcClientIndexViewModel>> GetBasicClientsByAccountIdAsync(Guid accountId)
         {
             return await _context.OidcBasicClients
                 .AsNoTracking()
                 .Where(c => c.AccountId == accountId)
-                .Select(c => new OidcBasicClientViewModel
+                .Select(c => new OidcClientIndexViewModel
                 { 
-                    ClientId = c.ClientId,
-                    ClientName = c.ClientName,
-                    AllowOfflineAccess = c.AllowOfflineAccess,
+                    Id = c.ClientId,
+                    Name = c.ClientName,
+                    Description = c.Description,
+                    Enabled = c.Enabled,
+                    Type = c.RequireClientSecret ? "Confidential" : "Public",                 
                     
                 }).ToListAsync();
 
             
+        }
+
+        public async Task<bool> EditClientAsync(OidcClientEditViewModel oidcClientEdit, Guid accountId)
+        {
+            var client = await _context.OidcBasicClients.FirstOrDefaultAsync(c => c.AccountId == accountId && c.ClientId == oidcClientEdit.Id);
+
+            client.Updated = DateTimeOffset.UtcNow;
+            client.ClientName = oidcClientEdit.Name;
+            client.Description = oidcClientEdit.Description;
+            client.ClientRedirectUris = new string[] { oidcClientEdit.RedirectUri };
+            client.Enabled = oidcClientEdit.Enabled;
+            client.ClientCorsOrigins = new string[] { oidcClientEdit.CorsOrigin };
+
+            await _context.SaveChangesAsync();
+
+            return true;
+        }
+
+        public async Task<OidcClientEditViewModel> GetClientToEditAsync(string clientId, Guid accountId)
+        {
+            return await _context.OidcBasicClients
+                .AsNoTracking()
+                .Where(c => c.AccountId == accountId)
+                .Select(c => new OidcClientEditViewModel
+                {
+                    Id = c.ClientId,
+                    Name = c.ClientName,
+                    Description = c.Description,
+                    Enabled = c.Enabled,
+                    Type = c.RequireClientSecret ? "Confidential" : "Public",
+
+                }).FirstOrDefaultAsync();
         }
     }
 }

@@ -1,42 +1,38 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Mvc;
 using Fido2me.Data;
-using Fido2me.Data.OIDC;
 using Fido2me.Models.Applications;
+using Fido2me.Services;
 
 namespace Fido2me.Pages.OidcApp
 {
-    public class EditModel : PageModel
+    public class EditModel : BasePageModel
     {
-        private readonly Fido2me.Data.DataContext _context;
+        private readonly DataContext _context;
 
-        public EditModel(Fido2me.Data.DataContext context)
+        private readonly IOidcBasicClientService _oidcService;
+
+        public EditModel(DataContext context, IOidcBasicClientService oidcService)
         {
             _context = context;
+            _oidcService = oidcService;
         }
 
         [BindProperty]
-        public OidcBasicClientViewModel OidcBasicClient { get; set; } = default!;
+        public OidcClientEditViewModel OidcClientEdit { get; set; } = default!;
 
-        public async Task<IActionResult> OnGetAsync(string? id)
+        public async Task<IActionResult> OnGetAsync(string? clientId)
         {
-            if (id == null || _context.OidcBasicClients == null)
+            if (clientId == null)
             {
                 return NotFound();
             }
 
-            var oidcbasicclient =  await _context.OidcBasicClients.FirstOrDefaultAsync(m => m.ClientId == id);
-            if (oidcbasicclient == null)
+            OidcClientEdit =  await _oidcService.GetClientToEditAsync(clientId, AccountId);
+            if (OidcClientEdit == null)
             {
                 return NotFound();
             }
-            //OidcBasicClient = oidcbasicclient;
+            
             return Page();
         }
 
@@ -49,10 +45,7 @@ namespace Fido2me.Pages.OidcApp
                 return Page();
             }
 
-            _context.Attach(OidcBasicClient).State = EntityState.Modified;
-
-            await _context.SaveChangesAsync();
-
+            var c = await _oidcService.EditClientAsync(OidcClientEdit, AccountId);
 
             return RedirectToPage("./Index");
         }
