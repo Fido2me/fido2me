@@ -11,13 +11,13 @@ namespace Fido2me.Data.OIDC
         [MaxLength(4000)]
         public string Value { get; set; }
 
-        public DateTime? Expiration { get; set; }
+        public DateTimeOffset? Expiration { get; set; }
 
         [Required]
         [MaxLength(250)]
         public string Type { get; set; }
 
         [Required]
-        public DateTime Created { get; set; }       
+        public DateTimeOffset Created { get; set; }       
     }
 }

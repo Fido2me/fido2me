@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using Fido2me.Data;
 using Fido2me.Data.OIDC;
-using Fido2me.Models;
+using Fido2me.Models.Applications;
 
 namespace Fido2me.Pages.OidcApp
 {
@@ -22,14 +22,14 @@ namespace Fido2me.Pages.OidcApp
 
       public OidcBasicClientViewModel OidcBasicClient { get; set; } = default!; 
 
-        public async Task<IActionResult> OnGetAsync(Guid? id)
+        public async Task<IActionResult> OnGetAsync(string? id)
         {
             if (id == null || _context.OidcBasicClients == null)
             {
                 return NotFound();
             }
 
-            var oidcbasicclient = await _context.OidcBasicClients.FirstOrDefaultAsync(m => m.Id == id);
+            var oidcbasicclient = await _context.OidcBasicClients.FirstOrDefaultAsync(m => m.ClientId == id);
             if (oidcbasicclient == null)
             {
                 return NotFound();

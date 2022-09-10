@@ -13,7 +13,7 @@ namespace Fido2me.Data
                 ClientName = oidcc.ClientName,
                 RequireClientSecret = oidcc.RequireClientSecret,
                 AllowedGrantTypes = GrantTypes.Code,
-                ClientSecrets = oidcc.ClientSecrets.Select(c => new Secret { Type = c.Type, Value = c.Value, Description = c.Description, Expiration = c.Expiration }).ToList(), //new List<Secret> { new Secret("6EAAB749-D3A4-4C9C-B58F-EFFEC357FDBD") }, 
+                ClientSecrets = oidcc.ClientSecrets.Select(c => new Secret { Type = c.Type, Value = c.Value, Description = c.Description, Expiration = c.Expiration?.UtcDateTime }).ToList(), //new List<Secret> { new Secret("6EAAB749-D3A4-4C9C-B58F-EFFEC357FDBD") }, 
                 AllowedScopes = oidcc.ClientScopes,
                 AllowedCorsOrigins = oidcc.ClientCorsOrigins,
             };

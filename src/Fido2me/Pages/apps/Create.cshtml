@@ -1,4 +1,4 @@
-﻿@page
+﻿@page "/apps/create"
 @model Fido2me.Pages.OidcApp.CreateModel
 
 @{
@@ -10,49 +10,86 @@
 <h4>OidcBasicClient</h4>
 <hr />
 <div class="row">
-    <div class="col-md-4">
-        <form method="post">
+    <div class="col-md-9">
+        <form method="post" class="needs-validation" >
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="OidcBasicClientVM.Enabled" /> @Html.DisplayNameFor(model => model.OidcBasicClientVM.Enabled)
-                </label>
+
+            <div class="input-group mb-3">
+                <span class="input-group-text fw-bold w-25">Client Name</span>
+                <input type="text" class="form-control" placeholder="MyAppName" aria-label="MyAppName" asp-for="OidcCreateClientViewModel.ClientName">
+                <div class="valid-feedback">
+                    Looks good!
+                </div>
             </div>
+
+            <div class="input-group mb-3">
+                <span class="input-group-text fw-bold w-25">Description</span>
+                <input type="text" class="form-control"asp-for="OidcCreateClientViewModel.Description">
+            </div>
+            <div class="row g-3">
+                <div class="form-group form-check col-md-3">
+                    <label class="form-check-label  ms-3">
+                        <input class="form-check-input" asp-for="OidcCreateClientViewModel.RequireClientSecret" />
+                        <b>Can use Secret</b>
+                    </label>
+                </div>
+                <div class="col-md">
+                    Select, if your client is confidential.
+                    <p>Confidential clients are applications that are able to securely authenticate with the authorization server, for example being able to keep their registered client secret safe.</p>
+                    <p>Public clients are unable to use registered client secrets, such as applications running in a browser or on a mobile device.</p>
+                </div>
+
+            </div>
+
+            <div class="input-group mb-3"> 
+                <span class="input-group-text fw-bold w-25">Client ID</span>
+                <input class="form-control" readonly asp-for="OidcCreateClientViewModel.ClientId" />
+                <button type="button" class="btn btn-outline-primary">
+                    <i class="bi bi-clipboard"></i>
+                </button>
+           </div>
+
+            <div class="input-group mb-3">
+                <span class="input-group-text fw-bold w-25">Client Secret</span>
+                <input class="form-control" readonly  asp-for="OidcCreateClientViewModel.ClientSecret" />
+                <button type="button" class="btn btn-outline-primary">
+                    <i class="bi bi-clipboard"></i>
+                </button>
+            </div>
+            <div class="alert alert-info" role="alert">
+                Copy your secret now. You won’t be able to see it again.
+            </div>
+
             <div class="form-group">
-                <label asp-for="OidcBasicClientVM.ClientId" class="control-label"></label>
-                <input asp-for="OidcBasicClientVM.ClientId" class="form-control" />
-                <span asp-validation-for="OidcBasicClientVM.ClientId" class="text-danger"></span>
+                <label class="control-label ms-3 fw-bold w-25" for="scopes">Scopes</label>
+
+                <div class="form-check form-check-inline" id="scopes">
+                    <input class="form-check-input" type="checkbox" id="scopes_openid" disabled checked>
+                    <label class="form-check-label" for="scopes_openid">openid</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" asp-for="OidcCreateClientViewModel.ClientScopes.Profile">
+                    <label class="form-check-label" asp-for="OidcCreateClientViewModel.ClientScopes.Profile">profile</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" asp-for="OidcCreateClientViewModel.ClientScopes.Email">
+                    <label class="form-check-label" asp-for="OidcCreateClientViewModel.ClientScopes.Email">email</label>
+                </div>
             </div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="OidcBasicClientVM.RequireClientSecret" /> @Html.DisplayNameFor(model => model.OidcBasicClientVM.RequireClientSecret)
-                </label>
+
+
+            <div class="input-group mb-3">
+                <span class="input-group-text fw-bold w-25">Callback URL</span>
+                <input type="text" class="form-control" placeholder="https:/MyAppDomain.com/signin-oidc" asp-for="OidcCreateClientViewModel.RedirectUri" />
             </div>
+
+            @*
             <div class="form-group">
                 <label asp-for="OidcBasicClientVM.ClientName" class="control-label"></label>
                 <input asp-for="OidcBasicClientVM.ClientName" class="form-control" />
                 <span asp-validation-for="OidcBasicClientVM.ClientName" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="OidcBasicClientVM.Description" class="control-label"></label>
-                <input asp-for="OidcBasicClientVM.Description" class="form-control" />
-                <span asp-validation-for="OidcBasicClientVM.Description" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="OidcBasicClientVM.RedirectUri" class="control-label"></label>
-                <input asp-for="OidcBasicClientVM.RedirectUri" class="form-control" />
-                <span asp-validation-for="OidcBasicClientVM.RedirectUri" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="OidcBasicClientVM.PostLoginUrl" class="control-label"></label>
-                <input asp-for="OidcBasicClientVM.PostLoginUrl" class="form-control" />
-                <span asp-validation-for="OidcBasicClientVM.PostLoginUrl" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="OidcBasicClientVM.PostLogoutUrl" class="control-label"></label>
-                <input asp-for="OidcBasicClientVM.PostLogoutUrl" class="form-control" />
-                <span asp-validation-for="OidcBasicClientVM.PostLogoutUrl" class="text-danger"></span>
-            </div>
+            *@
             
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />

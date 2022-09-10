@@ -10,18 +10,15 @@ namespace Fido2me.Data.OIDC
     public class OidcBasicClient
     {
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public Guid Id { get; set; }
+        [Required]
+        // System generated GUID in lower case hex format
+        public string ClientId { get; set; }
 
         [Required]
         public Guid AccountId { get; set; }
 
         [Required]
         public bool Enabled { get; set; }
-
-        [Required]
-        [MaxLength(200)]
-        public string ClientId { get; set; }
 
         [Required]
         public bool RequireClientSecret { get; set; }
@@ -48,9 +45,9 @@ namespace Fido2me.Data.OIDC
         public bool AllowOfflineAccess { get; set; }
 
         [Required]
-        public DateTime Created { get; set; }
+        public DateTimeOffset Created { get; set; }
 
-        public DateTime? Updated { get; set; }
+        public DateTimeOffset? Updated { get; set; }
        
         public List<ClientClaim> ClientClaims { get; set; } = new List<ClientClaim>();
 

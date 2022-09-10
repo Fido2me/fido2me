@@ -1,18 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Fido2me.Data;
-using Fido2me.Data.OIDC;
 using Fido2me.Services;
-using Fido2me.Models;
+using Microsoft.AspNetCore.Components;
+using Fido2me.Models.Applications;
 
 namespace Fido2me.Pages.OidcApp
 {
-    public class CreateModel : PageModel
+    public class CreateModel : BasePageModel
     {
         private readonly IOidcBasicClientService _oidcService;
 
@@ -21,27 +15,54 @@ namespace Fido2me.Pages.OidcApp
             _oidcService = oidcService;
         }
 
-        public IActionResult OnGet()
-        {
-            return Page();
-        }
+        public string ClientType { get; set; }
+
+        [TempData]
+        public string GeneratedSecretData { get; set; }
 
         [BindProperty]
-        public OidcBasicClientViewModel OidcBasicClientVM { get; set; } = default!;
+        public OidcCreateClientViewModel OidcCreateClientViewModel { get; set; } = default!;
+
+        public async Task<IActionResult> OnGetAsync()
+        {
+
+            OidcCreateClientViewModel = await _oidcService.GenerateNewClientIdAndSecret();
+            GeneratedSecretData = OidcCreateClientViewModel.ClientId + ":" + OidcCreateClientViewModel.ClientSecret;
+            return Page();
+        }
         
 
         // To protect from overposting attacks, see https://aka.ms/RazorPagesCRUD
         public async Task<IActionResult> OnPostAsync()
         {
-            if (!ModelState.IsValid || OidcBasicClientVM == null)
+            if (!ModelState.IsValid || OidcCreateClientViewModel == null)
             {
                 return Page();
             }
 
+            OidcCreateClientViewModel.Scope = GenerateScopeString(OidcCreateClientViewModel.ClientScopes);
+            var generatedSecrets = GeneratedSecretData.Split(':');
+            // no tampering for client id and client secret
+            OidcCreateClientViewModel.ClientId = generatedSecrets[0];
+            OidcCreateClientViewModel.ClientSecret = generatedSecrets[1];
 
-            await _oidcService.AddBasicClientAsync(OidcBasicClientVM);
+            await _oidcService.AddBasicClientAsync(OidcCreateClientViewModel, AccountId);
 
             return RedirectToPage("./Index");
+        }
+
+        private string GenerateScopeString(ClientScopes clientScopes)
+        {
+            var scopes = "openid";
+            if (clientScopes.Email)
+            {
+                scopes += " email";
+            };
+            if (clientScopes.Profile)
+            {
+                scopes += " profile";
+            }
+            return scopes;
         }
     }
 }

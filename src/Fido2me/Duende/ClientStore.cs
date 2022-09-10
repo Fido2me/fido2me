@@ -56,7 +56,7 @@ namespace Fido2me.Duende
                 return null;
             }
 
-            var oidcBasicClient = await _dataContext.OidcBasicClients.FirstOrDefaultAsync(c => c.Id == clientGuid);
+            var oidcBasicClient = await _dataContext.OidcBasicClients.FirstOrDefaultAsync(c => c.ClientId == clientId);
             if (oidcBasicClient == null)
             {
                 // how it handles null?
