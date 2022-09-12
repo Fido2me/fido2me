@@ -43,7 +43,7 @@ namespace Fido2me.Duende
             }
 
             // get client from db
-            var oidcBasicClient = await _dataContext.OidcBasicClients.FirstOrDefaultAsync(c => c.ClientId == clientId);
+            var oidcBasicClient = await _dataContext.OidcBasicClients.FirstOrDefaultAsync(c => c.ClientId == clientId && c.Enabled == true);
             if (oidcBasicClient == null)
             {
                 return null;
