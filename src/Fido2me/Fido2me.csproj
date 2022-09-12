@@ -32,4 +32,8 @@
     <ProjectReference Include="..\Fido2.AspNet\Fido2.AspNet.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Controllers\" />
+  </ItemGroup>
+
 </Project>

@@ -5,7 +5,6 @@ using Duende.IdentityServer.Validation;
 using Fido2me;
 using Fido2me.Data;
 using Fido2me.Duende;
-using Fido2me.Duende.Test;
 using Fido2me.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.DataProtection;
@@ -72,7 +71,7 @@ services.AddDataProtection()
 
 
 // Use the in-memory implementation of IDistributedCache.
-services.AddDistributedMemoryCache();
+// services.AddDistributedMemoryCache();
 
 builder.Services.AddDataProtection();
 
@@ -135,8 +134,7 @@ services.AddIdentityServer(options =>
     options.Authentication.CookieLifetime = TimeSpan.FromMinutes(60);
     options.Authentication.CookieSlidingExpiration = true;
 
-})
-    .AddInMemoryClients(TestClients.Get())
+})    
     .AddClientStore<ClientStore>()
     .AddCorsPolicyService<CorsPolicyService>()
     .AddPersistedGrantStore<PersistedGrantStore>()
