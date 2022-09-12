@@ -5,6 +5,7 @@ using Fido2me.Data.FIDO2;
 using Fido2me.Data.OIDC;
 using Fido2me.Models.Applications;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Identity.Client.Platforms.Features.DesktopOs.Kerberos;
 using System.Security.Cryptography;
 
 namespace Fido2me.Services
@@ -12,6 +13,8 @@ namespace Fido2me.Services
     public interface IOidcBasicClientService
     {
         Task AddBasicClientAsync(OidcCreateClientViewModel oidcBasicClientVM, Guid accountId);
+        Task ChangeClientStatusAsync(string clientId, Guid accountId);
+        Task DeleteClientAsync(string clientId, Guid accountId);
         Task<bool> EditClientAsync(OidcClientEditViewModel oidcBasicClient, Guid accountId);
         Task<OidcCreateClientViewModel> GenerateNewClientIdAndSecret();
         Task<List<OidcClientIndexViewModel>> GetBasicClientsByAccountIdAsync(Guid accountId);
@@ -104,8 +107,6 @@ namespace Fido2me.Services
                     Type = c.RequireClientSecret ? "Confidential" : "Public",                 
                     
                 }).ToListAsync();
-
-            
         }
 
         public async Task<bool> EditClientAsync(OidcClientEditViewModel oidcClientEdit, Guid accountId)
@@ -126,9 +127,9 @@ namespace Fido2me.Services
 
         public async Task<OidcClientEditViewModel> GetClientToEditAsync(string clientId, Guid accountId)
         {
-            return await _context.OidcBasicClients
+            var client = await _context.OidcBasicClients
                 .AsNoTracking()
-                .Where(c => c.AccountId == accountId)
+                .Where(c => c.AccountId == accountId && c.ClientId == clientId)
                 .Select(c => new OidcClientEditViewModel
                 {
                     Id = c.ClientId,
@@ -136,8 +137,36 @@ namespace Fido2me.Services
                     Description = c.Description,
                     Enabled = c.Enabled,
                     Type = c.RequireClientSecret ? "Confidential" : "Public",
+                    Scopes = c.ClientScopes,
+                    RedirectUris = c.ClientRedirectUris,
+                    CorsOrigins = c.ClientCorsOrigins,
 
                 }).FirstOrDefaultAsync();
+
+            client.Scope = string.Join(" ", client.Scopes);
+            client.RedirectUri = string.Join(" ", client.RedirectUris);
+            //client.CorsOrigin = string.Join(" ", client.CorsOrigins);
+            return client;
+        }
+
+        public async Task DeleteClientAsync(string clientId, Guid accountId)
+        {
+            var client = await _context.OidcBasicClients.FirstOrDefaultAsync(c => c.ClientId == clientId && c.AccountId == accountId);
+            if (client != null)
+            {
+                _context.OidcBasicClients.Remove(client);
+                await _context.SaveChangesAsync();
+            }
+        }
+
+        public async Task ChangeClientStatusAsync(string clientId, Guid accountId)
+        {
+            var client = await _context.OidcBasicClients.FirstOrDefaultAsync(c => c.ClientId == clientId && c.AccountId == accountId);
+            if (client != null)
+            {
+                client.Enabled = !client.Enabled;
+                await _context.SaveChangesAsync();
+            }
         }
     }
 }

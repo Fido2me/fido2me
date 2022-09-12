@@ -11,6 +11,10 @@ namespace Fido2me.Models.Applications
 
         public string Type { get; set; }
 
+        public string Scope { get; set; }
+
+        public string[] Scopes { get; set; }
+
         [Required]
         [MaxLength(200)]
         public string Name { get; set; }
@@ -21,8 +25,12 @@ namespace Fido2me.Models.Applications
         [MaxLength(150)]
         public string CorsOrigin { get; set; }
 
+        public string[] CorsOrigins { get; set; }
+
         [Required]
         [MaxLength(200)]
         public string RedirectUri { get; set; }
+
+        public string[] RedirectUris { get; set; }
     }
 }

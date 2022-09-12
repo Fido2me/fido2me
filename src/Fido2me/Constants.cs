@@ -11,5 +11,8 @@
         public static readonly string CookieAddNewDevice = "add";
 
         public static readonly string CookieCibaRequest = "cibarequest";
+
+        public static readonly string ConfigCibaClientId = "ciba-client-id";
+        public static readonly string ConfigCibaClientSecret = "ciba-client-secret";
     }
 }

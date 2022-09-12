@@ -24,14 +24,16 @@ namespace Fido2me.Services
         private readonly ILogger<CibaService> _logger;
         private readonly ISystemClock _systemClock;
         private readonly DataContext _dataContext;
+        private readonly IConfiguration _configuration;
 
-        public CibaService(DataContext dataContext, IDiscoveryService discoveryService, ILogger<CibaService> logger, IDataProtectionProvider provider, IHttpContextAccessor contextAccessor, ISystemClock systemClock)
+        public CibaService(DataContext dataContext, IDiscoveryService discoveryService, ILogger<CibaService> logger, IDataProtectionProvider provider, IHttpContextAccessor contextAccessor, ISystemClock systemClock, IConfiguration configuration)
         {
             _dataContext = dataContext;
             _protector = provider.CreateProtector(Constants.DataProtectorName);
             _contextAccessor = contextAccessor;
             _discoveryService = discoveryService;
             _systemClock = systemClock;
+            _configuration = configuration;
         }
         public async Task<CibaLoginResponse> CibaLoginStartAsync(string username, string bindingMessage)
         {
@@ -40,8 +42,8 @@ namespace Fido2me.Services
             var req = new BackchannelAuthenticationRequest()
             {
                 Address = cibaEndpoint,
-                ClientId = "ciba",
-                ClientSecret = "secret",
+                ClientId = _configuration[Constants.ConfigCibaClientId],
+                ClientSecret = _configuration[Constants.ConfigCibaClientSecret],
                 Scope = "openid",
                 LoginHint = username,
                 BindingMessage = bindingMessage,
@@ -105,8 +107,8 @@ namespace Fido2me.Services
             var response = await client.RequestBackchannelAuthenticationTokenAsync(new BackchannelAuthenticationTokenRequest
             {
                 Address = tokenEndpoint,
-                ClientId = "ciba",
-                ClientSecret = "secret",
+                ClientId = _configuration[Constants.ConfigCibaClientId],
+                ClientSecret = _configuration[Constants.ConfigCibaClientSecret],
                 AuthenticationRequestId = authRequestId,
             });
 
