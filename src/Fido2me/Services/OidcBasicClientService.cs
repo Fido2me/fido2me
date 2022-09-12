@@ -129,7 +129,7 @@ namespace Fido2me.Services
         {
             var client = await _context.OidcBasicClients
                 .AsNoTracking()
-                .Where(c => c.AccountId == accountId)
+                .Where(c => c.AccountId == accountId && c.ClientId == clientId)
                 .Select(c => new OidcClientEditViewModel
                 {
                     Id = c.ClientId,
