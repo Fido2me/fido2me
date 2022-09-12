@@ -13,8 +13,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="~/assets/css/bootstrap.css">
 
-    <script src="~/assets/vendors/jquery/jquery.min.js"></script>
-    <link rel="stylesheet" href="~/assets/vendors/perfect-scrollbar/perfect-scrollbar.css">
     <link rel="stylesheet" href="~/assets/vendors/bootstrap-icons/bootstrap-icons.css">
     <link rel="stylesheet" href="~/assets/css/app.css">
     <link rel="shortcut icon" href="~/assets/images/favicon.svg" type="image/x-icon">
@@ -36,42 +34,42 @@
                     <ul class="menu">
                         <li class="sidebar-item" asp-page="/" is-active-page>
                             <a href="/" class='sidebar-link'>
-                                <i class="bi bi-grid-fill"></i>
+                                <i class="bi bi-house-door"></i>
                                 <span>Home</span>
                             </a>
                         </li>
 
                         <li class="sidebar-item" asp-page="/profile/" is-active-page>
                             <a href="/profile/" class='sidebar-link'>
-                                <i class="bi bi-grid-fill"></i>
+                                <i class="bi bi-person"></i>
                                 <span>Profile</span>
                             </a>
                         </li>
 
                         <li class="sidebar-item" asp-page="/devices/" is-active-page>
                             <a href="/devices/" class='sidebar-link'>
-                                <i class="bi bi-grid-fill"></i>
+                                <i class="bi bi-cpu"></i>
                                 <span>Devices</span>
                             </a>
                         </li>
 
                         <li class="sidebar-item" asp-page="/ciba/" is-active-page>
                             <a href="/ciba/All" class='sidebar-link'>
-                                <i class="bi bi-grid-fill"></i>
+                                <i class="bi bi-box-arrow-in-right"></i>
                                 <span>Requests</span>
                             </a>
                         </li>
 
                         <li class="sidebar-item" asp-page="/apps/" is-active-page>
                             <a href="/apps/" class='sidebar-link'>
-                                <i class="bi bi-grid-fill"></i>
+                                <i class="bi bi-app-indicator"></i>
                                 <span>Applications</span>
                             </a>
                         </li>
 
                         <li class="sidebar-item">
                             <a href="/auth/logout" class='sidebar-link'>
-                                <i class="bi bi-grid-fill"></i>
+                                <i class="bi bi-door-closed"></i>
                                 <span>Logout</span>
                             </a>
                         </li>
@@ -110,9 +108,7 @@
 
     @RenderSection("Scripts", required: false)
     <script src="~/assets/js/fido2/helpers.js"></script>
-    <script src="~/assets/vendors/perfect-scrollbar/perfect-scrollbar.min.js"></script>
-    <script src="~/assets/js/bootstrap.bundle.min.js"></script>
-    <script src="~/assets/vendors/apexcharts/apexcharts.js"></script>
+    <script src="~/assets/js/bootstrap.bundle.min.js"></script>  
     <script src="~/assets/js/mazer.js"></script>
     <script src="~/assets/vendors/sweetalert2/sweetalert2.min.js"></script>
 </body>

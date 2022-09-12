@@ -12,11 +12,11 @@
     <hr />
     <div class="row">
         <div class="col-md-4">
-            <form method="post">
+            <form method="post" class="needs-validation" novalidate>
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>            
                 <div class="form-group">
                     <label asp-for="Code" class="control-label"></label>
-                    <input asp-for="Code" class="form-control" />
+                    <input asp-for="Code" class="form-control" required />
                     <span asp-validation-for="Code" class="text-danger"></span>
                 </div>
                 <div class="form-group">
@@ -26,3 +26,7 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

@@ -5,6 +5,10 @@ namespace Fido2me.Duende.Test
 {
     public class TestClients
     {
+        /// <summary>
+        /// Not in use, do not use
+        /// </summary>
+        /// <returns></returns>
         public static IEnumerable<Client> Get()
         {
             return new List<Client>
