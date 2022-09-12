@@ -9,19 +9,29 @@ namespace Fido2me.Duende
     public class ClientStore : IClientStore
     {
         private readonly DataContext _dataContext;
-        public ClientStore(DataContext dataContext)
+        private readonly IConfiguration _configuration;
+
+        public ClientStore(DataContext dataContext, IConfiguration configuration)
         {
             _dataContext = dataContext;
+            _configuration = configuration;
         }
         public async Task<Client> FindClientByIdAsync(string clientId)
         {
-            if (clientId == "ciba")
+            // fail fast and do not consume resources and db calls            
+            if (!Guid.TryParse(clientId, out var clientGuid))
+            {
+                return null;
+            }
+
+            // first party CIBA client, don't do a lookup
+            if (clientId == _configuration[Constants.ConfigCibaClientId])
             {
                 return new Client
                 {
-                    ClientId = "ciba",
+                    ClientId = _configuration[Constants.ConfigCibaClientId],
                     ClientName = "ciba",
-                    ClientSecrets = { new Secret("secret".Sha256()) },
+                    ClientSecrets = { new Secret(_configuration[Constants.ConfigCibaClientSecret].Sha256()) },
                     AllowedGrantTypes = GrantTypes.Ciba,
                     RequireConsent = true,
                     AllowOfflineAccess = false,
@@ -31,39 +41,16 @@ namespace Fido2me.Duende
                     },
                 };
             }
-            else if (clientId == "interactive")
-            {
-                return new Client
-                {
-                    ClientId = "interactive",
-                    ClientSecrets = { new Secret("secret".Sha256()) },
 
-                    AllowedGrantTypes = GrantTypes.Code,
-
-                    RedirectUris = { "https://localhost:44300/signin-oidc" },
-                    FrontChannelLogoutUri = "https://localhost:44300/signout-oidc",
-                    PostLogoutRedirectUris = { "https://localhost:44300/signout-callback-oidc" },
-
-                    AllowOfflineAccess = true,
-                    AllowedScopes = { "openid", "profile" }
-                };
-            }
-
-
-            var validGuid = Guid.TryParse(clientId, out var clientGuid);
-            if (!validGuid)
+            // get client from db
+            var oidcBasicClient = await _dataContext.OidcBasicClients.FirstOrDefaultAsync(c => c.ClientId == clientId);
+            if (oidcBasicClient == null)
             {
                 return null;
             }
 
-            var oidcBasicClient = await _dataContext.OidcBasicClients.FirstOrDefaultAsync(c => c.ClientId == clientId);
-            if (oidcBasicClient == null)
-            {
-                // how it handles null?
-            }
-
             var client = oidcBasicClient?.ToIdentityModel();
-            // Task.FromResult(client);
+            
             return client;
         }
     }
