@@ -11,14 +11,14 @@
 </environment>
 
 <script type="text/javascript">
-    /*var settings = {
+    var settings = {
         validClass: "is-valid",
         errorClass: "is-invalid"
 
     }; 
     $.validator.setDefaults(settings);
     $.validator.unobtrusive.options = settings;
-    */
+    
     
     (function () {
         'use strict'
@@ -39,4 +39,11 @@
                 }, false)
             })
     })()
+
+    function copyToClipboard(elementId) {
+        var copyText = document.getElementById(elementId);
+        copyText.select();
+        copyText.setSelectionRange(0, 99999); // For mobile devices
+        navigator.clipboard.writeText(copyText.value);   
+    }
 </script>

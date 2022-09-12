@@ -11,12 +11,12 @@
 <hr />
 <div class="row">
     <div class="col-md-9">
-        <form method="post" class="needs-validation" >
+        <form method="post" class="needs-validation">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
             <div class="input-group mb-3">
                 <span class="input-group-text fw-bold w-25">Client Name</span>
-                <input type="text" class="form-control" placeholder="MyAppName" aria-label="MyAppName" asp-for="OidcCreateClientViewModel.ClientName">
+                <input type="text" class="form-control" placeholder="MyAppName" aria-label="MyAppName" asp-for="OidcCreateClientViewModel.ClientName" required>
                 <div class="valid-feedback">
                     Looks good!
                 </div>
@@ -43,7 +43,7 @@
             <div class="input-group mb-3"> 
                 <span class="input-group-text fw-bold w-25">Client ID</span>
                 <input class="form-control" readonly asp-for="OidcCreateClientViewModel.ClientId" />
-                <button type="button" class="btn btn-outline-primary">
+                <button type="button" class="btn btn-outline-primary" onclick="copyToClipboard('OidcCreateClientViewModel_ClientId')">
                     <i class="bi bi-clipboard"></i>
                 </button>
            </div>
@@ -51,7 +51,7 @@
             <div class="input-group mb-3">
                 <span class="input-group-text fw-bold w-25">Client Secret</span>
                 <input class="form-control" readonly  asp-for="OidcCreateClientViewModel.ClientSecret" />
-                <button type="button" class="btn btn-outline-primary">
+                <button type="button" class="btn btn-outline-primary" onclick="copyToClipboard('OidcCreateClientViewModel_ClientSecret')">
                     <i class="bi bi-clipboard"></i>
                 </button>
             </div>
@@ -79,7 +79,7 @@
 
             <div class="input-group mb-3">
                 <span class="input-group-text fw-bold w-25">Callback URL</span>
-                <input type="text" class="form-control" placeholder="https:/MyAppDomain.com/signin-oidc" asp-for="OidcCreateClientViewModel.RedirectUri" />
+                <input type="text" class="form-control" placeholder="https:/MyAppDomain.com/signin-oidc" asp-for="OidcCreateClientViewModel.RedirectUri" required />
             </div>
            
             <div class="form-group">
