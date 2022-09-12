@@ -38,7 +38,6 @@
                     <p>Confidential clients are applications that are able to securely authenticate with the authorization server, for example being able to keep their registered client secret safe.</p>
                     <p>Public clients are unable to use registered client secrets, such as applications running in a browser or on a mobile device.</p>
                 </div>
-
             </div>
 
             <div class="input-group mb-3"> 
@@ -82,15 +81,7 @@
                 <span class="input-group-text fw-bold w-25">Callback URL</span>
                 <input type="text" class="form-control" placeholder="https:/MyAppDomain.com/signin-oidc" asp-for="OidcCreateClientViewModel.RedirectUri" />
             </div>
-
-            @*
-            <div class="form-group">
-                <label asp-for="OidcBasicClientVM.ClientName" class="control-label"></label>
-                <input asp-for="OidcBasicClientVM.ClientName" class="form-control" />
-                <span asp-validation-for="OidcBasicClientVM.ClientName" class="text-danger"></span>
-            </div>
-            *@
-            
+           
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />
             </div>

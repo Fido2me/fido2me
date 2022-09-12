@@ -33,13 +33,13 @@ namespace Fido2me.Pages.OidcApp
 
         public async Task<IActionResult> OnPostEnableAsync(string clientId)
         {
-            //await _oidcService.ChangeDeviceStatusAsync(credentialId, AccountId);
+            await _oidcService.ChangeClientStatusAsync(clientId, AccountId);
             return RedirectToPage("./Index");
         }
 
         public async Task<IActionResult> OnPostDeleteAsync(string clientId)
         {
-            //await _oidcService.DeleteDeviceAsync(credentialId, AccountId);
+            await _oidcService.DeleteClientAsync(clientId, AccountId);
             return RedirectToPage("./Index");
         }
     }
