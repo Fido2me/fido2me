@@ -1,0 +1,25 @@
+﻿@page "/home/error"
+
+@model ErrorModel
+@{
+    ViewData["Title"] = "Error";
+    Layout = "~/Pages/Shared/_LayoutAuth.cshtml";
+}
+
+
+<div class="error-page container">
+    <div class="col-md-8 col-12 offset-md-2">
+        <div class="text-center">
+            <img class="img-fluid" src="~/assets/images/samples/error-500.png" alt="Something is wrong">
+            <h1 class="error-title">Error</h1>
+            @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+            {
+                <p>
+                    <strong>Error </strong> <code>@Model.ErrorMessage</code>
+                </p>
+            }
+            <p class="fs-5 text-gray-600">Ouch, try again. Or do not try if you did something that is not supported yet.</p>
+            <a href="/" class="btn btn-lg btn-outline-primary mt-3">Go Home</a>
+        </div>
+    </div>
+</div>

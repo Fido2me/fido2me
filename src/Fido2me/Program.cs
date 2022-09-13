@@ -133,7 +133,8 @@ services.AddIdentityServer(options =>
 {
     options.Authentication.CookieLifetime = TimeSpan.FromMinutes(60);
     options.Authentication.CookieSlidingExpiration = true;
-
+    options.IssuerUri = config["oidc:issuerUri"];
+   
 })    
     .AddClientStore<ClientStore>()
     .AddCorsPolicyService<CorsPolicyService>()
