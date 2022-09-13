@@ -1,4 +1,5 @@
 using Azure.Identity;
+using Duende.IdentityServer.Extensions;
 using Duende.IdentityServer.Services;
 using Duende.IdentityServer.Stores;
 using Duende.IdentityServer.Validation;
@@ -7,6 +8,7 @@ using Fido2me.Data;
 using Fido2me.Duende;
 using Fido2me.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
@@ -37,8 +39,9 @@ StartupConfigurationHelper.ConfigureApplicationInsights(services, config["tracin
 
 services.Configure<ForwardedHeadersOptions>(options =>
 {
-    options.ForwardedHeaders =
-        ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    options.KnownNetworks.Clear();
+    options.KnownProxies.Clear();
 });
 
 // Add services to the container.
@@ -134,7 +137,6 @@ services.AddIdentityServer(options =>
     options.Authentication.CookieLifetime = TimeSpan.FromMinutes(60);
     options.Authentication.CookieSlidingExpiration = true;
     options.IssuerUri = config["oidc:issuerUri"];
-   
 })    
     .AddClientStore<ClientStore>()
     .AddCorsPolicyService<CorsPolicyService>()
@@ -161,6 +163,14 @@ builder.Services.AddSingleton<IDiscoveryService, DiscoveryService>();
 builder.Services.AddTransient<ICibaService, CibaService>();
 
 var app = builder.Build();
+
+app.Use(async (context, next) =>
+{
+    // context.Request.Scheme = "https";
+    context.SetIdentityServerOrigin(config["oidc:issuerUri"]);
+    await next();
+
+});
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -191,7 +201,7 @@ else
 
 }
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
