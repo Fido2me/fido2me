@@ -17,7 +17,7 @@ namespace Fido2me.Services
         public DiscoveryService(ILogger<DiscoveryService> logger, IConfiguration configuration)
         {
             _logger = logger;
-            var discoEndpoint = configuration["discoEndpoint"] ?? throw new ArgumentNullException(nameof(IConfiguration));
+            var discoEndpoint = configuration["oidc:discoEndpoint"] ?? throw new ArgumentNullException(nameof(IConfiguration));
             
             _cache = new DiscoveryCache(discoEndpoint);
         }
