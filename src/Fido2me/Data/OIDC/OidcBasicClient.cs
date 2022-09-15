@@ -45,6 +45,9 @@ namespace Fido2me.Data.OIDC
         public bool AllowOfflineAccess { get; set; }
 
         [Required]
+        public bool RequirePkce { get; set; }
+
+        [Required]
         public DateTimeOffset Created { get; set; }
 
         public DateTimeOffset? Updated { get; set; }

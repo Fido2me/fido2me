@@ -13,5 +13,6 @@ namespace Fido2me.Data.OIDC
         public DateTime CreationTime { get; set; }
         public DateTime? Expiration { get; set; }
         public string Data { get; set; }
+        public DateTimeOffset? ConsumedAt { get; set; }
     }
 }

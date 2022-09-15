@@ -36,37 +36,47 @@
                 <span class="input-group-text fw-bold w-25">Type</span>
                 <input type="text" class="form-control" asp-for="OidcClientEdit.Type" disabled>
             </div>
+            @{
+                string pkceEnabled = Model.OidcClientEdit.Type == "Public" ? "hidden" : "";
+            }
+            <div class="row g-3" id="divPkce" @pkceEnabled>
+                <div class="form-group form-check col-md-3">
+                    <label class="form-check-label ms-3">
+                        <input class="form-check-input" type="checkbox" asp-for="OidcClientEdit.RequirePkce" />
+                        Proof Key (PKCE)
+                        </label>
+                    </div>
+                </div>
+                <div class="input-group mb-3">
+                    <span class="input-group-text fw-bold w-25">Scope</span>
+                    <input type="text" class="form-control" asp-for="OidcClientEdit.Scope" disabled>
+                </div>
 
-            <div class="input-group mb-3">
-                <span class="input-group-text fw-bold w-25">Scope</span>
-                <input type="text" class="form-control" asp-for="OidcClientEdit.Scope" disabled>
-            </div>
+
+                <div class="input-group mb-3">
+                    <span class="input-group-text fw-bold w-25">Callback URL</span>
+                    <input type="text" class="form-control" placeholder="https:/MyAppDomain.com/signin-oidc" asp-for="OidcClientEdit.RedirectUri" required />
+                </div>
+
+                <div class="input-group mb-3">
+                    <span class="input-group-text fw-bold w-25">Allowed Origin</span>
+                    <input type="text" class="form-control" placeholder="https:/MyAppDomain.com/signin-oidc" asp-for="OidcClientEdit.CorsOrigin" />
+                </div>
 
 
-            <div class="input-group mb-3">
-                <span class="input-group-text fw-bold w-25">Callback URL</span>
-                <input type="text" class="form-control" placeholder="https:/MyAppDomain.com/signin-oidc" asp-for="OidcClientEdit.RedirectUri" required />
-            </div>
-
-            <div class="input-group mb-3">
-                <span class="input-group-text fw-bold w-25">Allowed Origin</span>
-                <input type="text" class="form-control" placeholder="https:/MyAppDomain.com/signin-oidc" asp-for="OidcClientEdit.CorsOrigin" />
-            </div>
-
-
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
-        </form>
+                <div class="form-group">
+                    <input type="submit" value="Save" class="btn btn-primary" />
+                </div>
+            </form>
+        </div>
     </div>
-</div>
 
 
 
-<div>
-    <a asp-page="./Index">Back to List</a>
-</div>
+    <div>
+        <a asp-page="./Index">Back to List</a>
+    </div>
 
-@section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-}
+    @section Scripts {
+        @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    }
