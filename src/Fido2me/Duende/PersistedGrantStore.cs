@@ -27,7 +27,7 @@ namespace Fido2me.Duende
         {
             var pGrant = await _dataContext.OidcPersistedGrants
                                 .AsNoTracking()
-                                .Where(g => g.Key == key)
+                                .Where(g => g.Key == key && g.ConsumedAt == null)
                                 .Select(g => new PersistedGrant()
                                 {
                                     Key = g.Key,
@@ -45,14 +45,15 @@ namespace Fido2me.Duende
 
         public Task RemoveAllAsync(PersistedGrantFilter filter)
         {
-            return Task.CompletedTask;
-           
+            return Task.CompletedTask;           
         }
 
-        public Task RemoveAsync(string key)
+        public async Task RemoveAsync(string key)
         {
-            return Task.CompletedTask;
-        
+            var grant = await _dataContext.OidcPersistedGrants.Where(g => g.Key == key && g.ConsumedAt == null).FirstOrDefaultAsync();
+            grant.ConsumedAt = DateTimeOffset.UtcNow;
+
+            await _dataContext.SaveChangesAsync();        
         }
 
         public async Task StoreAsync(PersistedGrant grant)

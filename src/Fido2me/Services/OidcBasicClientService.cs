@@ -119,13 +119,14 @@ namespace Fido2me.Services
             {
                 return false;
             }
-            var requirePkce = client.RequireClientSecret ? client.RequirePkce : true;
+            var requirePkce = client.RequireClientSecret ? oidcClientEdit.RequirePkce : true;
             client.Updated = DateTimeOffset.UtcNow;
             client.ClientName = oidcClientEdit.Name;
             client.Description = oidcClientEdit.Description;
             client.ClientRedirectUris = new string[] { oidcClientEdit.RedirectUri };
             client.Enabled = oidcClientEdit.Enabled;
             client.ClientCorsOrigins = new string[] { oidcClientEdit.CorsOrigin };
+            client.RequirePkce = requirePkce;
 
             await _context.SaveChangesAsync();
 
