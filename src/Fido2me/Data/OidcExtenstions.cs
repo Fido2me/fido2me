@@ -16,7 +16,9 @@ namespace Fido2me.Data
                 ClientSecrets = oidcc.ClientSecrets.Select(c => new Secret { Type = c.Type, Value = c.Value, Description = c.Description, Expiration = c.Expiration?.UtcDateTime }).ToList(),
                 AllowedScopes = oidcc.ClientScopes,
                 AllowedCorsOrigins = oidcc.ClientCorsOrigins,
-                RedirectUris = oidcc.ClientRedirectUris,               
+                RedirectUris = oidcc.ClientRedirectUris, 
+                AllowPlainTextPkce = false,
+                RequirePkce = oidcc.RequirePkce,
             };
             return ic;
         }
@@ -44,6 +46,7 @@ namespace Fido2me.Data
                 RequireConsent = ic.RequireConsent,
                 Updated = created, //TODO
                 LogoUri = ic.LogoUri,
+                RequirePkce = ic.RequirePkce,
             };
             return oidc;
         }

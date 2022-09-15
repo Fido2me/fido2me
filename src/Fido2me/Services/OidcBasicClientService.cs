@@ -35,6 +35,8 @@ namespace Fido2me.Services
         public async Task AddBasicClientAsync(OidcCreateClientViewModel oidcBasicClientVM, Guid accountId)
         {
             var currentTime = DateTimeOffset.UtcNow;
+            // allow to set PKCE mode only for confidential clients, public clients will default to true (RequireClientSecret = Confidential cLient)
+            var requirePkce = oidcBasicClientVM.RequireClientSecret ? oidcBasicClientVM.RequirePkce : true;
 
             var oidcBasicClient = new OidcBasicClient()
             {
@@ -52,6 +54,7 @@ namespace Fido2me.Services
                 Enabled = true,
                 AllowRememberConsent = true,
                 RequireConsent = true,
+                RequirePkce = requirePkce,
                 ClientName = oidcBasicClientVM.ClientName,
                 Description = oidcBasicClientVM.Description,
                 Created = currentTime,
@@ -112,7 +115,11 @@ namespace Fido2me.Services
         public async Task<bool> EditClientAsync(OidcClientEditViewModel oidcClientEdit, Guid accountId)
         {
             var client = await _context.OidcBasicClients.FirstOrDefaultAsync(c => c.AccountId == accountId && c.ClientId == oidcClientEdit.Id);
-
+            if (client == null)
+            {
+                return false;
+            }
+            var requirePkce = client.RequireClientSecret ? client.RequirePkce : true;
             client.Updated = DateTimeOffset.UtcNow;
             client.ClientName = oidcClientEdit.Name;
             client.Description = oidcClientEdit.Description;
@@ -140,6 +147,7 @@ namespace Fido2me.Services
                     Scopes = c.ClientScopes,
                     RedirectUris = c.ClientRedirectUris,
                     CorsOrigins = c.ClientCorsOrigins,
+                    RequirePkce = c.RequirePkce,
 
                 }).FirstOrDefaultAsync();
 

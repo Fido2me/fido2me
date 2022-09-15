@@ -15,6 +15,8 @@ namespace Fido2me.Models.Applications
 
         public string[] Scopes { get; set; }
 
+        public bool RequirePkce { get; set; } = true;
+
         [Required]
         [MaxLength(200)]
         public string Name { get; set; }

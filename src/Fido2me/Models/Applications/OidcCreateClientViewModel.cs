@@ -23,6 +23,8 @@ namespace Fido2me.Models.Applications
         [Required]
         public bool RequireClientSecret { get; set; } = true;
 
+        public bool RequirePkce { get; set; } = true;
+
         //public bool? RequireConsent { get; set; }
 
         //public bool? AllowRememberConsent { get; set; }

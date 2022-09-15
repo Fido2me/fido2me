@@ -27,13 +27,18 @@
                 <div class="form-group form-check col-md-3">
                     <label class="form-check-label  ms-3">
                         <input class="form-check-input" asp-for="OidcCreateClientViewModel.RequireClientSecret" />
-                        <b>Can use Secret</b>
+                        <b>Can use Secret. </b>
                     </label>
                 </div>
                 <div class="col-md">
                     Select, if your client is confidential.
-                    <p>Confidential clients are applications that are able to securely authenticate with the authorization server, for example being able to keep their registered client secret safe.</p>
-                    <p>Public clients are unable to use registered client secrets, such as applications running in a browser or on a mobile device.</p>
+                    <a class="" data-bs-toggle="collapse" data-bs-target="#requireSecret" href="#requireSecret">
+                        More...
+                    </a>                
+                    <div class="col-md collapse" id="requireSecret" >                    
+                        <p>Confidential clients are applications that are able to securely authenticate with the authorization server, for example being able to keep their registered client secret safe.</p>
+                        <p>Public clients are unable to use registered client secrets, such as applications running in a browser or on a mobile device.</p>
+                    </div>
                 </div>
             </div>
 
@@ -44,7 +49,6 @@
                     <i class="bi bi-clipboard"></i>
                 </button>
            </div>
-
             <div class="input-group mb-3">
                 <span class="input-group-text fw-bold w-25">Client Secret</span>
                 <input class="form-control" readonly  asp-for="OidcCreateClientViewModel.ClientSecret" />
@@ -55,7 +59,14 @@
             <div class="alert alert-info" role="alert">
                 Copy your secret now. You won’t be able to see it again.
             </div>
-
+            <div class="row g-3">
+                <div class="form-group form-check col-md-3">
+                    <label class="form-check-label  ms-3">
+                        <input class="form-check-input" asp-for="OidcCreateClientViewModel.RequirePkce" />
+                        Proof Key (PKCE)
+                    </label>
+                </div>
+            </div>
             <div class="form-group">
                 <label class="control-label ms-3 fw-bold w-25" for="scopes">Scopes</label>
 
