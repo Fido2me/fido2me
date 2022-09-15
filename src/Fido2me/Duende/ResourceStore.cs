@@ -1,7 +1,9 @@
-﻿using Duende.IdentityServer.Models;
+﻿using Duende.IdentityServer;
+using Duende.IdentityServer.Models;
 using Duende.IdentityServer.Stores;
 using Fido2me.Data;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Fido2me.Duende
 {
@@ -43,13 +45,26 @@ namespace Fido2me.Duende
 
         public Task<IEnumerable<IdentityResource>> FindIdentityResourcesByScopeNameAsync(IEnumerable<string> scopeNames)
         {
-            return Task.FromResult(
-                new List<IdentityResource>()
+            var identityResources = new List<IdentityResource>();
+            foreach (var scope in scopeNames)
+            {
+                switch (scope)
                 {
-                    new IdentityResources.OpenId(),
-                    new IdentityResources.Profile(),
-                }.AsEnumerable<IdentityResource>()
-            );
+                    case IdentityServerConstants.StandardScopes.OpenId:
+                        identityResources.Add(new IdentityResources.OpenId());
+                        break;
+                    case IdentityServerConstants.StandardScopes.Email:
+                        identityResources.Add(new IdentityResources.Email());
+                        break;
+                    case IdentityServerConstants.StandardScopes.Profile:
+                        identityResources.Add(new IdentityResources.Profile());
+                        break;
+                    default:
+                        break;
+                }
+            }
+            return Task.FromResult(identityResources.AsEnumerable());
+
         }
 
         public Task<Resources> GetAllResourcesAsync()
@@ -61,6 +76,8 @@ namespace Fido2me.Duende
                 new IdentityResource[]
                 {
                     new IdentityResources.OpenId(),
+                    new IdentityResources.Profile(),
+                    new IdentityResources.Email(),
                 },
                 OfflineAccess = false,
                 ApiResources = new ApiResource[] { },
