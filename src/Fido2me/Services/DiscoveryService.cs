@@ -18,8 +18,15 @@ namespace Fido2me.Services
         {
             _logger = logger;
             var discoEndpoint = configuration["oidc:discoEndpoint"] ?? throw new ArgumentNullException(nameof(IConfiguration));
-            
-            _cache = new DiscoveryCache(discoEndpoint);
+
+            // oidc:discoEndpoint is localhost, not fido2me.com
+            // have to use localhost for now to reach .well-known/openid-configuration endpoint from a container
+            var discoveryPolicy = new DiscoveryPolicy()
+            { 
+                ValidateIssuerName = false,
+                ValidateEndpoints = false,
+            };
+            _cache = new DiscoveryCache(discoEndpoint, discoveryPolicy);            
         }
 
         public async Task<string> GetCibaEndpointAsync()
