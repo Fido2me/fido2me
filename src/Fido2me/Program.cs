@@ -159,7 +159,7 @@ builder.Services.AddTransient<IEmailService, EmailService>();
 builder.Services.AddTransient<IBackChannelAuthenticationRequestStore, BackChannelAuthenticationRequestStore>();
 builder.Services.AddTransient<IBackchannelAuthenticationUserValidator, BackchannelAuthenticationUserValidator>();
 builder.Services.AddTransient<IBackchannelAuthenticationUserNotificationService, BackchannelAuthenticationUserNotificationService>();
-builder.Services.AddSingleton<IDiscoveryService, DiscoveryService>();
+//builder.Services.AddSingleton<IDiscoveryService, DiscoveryService>();
 builder.Services.AddTransient<ICibaService, CibaService>();
 
 var app = builder.Build();

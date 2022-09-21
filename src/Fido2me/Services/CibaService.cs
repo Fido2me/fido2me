@@ -20,24 +20,26 @@ namespace Fido2me.Services
     {
         private readonly IDataProtector _protector;
         private readonly IHttpContextAccessor _contextAccessor;
-        private readonly IDiscoveryService _discoveryService;
         private readonly ILogger<CibaService> _logger;
         private readonly ISystemClock _systemClock;
         private readonly DataContext _dataContext;
         private readonly IConfiguration _configuration;
+        private readonly string _discoEndpoint;
 
-        public CibaService(DataContext dataContext, IDiscoveryService discoveryService, ILogger<CibaService> logger, IDataProtectionProvider provider, IHttpContextAccessor contextAccessor, ISystemClock systemClock, IConfiguration configuration)
+        public CibaService(DataContext dataContext, ILogger<CibaService> logger, IDataProtectionProvider provider, IHttpContextAccessor contextAccessor, ISystemClock systemClock, IConfiguration configuration)
         {
             _dataContext = dataContext;
             _protector = provider.CreateProtector(Constants.DataProtectorName);
             _contextAccessor = contextAccessor;
-            _discoveryService = discoveryService;
             _systemClock = systemClock;
             _configuration = configuration;
+
+            _discoEndpoint = configuration["oidc:discoEndpoint"] ?? throw new ArgumentNullException(nameof(IConfiguration));
         }
         public async Task<CibaLoginResponse> CibaLoginStartAsync(string username, string bindingMessage)
         {
-            var cibaEndpoint = await _discoveryService.GetCibaEndpointAsync();            
+            // var cibaEndpoint = await _discoveryService.GetCibaEndpointAsync();
+            var cibaEndpoint = _discoEndpoint + "/connect/ciba";
 
             var req = new BackchannelAuthenticationRequest()
             {
@@ -98,7 +100,8 @@ namespace Fido2me.Services
 
         public async Task<TokenResponse> CibaTryLoginCompleteAsync(string authRequestId)
         {
-            var tokenEndpoint = await _discoveryService.GetTokenEndpointAsync();
+            //var tokenEndpoint = await _discoveryService.GetTokenEndpointAsync();
+            var tokenEndpoint = _discoEndpoint + "/connect/token";
 
             var client = new HttpClient();
             var t = _systemClock.UtcNow.UtcDateTime;
