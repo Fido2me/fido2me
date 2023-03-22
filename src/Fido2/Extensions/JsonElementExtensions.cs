@@ -1,23 +1,48 @@
-﻿using System.Text.Json;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Text.Json;
 
-namespace Fido2NetLib
+namespace Fido2NetLib;
+
+internal static class JsonElementExtensions
 {
-    internal static class JsonElementExtensions
+    public static string[] ToStringArray(this in JsonElement el)
     {
-        public static string[] ToStringArray(this in JsonElement el)
+        var result = new string[el.GetArrayLength()];
+
+        int i = 0;
+
+        foreach (var item in el.EnumerateArray())
         {
-            var result = new string[el.GetArrayLength()];
+            result[i] = item.GetString()!;
+
+            i++;
+        }
+
+        return result;
+    }
+
+    public static bool TryDecodeArrayOfBase64EncodedBytes(this in JsonElement el, [NotNullWhen(true)] out byte[][]? result)
+    {
+        if (el.ValueKind is JsonValueKind.Array)
+        {
+            result = new byte[el.GetArrayLength()][];
 
             int i = 0;
 
-            foreach (var item in el.EnumerateArray())
+            try
             {
-                result[i] = item.GetString()!;
+                foreach (var item in el.EnumerateArray())
+                {
+                    result[i++] = item.GetBytesFromBase64()!;
+                }
 
-                i++;
+                return true;
             }
-
-            return result;
+            catch { }
         }
+
+        result = null;
+
+        return false;
     }
 }

@@ -1,13 +1,26 @@
-﻿namespace Fido2NetLib.Objects
+﻿using System;
+using System.Security.Cryptography.X509Certificates;
+using System.Text.Json.Serialization;
+
+namespace Fido2NetLib.Objects;
+
+/// <summary>
+/// Holds parsed credential data
+/// </summary>
+public class AttestationVerificationSuccess : AssertionVerificationResult
 {
-    /// <summary>
-    /// Holds parsed credential data
-    /// </summary>
-    public class AttestationVerificationSuccess : BaseAttestationVerification
-    {
-        public AttestationVerificationSuccess()
-        {
-            AttestationVerificationStatus = AttestationVerificationStatus.Success;
-        }
-    }
+    [JsonConverter(typeof(Base64UrlConverter))]
+    public byte[] PublicKey { get; set; }
+
+    public Fido2User User { get; set; }
+
+    public string CredType { get; set; }
+
+    public Guid AaGuid { get; set; }
+
+#nullable enable
+    public X509Certificate2? AttestationCertificate { get; set; }
+#nullable disable
+
+    public X509Certificate2[] AttestationCertificateChain { get; set; }
 }

@@ -6,68 +6,67 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Fido2NetLib
+using Fido2NetLib.Serialization;
+
+namespace Fido2NetLib;
+
+public sealed class FileSystemMetadataRepository : IMetadataRepository
 {
-    public sealed class FileSystemMetadataRepository : IMetadataRepository
+    private readonly string _path;
+    private readonly IDictionary<Guid, MetadataBLOBPayloadEntry> _entries;
+    private MetadataBLOBPayload? _blob;
+
+    public FileSystemMetadataRepository(string path)
     {
-        private readonly string _path;
-        private readonly IDictionary<Guid, MetadataBLOBPayloadEntry> _entries;
-        private MetadataBLOBPayload? _blob;
+        _path = path;
+        _entries = new Dictionary<Guid, MetadataBLOBPayloadEntry>();
+    }
 
-        public FileSystemMetadataRepository(string path)
+    public async Task<MetadataStatement?> GetMetadataStatementAsync(MetadataBLOBPayload blob, MetadataBLOBPayloadEntry entry, CancellationToken cancellationToken = default)
+    {
+        if (_blob is null)
+            await GetBLOBAsync(cancellationToken);
+
+        if (entry.AaGuid is Guid aaGuid && _entries.TryGetValue(aaGuid, out var found))
         {
-            _path = path;
-            _entries = new Dictionary<Guid, MetadataBLOBPayloadEntry>();
+            return found.MetadataStatement;
         }
 
-        public async Task<MetadataStatement?> GetMetadataStatementAsync(MetadataBLOBPayload blob, MetadataBLOBPayloadEntry entry, CancellationToken cancellationToken = default)
+        return null;
+    }
+
+    public async Task<MetadataBLOBPayload> GetBLOBAsync(CancellationToken cancellationToken = default)
+    {
+        if (Directory.Exists(_path))
         {
-            if (_blob is null)
-                await GetBLOBAsync(cancellationToken);
-
-            if (!string.IsNullOrEmpty(entry.AaGuid) && Guid.TryParse(entry.AaGuid, out Guid parsedAaGuid))
+            foreach (var filename in Directory.GetFiles(_path))
             {
-                if (_entries.ContainsKey(parsedAaGuid))
-                    return _entries[parsedAaGuid].MetadataStatement;
-            }
-
-            return null;
-        }
-
-        public async Task<MetadataBLOBPayload> GetBLOBAsync(CancellationToken cancellationToken = default)
-        {
-            if (Directory.Exists(_path))
-            {
-                foreach (var filename in Directory.GetFiles(_path))
+                await using var fileStream = new FileStream(filename, FileMode.Open, FileAccess.Read);
+                MetadataStatement statement = await JsonSerializer.DeserializeAsync(fileStream, FidoModelSerializerContext.Default.MetadataStatement, cancellationToken:cancellationToken) ?? throw new NullReferenceException(nameof(statement));
+                var conformanceEntry = new MetadataBLOBPayloadEntry
                 {
-                    await using var fileStream = new FileStream(filename, FileMode.Open, FileAccess.Read);
-                    var statement = await JsonSerializer.DeserializeAsync<MetadataStatement>(fileStream, cancellationToken:cancellationToken);
-                    _ = statement ?? throw new NullReferenceException(nameof(statement));
-                    var conformanceEntry = new MetadataBLOBPayloadEntry
-                    {
-                        AaGuid = statement.AaGuid,
-                        MetadataStatement = statement,
-                        StatusReports = new StatusReport[] 
+                    AaGuid = statement.AaGuid,
+                    MetadataStatement = statement,
+                    StatusReports = new StatusReport[] 
+                    { 
+                        new StatusReport 
                         { 
-                            new StatusReport 
-                            { 
-                                Status = AuthenticatorStatus.NOT_FIDO_CERTIFIED 
-                            } 
-                        }
-                    };
-                    if (null != conformanceEntry.AaGuid) _entries.Add(new Guid(conformanceEntry.AaGuid), conformanceEntry);
-                }
+                            Status = AuthenticatorStatus.NOT_FIDO_CERTIFIED 
+                        } 
+                    }
+                };
+                if (null != conformanceEntry.AaGuid) _entries.Add(conformanceEntry.AaGuid.Value, conformanceEntry);
             }
-
-            _blob = new MetadataBLOBPayload()
-            {
-                Entries = _entries.Select(o => o.Value).ToArray(),
-                NextUpdate = "", //Empty means it won't get cached
-                LegalHeader = "Local FAKE",
-                Number = 1
-            };
-
-            return _blob;
         }
+
+        _blob = new MetadataBLOBPayload()
+        {
+            Entries = _entries.Select(static o => o.Value).ToArray(),
+            NextUpdate = "", //Empty means it won't get cached
+            LegalHeader = "Local FAKE",
+            Number = 1
+        };
+
+        return _blob;
     }
 }
