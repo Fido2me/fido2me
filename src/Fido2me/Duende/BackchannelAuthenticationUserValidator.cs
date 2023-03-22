@@ -13,7 +13,8 @@ namespace Fido2me.Duende
         public BackchannelAuthenticationUserValidator(DataContext context, ILogger<BackchannelAuthenticationUserValidator> logger)
         {
             _context = context;
-            _logger = logger;        }
+            _logger = logger;        
+        }
 
 
 
@@ -22,7 +23,7 @@ namespace Fido2me.Duende
         /// </summary>
         /// <param name="userValidatorContext"></param>
         /// <returns>backchannelAuthenticationUserValidatonResult object</returns>
-        public async Task<BackchannelAuthenticationUserValidatonResult> ValidateRequestAsync(BackchannelAuthenticationUserValidatorContext userValidatorContext)
+        public async Task<BackchannelAuthenticationUserValidationResult> ValidateRequestAsync(BackchannelAuthenticationUserValidatorContext userValidatorContext)
         {
             // https://docs.duendesoftware.com/identityserver/v6/reference/validators/ciba_user_validator/
             // account enabled / disabled check?
@@ -35,7 +36,7 @@ namespace Fido2me.Duende
                 };
             var identity = new ClaimsIdentity(claims, "ciba");
             var user = new ClaimsPrincipal(identity);
-            var br = new BackchannelAuthenticationUserValidatonResult()
+            var br = new BackchannelAuthenticationUserValidationResult()
             {
                 Subject = user
             };
