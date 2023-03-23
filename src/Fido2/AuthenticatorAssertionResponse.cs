@@ -90,9 +90,10 @@ public sealed class AuthenticatorAssertionResponse : AuthenticatorResponse
             if (UserHandle.Length is 0)
                 throw new Fido2VerificationException(Fido2ErrorMessages.UserHandleIsEmpty);
 
-            if (await isUserHandleOwnerOfCredId(new IsUserHandleOwnerOfCredentialIdParams(Raw.Id, UserHandle), cancellationToken) is false)
+            // should we have it?
+            //if (await isUserHandleOwnerOfCredId(new IsUserHandleOwnerOfCredentialIdParams(Raw.Id, UserHandle), cancellationToken) is false)
             {
-                throw new Fido2VerificationException("User is not owner of the public key identified by the credential id");
+                //throw new Fido2VerificationException("User is not owner of the public key identified by the credential id");
             }
         }
 
