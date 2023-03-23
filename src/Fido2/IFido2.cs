@@ -26,6 +26,7 @@ public interface IFido2
         CredentialCreateOptions origChallenge,
         IsCredentialIdUniqueToUserAsyncDelegate isCredentialIdUniqueToUser,
         byte[]? requestTokenBindingId = null,
+        bool lazyAttestation = false,
         CancellationToken cancellationToken = default);
 
     CredentialCreateOptions RequestNewCredential(

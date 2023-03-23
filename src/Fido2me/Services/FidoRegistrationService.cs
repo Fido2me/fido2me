@@ -17,7 +17,7 @@ namespace Fido2me.Services
 
         Task<RegistrationResponse> RegistrationCompleteAsync(AuthenticatorAttestationRawResponse attestationResponse, CancellationToken cancellationToken);
 
-        Task CompleteAttestation(BaseAttestationVerification attestationResult, Guid accountId);
+        Task CompleteAttestation(AttestationVerificationSuccess attestationResult, Guid accountId);
 
         Task<CredentialCreateOptions> RegistrationAddNewDeviceStartAsync(string username);
 
@@ -91,7 +91,7 @@ namespace Fido2me.Services
                 var protectedOptions = _contextAccessor.HttpContext.Request.Cookies[Constants.CookieRegistration];
                 if (protectedOptions == null)
                 {
-                    return new RegistrationResponse(AttestationVerificationStatus.Failed) {  ErrorMessage = "Missing registration cookie" };
+                    return new RegistrationResponse(RegistrationStatus.Failure) {  ErrorMessage = "Missing registration cookie" };
                 }
                 var unprotectedOptions = _protector.Unprotect(protectedOptions);
 
@@ -106,28 +106,26 @@ namespace Fido2me.Services
 
                 // 2. Verify and make the credentials
                 var attestation = await _fido2.MakeNewCredentialAsync(attestationResponse, options, null, lazyAttestation: true, cancellationToken: cancellationToken);
-                if (attestation.Result.AttestationVerificationStatus == AttestationVerificationStatus.Failed)
-                { }// bad request
-
+                
                 // new registration - new account Id
                 await CompleteAttestation(attestation.Result, Guid.NewGuid());
 
-                return new RegistrationResponse(attestation.Result.AttestationVerificationStatus);
+                return new RegistrationResponse(RegistrationStatus.Success, attestation.Result);
             }
             catch (Exception e)
             {
                 _logger.LogError(e.Message, e.StackTrace);
-                return new RegistrationResponse(AttestationVerificationStatus.Failed) { ErrorMessage = e.Message };
+                return new RegistrationResponse(RegistrationStatus.Failure) { ErrorMessage = e.Message };
 
             }
         }
 
-        public async Task CompleteAttestation(BaseAttestationVerification attestationResult, Guid accountId)
+        public async Task CompleteAttestation(AttestationVerificationSuccess attestationResult, Guid accountId)
         {
             string desc = "";
             if (_mds != null)
             {
-                var entry = await _mds.GetEntryAsync(attestationResult.Aaguid);
+                var entry = await _mds.GetEntryAsync(attestationResult.AaGuid);
                 desc = entry?.MetadataStatement?.Description;                
             }
 
@@ -137,7 +135,7 @@ namespace Fido2me.Services
                 Enabled = true,
                 CredentialId = Convert.ToHexString(attestationResult.CredentialId),
                 Username = attestationResult.User.Name.ToLowerInvariant().Trim(),               
-                AaGuid = attestationResult.Aaguid,
+                AaGuid = attestationResult.AaGuid,
                 DeviceDescription = desc,   
                 CredType = attestationResult.CredType,
                 PublicKey = attestationResult.PublicKey,
@@ -145,13 +143,13 @@ namespace Fido2me.Services
                 RegDate = DateTimeOffset.Now,
                 SignatureCounter = attestationResult.Counter,
                 AccountId = accountId,
-                AttestionResult = attestationResult.AttestationVerificationStatus.ToString()
+                AttestionResult = attestationResult.IsLazyAttestation ? "SuccessNoAttestation" : "Success",
             };
             await _dataContext.Credentials.AddAsync(credential);
 
-            if (attestationResult.AttestationVerificationStatus == AttestationVerificationStatus.SuccessNoAttestation && attestationResult is LazyAttestationVerificationSuccess)
+            if (attestationResult.IsLazyAttestation)
             {
-                var rawAttestation = (attestationResult as LazyAttestationVerificationSuccess).AttestationRawResponse;
+                var rawAttestation = attestationResult.AttestationRawResponse;
 
                 var attestation = new Attestation()
                 {
@@ -234,7 +232,7 @@ namespace Fido2me.Services
                 var protectedOptions = _contextAccessor.HttpContext.Request.Cookies[Constants.CookieAddNewDevice];
                 if (protectedOptions == null)
                 {
-                    return new RegistrationResponse(AttestationVerificationStatus.Failed) { ErrorMessage = "Missing add new device cookie" };
+                    return new RegistrationResponse(RegistrationStatus.Failure) { ErrorMessage = "Missing add new device cookie" };
                 }
                 var unprotectedOptions = _protector.Unprotect(protectedOptions);
 
@@ -249,18 +247,16 @@ namespace Fido2me.Services
 
                 // 2. Verify and make the credentials
                 var attestation = await _fido2.MakeNewCredentialAsync(attestationResponse, options, null, lazyAttestation: true, cancellationToken: cancellationToken);
-                if (attestation.Result.AttestationVerificationStatus == AttestationVerificationStatus.Failed)
-                { }// bad request
 
                 // add to existing account ID
                 await CompleteAttestation(attestation.Result, accountId);
 
-                return new RegistrationResponse(attestation.Result.AttestationVerificationStatus);
+                return new RegistrationResponse(RegistrationStatus.Success, attestation.Result);
             }
             catch (Exception e)
             {
                 _logger.LogError(e.Message, e.StackTrace);
-                return new RegistrationResponse(AttestationVerificationStatus.Failed) { ErrorMessage = e.Message };
+                return new RegistrationResponse(RegistrationStatus.Failure) { ErrorMessage = e.Message };
 
             }
         }

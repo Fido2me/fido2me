@@ -65,12 +65,13 @@ namespace Fido2NetLib
         public async Task<CredentialMakeResult> MakeNewCredentialAsync(
             AuthenticatorAttestationRawResponse attestationResponse,
             CredentialCreateOptions origChallenge,
-            IsCredentialIdUniqueToUserAsyncDelegate isCredentialIdUniqueToUser,
+            IsCredentialIdUniqueToUserAsyncDelegate isCredentialIdUniqueToUser,            
             byte[]? requestTokenBindingId = null,
+            bool lazyAttestation = false,
             CancellationToken cancellationToken = default)
         {
             var parsedResponse = AuthenticatorAttestationResponse.Parse(attestationResponse);
-            var success = await parsedResponse.VerifyAsync(origChallenge, _config, isCredentialIdUniqueToUser, _metadataService, requestTokenBindingId, cancellationToken);
+            var success = await parsedResponse.VerifyAsync(origChallenge, _config, isCredentialIdUniqueToUser, _metadataService, requestTokenBindingId, lazyAttestation, cancellationToken);
 
             // todo: Set Errormessage etc.
             return new CredentialMakeResult(

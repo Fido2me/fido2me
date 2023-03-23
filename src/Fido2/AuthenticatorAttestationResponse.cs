@@ -75,6 +75,7 @@ public sealed class AuthenticatorAttestationResponse : AuthenticatorResponse
         IsCredentialIdUniqueToUserAsyncDelegate isCredentialIdUniqueToUser,
         IMetadataService metadataService,
         byte[] requestTokenBindingId,
+        bool lazyAttestation = false,
         CancellationToken cancellationToken = default)
     {
         // https://www.w3.org/TR/webauthn/#registering-a-new-credential
@@ -134,6 +135,27 @@ public sealed class AuthenticatorAttestationResponse : AuthenticatorResponse
         if (string.IsNullOrEmpty(AttestationObject.Fmt))
         {
             throw new Fido2VerificationException(Fido2ErrorCode.MissingAttestationType, Fido2ErrorMessages.MissingAttestationType);
+        }
+
+        // skip this step, we will save attestation response and validate it later if required
+        if (lazyAttestation)
+        {
+            // return SuccessWithLazyAttestation, save attestation response for later verification
+
+            return new AttestationVerificationSuccess
+            {
+                CredentialId = authData.AttestedCredentialData.CredentialID,
+                PublicKey = authData.AttestedCredentialData.CredentialPublicKey.GetBytes(),
+                User = originalOptions.User,
+                Counter = authData.SignCount,
+                CredType = AttestationObject.Fmt,
+                AaGuid = authData.AttestedCredentialData.AaGuid,
+                AttestationCertificate = null,
+                AttestationCertificateChain = Array.Empty<X509Certificate2>(),
+                AttestationRawResponse = Raw,
+                IsLazyAttestation = true,
+            };
+
         }
 
         // 13. Determine the attestation statement format by performing a USASCII case-sensitive match on fmt
@@ -220,7 +242,8 @@ public sealed class AuthenticatorAttestationResponse : AuthenticatorResponse
         //     If registration is requested for a credential that is already registered to a different user,
         //     the Relying Party SHOULD fail this registration ceremony, or it MAY decide to accept the registration, e.g. while deleting the older registration
 
-        if (await isCredentialIdUniqueToUser(new IsCredentialIdUniqueToUserParams(authData.AttestedCredentialData.CredentialID, originalOptions.User), cancellationToken) is false)
+
+        if (isCredentialIdUniqueToUser != null && false == await isCredentialIdUniqueToUser(new IsCredentialIdUniqueToUserParams(authData.AttestedCredentialData.CredentialID, originalOptions.User), cancellationToken))
         {
             throw new Fido2VerificationException(Fido2ErrorCode.NonUniqueCredentialId, Fido2ErrorMessages.NonUniqueCredentialId);
         }

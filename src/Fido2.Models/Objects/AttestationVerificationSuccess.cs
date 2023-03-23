@@ -23,4 +23,8 @@ public class AttestationVerificationSuccess : AssertionVerificationResult
 #nullable disable
 
     public X509Certificate2[] AttestationCertificateChain { get; set; }
+
+    public bool IsLazyAttestation { get; set; } = false;
+
+    public AuthenticatorAttestationRawResponse AttestationRawResponse { get; set; }     
 }
