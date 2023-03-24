@@ -1,8 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFrameworks>net7.0</TargetFrameworks>
     <Nullable>enable</Nullable>
     <RootNamespace>Fido2NetLib</RootNamespace>
+    <IsTrimmable>true</IsTrimmable>
+    <NoWarn>IDE0057</NoWarn>
   </PropertyGroup>
    
   <ItemGroup>
@@ -16,10 +18,10 @@
   <!-- References -->
   <ItemGroup>
     <ProjectReference Include="..\Fido2.Models\Fido2.Models.csproj" />
-    <PackageReference Include="Microsoft.Extensions.Http" Version="7.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="6.0.0" />
     <PackageReference Include="NSec.Cryptography" Version="22.4.0" />
-    <PackageReference Include="System.Formats.Cbor" Version="7.0.0" />
-    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.27.0" />
+    <PackageReference Include="System.Formats.Cbor" Version="6.0.0" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.23.1" />
   </ItemGroup>
 
   <ItemGroup>

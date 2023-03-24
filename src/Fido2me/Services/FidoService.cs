@@ -13,7 +13,7 @@ namespace Fido2me.Services
 
         Task UpdateCredentialAsync(Credential fidoCredential);
 
-        Task CompleteAttestation(BaseAttestationVerification baseAttestationVerification);
+        Task CompleteAttestation(AttestationVerificationSuccess baseAttestationVerification);
     }
 
     public class FidoService : IFidoService
@@ -47,25 +47,25 @@ namespace Fido2me.Services
             
         }
 
-        public async Task CompleteAttestation(BaseAttestationVerification attestationResult)
+        public async Task CompleteAttestation(AttestationVerificationSuccess attestationResult)
         {
             var credential = new Credential()
             {
                 Id = attestationResult.CredentialId,
-                AaGuid = attestationResult.Aaguid,
+                AaGuid = attestationResult.AaGuid,
                 CredType = attestationResult.CredType,
                 PublicKey = attestationResult.PublicKey,
                 UserHandle = attestationResult.User.Id,
                 RegDate = DateTimeOffset.Now,
                 SignatureCounter = attestationResult.Counter,
                 AccountId = new Guid(attestationResult.User.Id),
-                AttestionResult = attestationResult.AttestationVerificationStatus.ToString()
+                AttestionResult = attestationResult.IsLazyAttestation ? "SuccessNoAttestation" : "Success", 
             };
             await _context.Credentials.AddAsync(credential);
 
-            if (attestationResult.AttestationVerificationStatus == AttestationVerificationStatus.SuccessNoAttestation && attestationResult is LazyAttestationVerificationSuccess)
+            if (attestationResult.IsLazyAttestation)
             {
-                var rawAttestation = (attestationResult as LazyAttestationVerificationSuccess).AttestationRawResponse;
+                var rawAttestation = attestationResult.AttestationRawResponse;
 
                 var attestation = new Attestation()
                 {

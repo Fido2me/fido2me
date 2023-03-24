@@ -1,16 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFrameworks>net7.0</TargetFrameworks>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <RootNamespace>Fido2NetLib</RootNamespace>
+    <IsTrimmable>true</IsTrimmable>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
   </PropertyGroup>
-  
-  <ItemGroup>
-    <Compile Remove="MetadataStatements\**" />
-    <EmbeddedResource Remove="MetadataStatements\**" />
-    <None Remove="MetadataStatements\**" />
-  </ItemGroup>
   
   <ItemGroup>
     <Compile Remove="IMetadataService.cs" />

@@ -11,7 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fido2", "src\Fido2\Fido2.cs
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fido2.AspNet", "src\Fido2.AspNet\Fido2.AspNet.csproj", "{B969565C-2D2B-4163-A593-5AAB5CBD02AB}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fido2.Lib.Tests", "test\Fido2.Lib.Tests\Fido2.Lib.Tests.csproj", "{091B6C20-3F80-43E5-8DD5-6E1433253366}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test", "test\Fido2Tests\Test.csproj", "{091B6C20-3F80-43E5-8DD5-6E1433253366}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

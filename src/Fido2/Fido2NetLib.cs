@@ -48,11 +48,9 @@ namespace Fido2NetLib
             AttestationConveyancePreference attestationPreference,
             AuthenticationExtensionsClientInputs? extensions = null)
         {
-            var challenge = new byte[_config.ChallengeSize];
-            RandomNumberGenerator.Fill(challenge);
+            byte[] challenge = RandomNumberGenerator.GetBytes(_config.ChallengeSize);
 
-            var options = CredentialCreateOptions.Create(_config, challenge, user, authenticatorSelection, attestationPreference, excludeCredentials, extensions);
-            return options;
+            return CredentialCreateOptions.Create(_config, challenge, user, authenticatorSelection, attestationPreference, excludeCredentials, extensions);
         }
 
         /// <summary>
@@ -67,7 +65,7 @@ namespace Fido2NetLib
         public async Task<CredentialMakeResult> MakeNewCredentialAsync(
             AuthenticatorAttestationRawResponse attestationResponse,
             CredentialCreateOptions origChallenge,
-            IsCredentialIdUniqueToUserAsyncDelegate isCredentialIdUniqueToUser,
+            IsCredentialIdUniqueToUserAsyncDelegate isCredentialIdUniqueToUser,            
             byte[]? requestTokenBindingId = null,
             bool lazyAttestation = false,
             CancellationToken cancellationToken = default)
@@ -92,11 +90,9 @@ namespace Fido2NetLib
             UserVerificationRequirement? userVerification,
             AuthenticationExtensionsClientInputs? extensions = null)
         {
-            var challenge = new byte[_config.ChallengeSize];
-            RandomNumberGenerator.Fill(challenge);
+            byte[] challenge = RandomNumberGenerator.GetBytes(_config.ChallengeSize);
 
-            var options = AssertionOptions.Create(_config, challenge, allowedCredentials, userVerification, extensions);
-            return options;
+            return AssertionOptions.Create(_config, challenge, allowedCredentials, userVerification, extensions);
         }
 
         /// <summary>
@@ -130,14 +126,14 @@ namespace Fido2NetLib
         /// </summary>
         public sealed class CredentialMakeResult : Fido2ResponseBase
         {
-            public CredentialMakeResult(string status, string errorMessage, BaseAttestationVerification result)
+            public CredentialMakeResult(string status, string errorMessage, AttestationVerificationSuccess? result)
             {
                 Status = status;
                 ErrorMessage = errorMessage;
                 Result = result;
             }
 
-            public BaseAttestationVerification Result { get; }
+            public AttestationVerificationSuccess? Result { get; }
 
             // todo: add debuginfo?
         }
