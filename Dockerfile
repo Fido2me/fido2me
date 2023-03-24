@@ -11,7 +11,7 @@ COPY ["./src/Fido2me/Fido2me.csproj", "./src/Fido2me/Fido2me.csproj"]
 COPY ["./src/Fido2/Fido2.csproj", "./src/Fido2/Fido2.csproj"]
 COPY ["./src/Fido2.AspNet/Fido2.AspNet.csproj", "./src/Fido2.AspNet/Fido2.AspNet.csproj"]
 COPY ["./src/Fido2.Models/Fido2.Models.csproj", "./src/Fido2.Models/Fido2.Models.csproj"]
-COPY ["./test/Fido2.Lib.Tests/Fido2.Lib.Tests.csproj", "./test/Fido2.Lib.Tests/Fido2.Lib.Tests.csproj"]
+COPY ["./test/Fido2Tests/Test.csproj", "./test/Fido2Tests/Test.csproj"]
 
 
 RUN dotnet restore "./src/Fido2me/Fido2me.csproj"
