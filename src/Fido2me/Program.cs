@@ -21,6 +21,13 @@ var builder = WebApplication.CreateBuilder(args);
 var config = builder.Configuration;
 var services = builder.Services;
 
+// dev only, .env file should not exist in prod, use env variables in prod (or mount them via Secret Manager)
+var root = Directory.GetCurrentDirectory();
+DotEnv.Load(Path.Combine(root, ".env"));
+
+config.AddEnvironmentVariables();
+
+/*
 config.AddAzureKeyVault(
     new Uri($"https://{config["vaultName"]}.vault.azure.net/"),
     new DefaultAzureCredential(new DefaultAzureCredentialOptions
@@ -34,7 +41,7 @@ config.AddAzureKeyVault(
         ExcludeAzureCliCredential = builder.Environment.IsProduction(),
         ExcludeManagedIdentityCredential = !builder.Environment.IsProduction(),
     }));
-
+*/
 StartupConfigurationHelper.ConfigureApplicationInsights(services, config["tracing-key"]);
 
 services.Configure<ForwardedHeadersOptions>(options =>
