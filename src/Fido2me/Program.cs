@@ -62,6 +62,7 @@ builder.Services.AddRazorPages(options =>
 
 services.AddControllers();
 
+
 services.AddDbContext<DataContext>(options =>
 {
     options.UseCosmos(
@@ -73,11 +74,30 @@ services.AddDbContext<DataContext>(options =>
 
 });
 
+var connectionString = config["ConnectionStrings:MySql"];
+
+// Replace with your server version and type.
+// Use 'MariaDbServerVersion' for MariaDB.
+// Alternatively, use 'ServerVersion.AutoDetect(connectionString)'.
+// For common usages, see pull request #1233.
+var serverVersion = new MySqlServerVersion(new Version(8, 0, 31));
+var v = ServerVersion.AutoDetect(connectionString);
+services.AddDbContext<ApplicationDataContext>(options =>
+{
+    // https://github.com/PomeloFoundation/Pomelo.EntityFrameworkCore.MySql/blob/master/README.md
+    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
+
+    // debugging only
+    // .LogTo(Console.WriteLine, LogLevel.Information)
+    // .EnableSensitiveDataLogging()
+    // .EnableDetailedErrors()
+});
+
 // https://docs.microsoft.com/en-us/aspnet/core/security/data-protection/configuration/overview?view=aspnetcore-6.0.
 // use db context for now
 services.AddDataProtection()
     .DisableAutomaticKeyGeneration() // TODO: manual rotation to avoid inserting duplicate records to DB?
-    .PersistKeysToDbContext<DataContext>();
+    .PersistKeysToDbContext<ApplicationDataContext>();
 
 
 // Use the in-memory implementation of IDistributedCache.
@@ -186,7 +206,7 @@ if (app.Environment.IsDevelopment())
     config.AddApplicationInsightsSettings(developerMode: true);
 
     using (var scope = app.Services.GetRequiredService<IServiceScopeFactory>().CreateScope())
-    using (var context = scope.ServiceProvider.GetService<DataContext>())
+    using (var context = scope.ServiceProvider.GetService<ApplicationDataContext>())
     {
         //context?.Database.EnsureDeleted();                    
         context?.Database.EnsureCreated();
@@ -200,7 +220,7 @@ else
     app.UseHsts();
 
     using (var scope = app.Services.GetRequiredService<IServiceScopeFactory>().CreateScope())
-    using (var context = scope.ServiceProvider.GetService<DataContext>())
+    using (var context = scope.ServiceProvider.GetService<ApplicationDataContext>())
     {
         //context.Database.EnsureDeleted();                    
         context?.Database.EnsureCreated();

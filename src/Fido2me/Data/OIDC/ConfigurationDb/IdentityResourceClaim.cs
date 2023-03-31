@@ -13,7 +13,7 @@ namespace Fido2me.Data.OIDC.ConfigurationDb
         public long Id { get; set; }
 
         [Required]
-        public int IdentityResourceId { get; set; }
+        public long IdentityResourceId { get; set; }
         public IdentityResource IdentityResource { get; set; }
 
         [Required]

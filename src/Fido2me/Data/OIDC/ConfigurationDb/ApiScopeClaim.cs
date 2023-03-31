@@ -19,6 +19,6 @@ namespace Fido2me.Data.OIDC.ConfigurationDb
 
         [Required]
         [StringLength(200)]
-        public string ScopeName { get; set; }
+        public string Type { get; set; }
     }
 }

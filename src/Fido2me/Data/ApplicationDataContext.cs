@@ -1,5 +1,4 @@
-﻿using Fido2me.Data.FIDO2;
-using Fido2me.Data.OIDC.ConfigurationDb;
+﻿using Fido2me.Data.OIDC.ConfigurationDb;
 using Fido2me.Data.OIDC.PersistedGrantDb;
 using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -42,7 +41,7 @@ namespace Fido2me.Data
 
         private IWebHostEnvironment _env;
                 
-        public ApplicationDataContext(DbContextOptions<DataContext> options, IWebHostEnvironment env)
+        public ApplicationDataContext(DbContextOptions<ApplicationDataContext> options, IWebHostEnvironment env)
             : base(options)
         {
             _env = env;
