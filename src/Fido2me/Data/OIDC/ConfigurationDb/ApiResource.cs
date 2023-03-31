@@ -10,7 +10,7 @@ namespace Fido2me.Data.OIDC.ConfigurationDb
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int Id { get; set; }
+        public long Id { get; set; }
 
         [Required]
         public bool Enabled { get; set; }

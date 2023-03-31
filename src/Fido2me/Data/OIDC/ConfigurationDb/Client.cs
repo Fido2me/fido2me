@@ -7,9 +7,7 @@ namespace Fido2me.Data.OIDC.ConfigurationDb
     [Table("Clients")]
     [Index(nameof(ClientId), IsUnique = true)]
     public class Client
-    {
-        // https://github.com/DuendeSoftware/IdentityServer/blob/main/migrations/IdentityServerDb/Migrations/ConfigurationDb.sql
-
+    {      
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public long Id { get; set; }

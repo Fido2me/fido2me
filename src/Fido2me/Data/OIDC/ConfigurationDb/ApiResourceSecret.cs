@@ -10,11 +10,11 @@ namespace Fido2me.Data.OIDC.ConfigurationDb
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int Id { get; set; }
+        public long Id { get; set; }
 
         [Required]
-        public int ApiResourceId { get; set; }
-        public ApiResource ApiResource { get; set; } //[FK_ApiResourceSecrets_ApiResources_ApiResourceId] FOREIGN KEY ([ApiResourceId]) REFERENCES [ApiResources] ([Id])
+        public long ApiResourceId { get; set; }
+        public ApiResource ApiResource { get; set; }
 
         [StringLength(2000)]
         public string Description { get; set; }
@@ -30,7 +30,6 @@ namespace Fido2me.Data.OIDC.ConfigurationDb
         public string Type { get; set; }
 
         [Required]
-        public DateTime Created { get; set; } = DateTime.UtcNow;
-        
+        public DateTime Created { get; set; } = DateTime.UtcNow;        
     }
 }

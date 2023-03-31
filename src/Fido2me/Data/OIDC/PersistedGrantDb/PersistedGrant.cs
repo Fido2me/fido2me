@@ -7,7 +7,7 @@ namespace Fido2me.Data.OIDC.PersistedGrantDb
     [Table("PersistedGrants")]
     [Index(nameof(ConsumedTime))]
     [Index(nameof(Expiration))]
-    [Index(nameof(Key))] // cannot use unique index, no index filter available in some databases
+    [Index(nameof(Key))] // cannot use unique index?, no index filter available in some databases
     [Index(nameof(SubjectId), nameof(ClientId), nameof(Type))]
     [Index(nameof(SubjectId), nameof(SessionId), nameof(Type))]
     public class PersistedGrant

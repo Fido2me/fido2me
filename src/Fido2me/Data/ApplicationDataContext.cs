@@ -7,6 +7,7 @@ namespace Fido2me.Data
 {
     public class ApplicationDataContext : DbContext, IDataProtectionKeyContext
     {
+        // // https://github.com/DuendeSoftware/IdentityServer/blob/main/migrations/IdentityServerDb/Migrations/ConfigurationDb.sql
         public DbSet<DataProtectionKey> DataProtectionKeys => null!;
 
 

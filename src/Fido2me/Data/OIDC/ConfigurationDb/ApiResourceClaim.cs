@@ -10,15 +10,15 @@ namespace Fido2me.Data.OIDC.ConfigurationDb
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int Id { get; set; }
+        public long Id { get; set; }
 
         [Required]
-        public int ApiResourceId { get; set; }
+        public long ApiResourceId { get; set; }
 
         [Required]
         [StringLength(200)]
         public string Type { get; set; }
 
-        ApiResource ApiResource { get; set; } //CONSTRAINT [FK_ApiResourceClaims_ApiResources_ApiResourceId] FOREIGN KEY ([ApiResourceId])
+        public ApiResource ApiResource { get; set; }
     }
 }

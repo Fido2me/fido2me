@@ -8,11 +8,11 @@ namespace Fido2me.Data.OIDC.ConfigurationDb
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int Id { get; set; }
+        public long Id { get; set; }
 
         [Required]
-        public int IdentityResourceId { get; set; }
-        public IdentityResource IdentityResource { get; set; } //  [FK_IdentityResourceProperties_IdentityResources_IdentityResourceId] FOREIGN KEY ([IdentityResourceId]) REFERENCES [IdentityResources] ([Id])
+        public long IdentityResourceId { get; set; }
+        public IdentityResource IdentityResource { get; set; }
 
         [Required]
         [StringLength(250)]

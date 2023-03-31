@@ -14,7 +14,7 @@ namespace Fido2me.Data.OIDC.ConfigurationDb
 
         [Required]
         public int IdentityResourceId { get; set; }
-        public IdentityResource IdentityResource { get; set; } //CONSTRAINT [FK_IdentityResourceClaims_IdentityResources_IdentityResourceId] FOREIGN KEY ([IdentityResourceId])
+        public IdentityResource IdentityResource { get; set; }
 
         [Required]
         [StringLength(200)]
