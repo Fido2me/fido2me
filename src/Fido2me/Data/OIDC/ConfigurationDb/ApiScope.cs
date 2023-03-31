@@ -1,9 +1,12 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Duende.IdentityServer.Models;
+using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Fido2me.Data.OIDC.ConfigurationDb
 {
     [Table("ApiScopes")]
+    [Index(nameof(Name), IsUnique = true)]
     public class ApiScope
     {
         [Key]

@@ -4,13 +4,13 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Fido2me.Data.OIDC.ConfigurationDb
 {
-    [Table("ApiResources")]
+    [Table("IdentityResources")]
     [Index(nameof(Name), IsUnique = true)]
-    public class ApiResource
+    public class IdentityResource
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int Id { get; set; }
+        public long Id { get; set; }
 
         [Required]
         public bool Enabled { get; set; }
@@ -22,26 +22,25 @@ namespace Fido2me.Data.OIDC.ConfigurationDb
         [StringLength(200)]
         public string DisplayName { get; set; }
 
-        [StringLength(1000)]
+        [StringLength (2000)]
         public string Description { get; set; }
 
-        [StringLength(100)]
-        public string AllowedAccessTokenSigningAlgorithms { get; set; }
+        [Required]
+        public bool Required { get; set; }
+
+        [Required]
+        public bool Emphasize { get; set; }
 
         [Required]
         public bool ShowInDiscoveryDocument { get; set; }
 
         [Required]
-        public bool RequireResourceIndicator { get; set; }
+        public DateTime Created { get; set; } = DateTime.UtcNow;
+
+        public DateTime Updated { get; set; }
 
         [Required]
-        public DateTime Created { get; set; }
+        public bool NonEditable { get; set; }
 
-        public DateTime? Updated { get; set; } = null;
-
-        public DateTime? LastAccessed { get; set; } = null;
-
-        [Required]
-        public bool NotEditable { get; set; }
     }
 }
