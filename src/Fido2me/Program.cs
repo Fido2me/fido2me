@@ -97,7 +97,7 @@ services.AddDbContext<ApplicationDataContext>(options =>
 // use db context for now
 services.AddDataProtection()
     .DisableAutomaticKeyGeneration() // TODO: manual rotation to avoid inserting duplicate records to DB?
-    .PersistKeysToDbContext<ApplicationDataContext>();
+    .PersistKeysToDbContext<DataContext>();
 
 
 // Use the in-memory implementation of IDistributedCache.
