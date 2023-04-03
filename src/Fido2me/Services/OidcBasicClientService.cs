@@ -1,56 +1,58 @@
 ﻿using Duende.IdentityServer;
 using Duende.IdentityServer.Models;
 using Fido2me.Data;
-using Fido2me.Data.FIDO2;
 using Fido2me.Data.OIDC;
 using Fido2me.Models.Applications;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Identity.Client.Platforms.Features.DesktopOs.Kerberos;
 using System.Security.Cryptography;
+using OidcModel = Fido2me.Data.OIDC.ConfigurationDb;
 
 namespace Fido2me.Services
 {
     public interface IOidcBasicClientService
     {
-        Task AddBasicClientAsync(OidcCreateClientViewModel oidcBasicClientVM, Guid accountId);
-        Task ChangeClientStatusAsync(string clientId, Guid accountId);
-        Task DeleteClientAsync(string clientId, Guid accountId);
-        Task<bool> EditClientAsync(OidcClientEditViewModel oidcBasicClient, Guid accountId);
+        Task AddBasicClientAsync(OidcCreateClientViewModel oidcBasicClientVM, long accountId);
+        Task ChangeClientStatusAsync(string clientId, long accountId);
+        Task DeleteClientAsync(string clientId, long accountId);
+        Task<bool> EditClientAsync(OidcClientEditViewModel oidcBasicClient, long accountId);
         Task<OidcCreateClientViewModel> GenerateNewClientIdAndSecret();
-        Task<List<OidcClientIndexViewModel>> GetBasicClientsByAccountIdAsync(Guid accountId);
-        Task<OidcClientEditViewModel> GetClientToEditAsync(string clientId, Guid accountId);
+        Task<List<OidcClientIndexViewModel>> GetBasicClientsByAccountIdAsync(long accountId);
+        Task<OidcClientEditViewModel> GetClientToEditAsync(string clientId, long accountId);
     }
 
     public class OidcBasicClientService : IOidcBasicClientService
     {
-        private readonly DataContext _context;
+        private readonly ApplicationDataContext _context;
 
         private const int ClientSecretLength = 32;
 
-        public OidcBasicClientService(DataContext context)
+        public OidcBasicClientService(ApplicationDataContext context)
         {
             _context = context;
         }
 
-        public async Task AddBasicClientAsync(OidcCreateClientViewModel oidcBasicClientVM, Guid accountId)
+        public async Task AddBasicClientAsync(OidcCreateClientViewModel oidcBasicClientVM, long accountId)
         {
-            var currentTime = DateTimeOffset.UtcNow;
+            var currentTime = DateTime.UtcNow;
             // allow to set PKCE mode only for confidential clients, public clients will default to true (RequireClientSecret = Confidential cLient)
             var requirePkce = oidcBasicClientVM.RequireClientSecret ? oidcBasicClientVM.RequirePkce : true;
 
-            var oidcBasicClient = new OidcBasicClient()
+            var oidcClient = new OidcModel.Client()
             {
                 AccountId = accountId,
-
                 ClientId = oidcBasicClientVM.ClientId,
-                ClientSecrets = { new ClientSecret()
+
+                RequireClientSecret = oidcBasicClientVM.RequireClientSecret,
+                ClientSecrets =
                 {
-                    Created = currentTime,
-                    Type = IdentityServerConstants.SecretTypes.SharedSecret,
-                    Value = oidcBasicClientVM.ClientSecret.Sha256(),
-                } },
+                    new OidcModel.ClientSecret()
+                    {
+                        Created = currentTime,
+                        Type = IdentityServerConstants.SecretTypes.SharedSecret,
+                        Value = oidcBasicClientVM.ClientSecret.Sha256(),
+                    }
+                },
                 AllowOfflineAccess = false, // delegate session management completely to relying party?
-                ClientGrantTypes = GrantTypes.Code.ToArray(), // use code + PKCE for both public and confidential clients
                 Enabled = true,
                 AllowRememberConsent = true,
                 RequireConsent = true,
@@ -58,9 +60,10 @@ namespace Fido2me.Services
                 ClientName = oidcBasicClientVM.ClientName,
                 Description = oidcBasicClientVM.Description,
                 Created = currentTime,
-                RequireClientSecret = oidcBasicClientVM.RequireClientSecret,
-                ClientScopes = oidcBasicClientVM.Scope.Split(' '),
-                ClientRedirectUris = new string[] { oidcBasicClientVM.RedirectUri },
+
+                //ClientGrantTypes = GrantTypes.Code.ToArray(), // use code + PKCE for both public and confidential clients
+                // ClientScopes = oidcBasicClientVM.Scope.Split(' '),
+                // ClientRedirectUris = new string[] { oidcBasicClientVM.RedirectUri },
             };
             
             //oidcBasicClient.ClientGrantTypes.Add(new ClientGrantType() { GrantType = "" });
@@ -69,7 +72,7 @@ namespace Fido2me.Services
                 //oidcBasicClient.ClientCorsOrigins = new string[1] { oidcBasicClientVM.CorsOrigin };
             }
 
-            await _context.OidcBasicClients.AddAsync(oidcBasicClient);
+            await _context.Clients.AddAsync(oidcClient);
             await _context.SaveChangesAsync();
         }
 
@@ -96,9 +99,9 @@ namespace Fido2me.Services
             return Convert.ToHexString(bytes);
         }
 
-        public async Task<List<OidcClientIndexViewModel>> GetBasicClientsByAccountIdAsync(Guid accountId)
+        public async Task<List<OidcClientIndexViewModel>> GetBasicClientsByAccountIdAsync(long accountId)
         {
-            return await _context.OidcBasicClients
+            return await _context.Clients
                 .AsNoTracking()
                 .Where(c => c.AccountId == accountId)
                 .Select(c => new OidcClientIndexViewModel
@@ -112,20 +115,22 @@ namespace Fido2me.Services
                 }).ToListAsync();
         }
 
-        public async Task<bool> EditClientAsync(OidcClientEditViewModel oidcClientEdit, Guid accountId)
+        public async Task<bool> EditClientAsync(OidcClientEditViewModel oidcClientEdit, long accountId)
         {
-            var client = await _context.OidcBasicClients.FirstOrDefaultAsync(c => c.AccountId == accountId && c.ClientId == oidcClientEdit.Id);
+            var client = await _context.Clients
+                .Include(c => c.ClientRedirectUris)
+                .FirstOrDefaultAsync(c => c.AccountId == accountId && c.ClientId == oidcClientEdit.Id);
             if (client == null)
             {
                 return false;
             }
             var requirePkce = client.RequireClientSecret ? oidcClientEdit.RequirePkce : true;
-            client.Updated = DateTimeOffset.UtcNow;
+            client.Updated = DateTime.UtcNow;
             client.ClientName = oidcClientEdit.Name;
             client.Description = oidcClientEdit.Description;
-            client.ClientRedirectUris = new string[] { oidcClientEdit.RedirectUri };
+            //client.ClientRedirectUris = new string[] { oidcClientEdit.RedirectUri };
             client.Enabled = oidcClientEdit.Enabled;
-            client.ClientCorsOrigins = new string[] { oidcClientEdit.CorsOrigin };
+            //client.ClientCorsOrigins = new string[] { oidcClientEdit.CorsOrigin };
             client.RequirePkce = requirePkce;
 
             await _context.SaveChangesAsync();
@@ -133,9 +138,9 @@ namespace Fido2me.Services
             return true;
         }
 
-        public async Task<OidcClientEditViewModel> GetClientToEditAsync(string clientId, Guid accountId)
+        public async Task<OidcClientEditViewModel> GetClientToEditAsync(string clientId, long accountId)
         {
-            var client = await _context.OidcBasicClients
+            var client = await _context.Clients
                 .AsNoTracking()
                 .Where(c => c.AccountId == accountId && c.ClientId == clientId)
                 .Select(c => new OidcClientEditViewModel
@@ -145,9 +150,9 @@ namespace Fido2me.Services
                     Description = c.Description,
                     Enabled = c.Enabled,
                     Type = c.RequireClientSecret ? "Confidential" : "Public",
-                    Scopes = c.ClientScopes,
-                    RedirectUris = c.ClientRedirectUris,
-                    CorsOrigins = c.ClientCorsOrigins,
+                    //Scopes = c.ClientScopes,
+                    //RedirectUris = c.ClientRedirectUris,
+                    //CorsOrigins = c.ClientCorsOrigins,
                     RequirePkce = c.RequirePkce,
 
                 }).FirstOrDefaultAsync();
@@ -158,19 +163,19 @@ namespace Fido2me.Services
             return client;
         }
 
-        public async Task DeleteClientAsync(string clientId, Guid accountId)
+        public async Task DeleteClientAsync(string clientId, long accountId)
         {
-            var client = await _context.OidcBasicClients.FirstOrDefaultAsync(c => c.ClientId == clientId && c.AccountId == accountId);
+            var client = await _context.Clients.FirstOrDefaultAsync(c => c.ClientId == clientId && c.AccountId == accountId);
             if (client != null)
             {
-                _context.OidcBasicClients.Remove(client);
+                _context.Clients.Remove(client);
                 await _context.SaveChangesAsync();
             }
         }
 
-        public async Task ChangeClientStatusAsync(string clientId, Guid accountId)
+        public async Task ChangeClientStatusAsync(string clientId, long accountId)
         {
-            var client = await _context.OidcBasicClients.FirstOrDefaultAsync(c => c.ClientId == clientId && c.AccountId == accountId);
+            var client = await _context.Clients.FirstOrDefaultAsync(c => c.ClientId == clientId && c.AccountId == accountId);
             if (client != null)
             {
                 client.Enabled = !client.Enabled;

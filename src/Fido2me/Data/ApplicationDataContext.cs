@@ -1,4 +1,5 @@
-﻿using Fido2me.Data.OIDC.ConfigurationDb;
+﻿using Fido2me.Data.FIDO2;
+using Fido2me.Data.OIDC.ConfigurationDb;
 using Fido2me.Data.OIDC.PersistedGrantDb;
 using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -10,7 +11,7 @@ namespace Fido2me.Data
         // // https://github.com/DuendeSoftware/IdentityServer/blob/main/migrations/IdentityServerDb/Migrations/ConfigurationDb.sql
         public DbSet<DataProtectionKey> DataProtectionKeys => null!;
 
-
+        // Configuration dataset OIDC
         public DbSet<ApiResource> ApiResources { get; set; }
         public DbSet<ApiResourceClaim> ApiResourceClaims { get; set; }
         public DbSet<ApiResourceProperty> ApiResourceProperties { get; set; }
@@ -34,10 +35,18 @@ namespace Fido2me.Data
         public DbSet<IdentityResourceClaim> IdentityResourceClaims { get; set; }
         public DbSet<IdentityResourceProperty> IdentityResourceProperties { get; set; }
 
+        // Persisted grant dataset OIDC
         public DbSet<DeviceCodeFlow> DeviceCodes { get; set; }
         public DbSet<Key> Keys { get; set; }
         public DbSet<PersistedGrant> PersistedGrants { get; set; }
         public DbSet<ServerSideSession> ServerSideSessions { get; set; }
+
+        // FIDO2 dataset
+        public DbSet<Account> Accounts { get; set; }
+        public DbSet<Assertion> Assertions { get; set; }
+        public DbSet<Attestation> Attestations { get; set; }
+        public DbSet<Credential> Credentials { get; set; }
+        public DbSet<EmailVerification> EmailVerifications { get; set; }
 
         private IWebHostEnvironment _env;
                 
@@ -57,6 +66,15 @@ namespace Fido2me.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<Attestation>()
+            .Property(u => u.AttestionResult)
+            .HasConversion<byte>();
+
+            modelBuilder.Entity<Account>()
+            .Property(u => u.AccountType)
+            .HasConversion<byte>();
+
+
             if (_env.EnvironmentName == "Development")
             {
                 //modelBuilder.SeedDevData();                               

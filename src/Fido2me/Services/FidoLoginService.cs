@@ -51,7 +51,7 @@ namespace Fido2me.Services
             else
             {
                 // get a list of credentials
-                existingCredentials = await _dataContext.Credentials.Where(x => x.Username == username).Select(c => new PublicKeyCredentialDescriptor(c.Id)).ToListAsync();
+                existingCredentials = await _dataContext.Credentials.Where(x => x.Username == username).Select(c => new PublicKeyCredentialDescriptor(c.UserHandle)).ToListAsync();
             }
             
             var exts = new AuthenticationExtensionsClientInputs()
@@ -114,7 +114,7 @@ namespace Fido2me.Services
                 {
                     AaGuid = credential.AaGuid,
                     AccountId = credential.AccountId,
-                    CredentialId = Convert.ToHexString(credential.Id),
+                    CredentialId = credential.CredentialIdString,
                     Username = credential.Username,                   
                     ErrorMessage = res.ErrorMessage,                    
                 };
@@ -139,7 +139,7 @@ namespace Fido2me.Services
 
         public async Task<Credential> GetCredentialAsync(byte[] credentialId)
         {
-            var credential = await _dataContext.Credentials.FirstOrDefaultAsync(c => c.Id == credentialId && c.Enabled);
+            var credential = await _dataContext.Credentials.FirstOrDefaultAsync(c => c.CredentialId == credentialId && c.Enabled);
             return credential;
         }
 

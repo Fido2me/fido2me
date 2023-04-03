@@ -36,7 +36,7 @@ namespace Fido2me.Services
 
         public async Task<Credential> GetCredentialAsync(byte[] credentialId)
         {
-            var credential = await _context.Credentials.FirstOrDefaultAsync(c => c.Id == credentialId);
+            var credential = await _context.Credentials.FirstOrDefaultAsync(c => c.CredentialId == credentialId);
             return credential;
         }
 
@@ -51,15 +51,15 @@ namespace Fido2me.Services
         {
             var credential = new Credential()
             {
-                Id = attestationResult.CredentialId,
+                CredentialId = attestationResult.CredentialId,
                 AaGuid = attestationResult.AaGuid,
                 CredType = attestationResult.CredType,
                 PublicKey = attestationResult.PublicKey,
                 UserHandle = attestationResult.User.Id,
-                RegDate = DateTimeOffset.Now,
+                RegDate = DateTime.UtcNow,
                 SignatureCounter = attestationResult.Counter,
-                AccountId = new Guid(attestationResult.User.Id),
-                AttestionResult = attestationResult.IsLazyAttestation ? "SuccessNoAttestation" : "Success", 
+                //AccountId = new Guid(attestationResult.User.Id),
+                //AttestionResult = attestationResult.IsLazyAttestation ? "SuccessNoAttestation" : "Success", 
             };
             await _context.Credentials.AddAsync(credential);
 
@@ -69,7 +69,6 @@ namespace Fido2me.Services
 
                 var attestation = new Attestation()
                 {
-                    Id = rawAttestation.Id,
                     RawId = rawAttestation.RawId, 
                     AttestationObject = rawAttestation.Response.AttestationObject,
                     ClientDataJson = rawAttestation.Response.ClientDataJson

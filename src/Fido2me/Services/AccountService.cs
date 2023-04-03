@@ -13,11 +13,11 @@ namespace Fido2me.Services
         Task AddCredentialAsync(Credential fidoCredential);
         Task<Credential> GetCredentialAsync(byte[] credentialId);
 
-        Task<AccountViewModel> GetAccountAsync(Guid accountId);
+        Task<AccountViewModel> GetAccountAsync(long accountId);
 
         Task UpdateCredentialAsync(Credential fidoCredential);
-        Task<EmailVerificationResponse> VerifyEmailAsync(Guid accountId, int code);
-        Task<AccountUpdateResponse> UpdateAccountAsync(Guid accountId, AccountViewModel account);
+        Task<EmailVerificationResponse> VerifyEmailAsync(long accountId, int code);
+        Task<AccountUpdateResponse> UpdateAccountAsync(long accountId, AccountViewModel account);
     }
 
     public class AccountService : IAccountService
@@ -49,7 +49,7 @@ namespace Fido2me.Services
 
         public async Task<Credential> GetCredentialAsync(byte[] credentialId)
         {
-            var credential = await _context.Credentials.FirstOrDefaultAsync(c => c.Id == credentialId);
+            var credential = await _context.Credentials.FirstOrDefaultAsync(c => c.CredentialId == credentialId);
             return credential;
         }
 
@@ -60,7 +60,7 @@ namespace Fido2me.Services
             
         }
 
-        public async Task<AccountViewModel> GetAccountAsync(Guid accountId)
+        public async Task<AccountViewModel> GetAccountAsync(long accountId)
         {
             var accountVM = await _context.Accounts.Where(a => a.Id == accountId).AsNoTracking()
                 .Select(a => new AccountViewModel() 
@@ -74,7 +74,7 @@ namespace Fido2me.Services
             return accountVM;
         }
 
-        public async Task<EmailVerificationResponse> VerifyEmailAsync(Guid accountId, int code)
+        public async Task<EmailVerificationResponse> VerifyEmailAsync(long accountId, int code)
         {
             var account = await _context.Accounts.FirstOrDefaultAsync(a => a.Id == accountId);
 
@@ -105,7 +105,7 @@ namespace Fido2me.Services
             return new EmailVerificationResponse(EmailVerificationResponseStatus.Success, "All good");
         }
 
-        public async Task<AccountUpdateResponse> UpdateAccountAsync(Guid accountId, AccountViewModel accountVM)
+        public async Task<AccountUpdateResponse> UpdateAccountAsync(long accountId, AccountViewModel accountVM)
         {
             var newEmail = accountVM.Email.Trim().ToLowerInvariant();
             if (accountVM.OldEmail?.Trim().ToLowerInvariant() == newEmail)
@@ -135,7 +135,7 @@ namespace Fido2me.Services
                 // initial challenge request (first ever or after successful email verification)
                 account.EmailVerification = new EmailVerification()
                 {
-                    Created = DateTimeOffset.Now,
+                    Created = DateTime.UtcNow,
                     Email = account.Email,
                     FailedAttempts = 0,
                     Code = code
@@ -153,7 +153,7 @@ namespace Fido2me.Services
                 account.EmailVerification.Code = code;
                 account.EmailVerification.Email = account.Email;
                 // do not change failed attempts here
-                account.EmailVerification.Created = DateTimeOffset.Now;
+                account.EmailVerification.Created = DateTime.UtcNow;
             }
             await _context.SaveChangesAsync();
 

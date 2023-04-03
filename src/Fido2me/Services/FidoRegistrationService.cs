@@ -17,11 +17,11 @@ namespace Fido2me.Services
 
         Task<RegistrationResponse> RegistrationCompleteAsync(AuthenticatorAttestationRawResponse attestationResponse, CancellationToken cancellationToken);
 
-        Task CompleteAttestation(AttestationVerificationSuccess attestationResult, Guid accountId);
+        Task CompleteAttestation(AttestationVerificationSuccess attestationResult, long accountId);
 
         Task<CredentialCreateOptions> RegistrationAddNewDeviceStartAsync(string username);
 
-        Task<RegistrationResponse> RegistrationAddNewDeviceCompleteAsync(AuthenticatorAttestationRawResponse attestationResponseJson, Guid accountId, CancellationToken cancellationToken);
+        Task<RegistrationResponse> RegistrationAddNewDeviceCompleteAsync(AuthenticatorAttestationRawResponse attestationResponseJson, long accountId, CancellationToken cancellationToken);
     }
 
 
@@ -108,7 +108,7 @@ namespace Fido2me.Services
                 var attestation = await _fido2.MakeNewCredentialAsync(attestationResponse, options, null, lazyAttestation: true, cancellationToken: cancellationToken);
                 
                 // new registration - new account Id
-                await CompleteAttestation(attestation.Result, Guid.NewGuid());
+                await CompleteAttestation(attestation.Result, -1);
 
                 return new RegistrationResponse(RegistrationStatus.Success, attestation.Result);
             }
@@ -120,7 +120,7 @@ namespace Fido2me.Services
             }
         }
 
-        public async Task CompleteAttestation(AttestationVerificationSuccess attestationResult, Guid accountId)
+        public async Task CompleteAttestation(AttestationVerificationSuccess attestationResult, long accountId)
         {
             string desc = "";
             if (_mds != null)
@@ -129,59 +129,48 @@ namespace Fido2me.Services
                 desc = entry?.MetadataStatement?.Description;                
             }
 
+            var account = await _dataContext.Accounts.FirstOrDefaultAsync(a => a.Id == accountId);
+            if (account == null)
+            {
+                // new registration
+                account = new Account()
+                {
+                    EmailVerified = false,
+                    Name = attestationResult.User.Name.ToLowerInvariant().Trim(),
+                    AccountType = AccountType.Personal,
+                };
+                await _dataContext.Accounts.AddAsync(account);
+                await _dataContext.SaveChangesAsync();
+            }
+
             var credential = new Credential()
             {
-                Id = attestationResult.CredentialId,
-                Enabled = true,
-                CredentialId = Convert.ToHexString(attestationResult.CredentialId),
+                CredentialId = attestationResult.CredentialId,
+                Enabled = true,     
                 Username = attestationResult.User.Name.ToLowerInvariant().Trim(),               
                 AaGuid = attestationResult.AaGuid,
                 DeviceDescription = desc,   
                 CredType = attestationResult.CredType,
                 PublicKey = attestationResult.PublicKey,
                 UserHandle = attestationResult.User.Id,
-                RegDate = DateTimeOffset.Now,
+                RegDate = DateTime.UtcNow,
                 SignatureCounter = attestationResult.Counter,
-                AccountId = accountId,
-                AttestionResult = attestationResult.IsLazyAttestation ? "SuccessNoAttestation" : "Success",
+                AccountId = account.Id,                
             };
             await _dataContext.Credentials.AddAsync(credential);
+            await _dataContext.SaveChangesAsync();
 
-            if (attestationResult.IsLazyAttestation)
+
+            var rawAttestation = attestationResult.AttestationRawResponse;
+
+            var attestation = new Attestation()
             {
-                var rawAttestation = attestationResult.AttestationRawResponse;
-
-                var attestation = new Attestation()
-                {
-                    Id = rawAttestation.Id,
-                    RawId = rawAttestation.RawId,
-                    AttestationObject = rawAttestation.Response.AttestationObject,
-                    ClientDataJson = rawAttestation.Response.ClientDataJson
-
-                };
-                await _dataContext.Attestations.AddAsync(attestation);
-            }
-
-            var account = await _dataContext.Accounts.FirstOrDefaultAsync(a => a.Id == credential.AccountId);
-            if (account == null)
-            {
-                // new registration
-                account = new Account()
-                {
-                    Id = credential.AccountId,
-                    EmailVerified = false,
-                    Username = credential.Username,
-                    DeviceAllCount = 1,
-                    DeviceEnabledCount = 1,
-                };
-                await _dataContext.Accounts.AddAsync(account);
-            }
-            else
-            {
-                // adding new device to existing account
-                account.DeviceAllCount++;
-                account.DeviceEnabledCount++;
-            }        
+                RawId = rawAttestation.RawId,
+                AttestationObject = rawAttestation.Response.AttestationObject,
+                ClientDataJson = rawAttestation.Response.ClientDataJson,
+                CredentialId = credential.Id,
+            };
+            await _dataContext.Attestations.AddAsync(attestation);
 
             await _dataContext.SaveChangesAsync();
 
@@ -196,7 +185,7 @@ namespace Fido2me.Services
         {
             // no need account?
             // var account = await _dataContext.Accounts.Where(a => a.Username == username).AsNoTracking().FirstOrDefaultAsync();
-            var excludeCredentials = await _dataContext.Credentials.Where(c => c.Username == username).Select(c => new PublicKeyCredentialDescriptor(c.Id)).ToListAsync();
+            var excludeCredentials = await _dataContext.Credentials.Where(c => c.Username == username).Select(c => new PublicKeyCredentialDescriptor(c.CredentialId)).ToListAsync();
 
             var user = new Fido2User
             {
@@ -224,7 +213,7 @@ namespace Fido2me.Services
             return await Task.FromResult(options);
         }
 
-        public async Task<RegistrationResponse> RegistrationAddNewDeviceCompleteAsync(AuthenticatorAttestationRawResponse attestationResponse, Guid accountId, CancellationToken cancellationToken)
+        public async Task<RegistrationResponse> RegistrationAddNewDeviceCompleteAsync(AuthenticatorAttestationRawResponse attestationResponse, long accountId, CancellationToken cancellationToken)
         {
             try
             {

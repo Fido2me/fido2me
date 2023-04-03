@@ -1,16 +1,27 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Fido2me.Data.FIDO2
 {
+    [Table("Credentials")]
     public class Credential
     {
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.None)]
-        public byte[] Id { get; set; }
-        public Guid AccountId { get; set; }
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public long Id { get; set; }
+
+        [Required]
+        public long AccountId { get; set; }
+
+        [Required]
         public bool Enabled { get; set; }
-        public string CredentialId { get; set; }
+
+        [Required]
+        public byte[] CredentialId { get; set; }
+
+        [NotMapped]
+        public string CredentialIdString => Convert.ToHexString(CredentialId);
 
         [Required]
         public string Username { get; set; }
@@ -23,9 +34,9 @@ namespace Fido2me.Data.FIDO2
         public byte[] UserHandle { get; set; }
         public uint SignatureCounter { get; set; }
         public string CredType { get; set; }
-        public DateTimeOffset RegDate { get; set; }
+        public DateTime RegDate { get; set; }
         public Guid AaGuid { get; set; }
 
-        public string AttestionResult { get; set; }
+        public IList<Assertion> Assertions { get; set; }
     }
 }

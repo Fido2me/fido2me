@@ -3,21 +3,36 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Fido2me.Data.FIDO2
 {
+    [Table("Attestations")]
     public class Attestation
     {
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.None)]
-        public byte[] Id { get; set; }
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public long Id { get; set; }
 
         [Required]
         public byte[] RawId { get; set; }
 
+        [Required]
         public byte[] AttestationObject { get; set; }
 
+        [Required]
         public byte[] ClientDataJson { get; set; }
 
-        public string Type => "public-key";
+        [Required]
+        public long CredentialId { get; set; }
 
-        public Attestation() { }
+        [Required]
+        public DateTime Created { get; set; } = DateTime.UtcNow;
+
+        public AttestionResult AttestionResult { get; set; }
+    }
+
+
+    public enum AttestionResult : byte
+    {
+        Failure = 0,
+        Skipped = 10,
+        Success = 11,
     }
 }

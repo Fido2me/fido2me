@@ -27,7 +27,7 @@ namespace Fido2me.Duende
         {
             // https://docs.duendesoftware.com/identityserver/v6/reference/validators/ciba_user_validator/
             // account enabled / disabled check?
-            var userId = await _context.Accounts.Where(a => a.Username == userValidatorContext.LoginHint).Select(a => a.Id).FirstOrDefaultAsync();
+            var userId = await _context.Accounts.Where(a => a.Name == userValidatorContext.LoginHint).Select(a => a.Id).FirstOrDefaultAsync();
             
 
             var userGuid = userId.ToString();

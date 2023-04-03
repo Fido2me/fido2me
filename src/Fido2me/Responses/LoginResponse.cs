@@ -2,7 +2,7 @@
 {
     public class LoginResponse
     {
-        public Guid AccountId { get; set; }
+        public long AccountId { get; set; }
 
         public string CredentialId { get; set; }
 

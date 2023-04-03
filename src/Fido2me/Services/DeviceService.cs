@@ -7,11 +7,11 @@ namespace Fido2me.Services
 
     public interface IDeviceService
     {
-        Task<List<DeviceViewModel>> GetDevicesByAccountIdAsync(Guid accountId);
+        Task<List<DeviceViewModel>> GetDevicesByAccountIdAsync(long accountId);
         Task<DeviceViewModel> GetDeviceByCredentialIdAsync(string credentialId);
-        Task<bool> UpdateDeviceAsync(DeviceViewModel device, Guid accountId);
-        Task DeleteDeviceAsync(string credentialId, Guid accountId);
-        Task ChangeDeviceStatusAsync(string credentialId, Guid accountId);
+        Task<bool> UpdateDeviceAsync(DeviceViewModel device, long accountId);
+        Task DeleteDeviceAsync(string credentialId, long accountId);
+        Task ChangeDeviceStatusAsync(string credentialId, long accountId);
     }
 
     public class DeviceService : IDeviceService
@@ -25,9 +25,9 @@ namespace Fido2me.Services
             _logger = logger;
         }
 
-        public async Task ChangeDeviceStatusAsync(string credentialId, Guid accountId)
+        public async Task ChangeDeviceStatusAsync(string credentialId, long accountId)
         {
-            var device = await _dataContext.Credentials.FirstOrDefaultAsync(c => c.CredentialId == credentialId && c.AccountId == accountId);
+            var device = await _dataContext.Credentials.FirstOrDefaultAsync(c => c.CredentialId == Convert.FromHexString(credentialId) && c.AccountId == accountId);
             if (device != null)
             {
                 device.Enabled = !device.Enabled;                
@@ -35,9 +35,9 @@ namespace Fido2me.Services
             }
         }
 
-        public async Task DeleteDeviceAsync(string credentialId, Guid accountId)
+        public async Task DeleteDeviceAsync(string credentialId, long accountId)
         {
-            var device = await _dataContext.Credentials.FirstOrDefaultAsync(c => c.CredentialId == credentialId && c.AccountId == accountId);
+            var device = await _dataContext.Credentials.FirstOrDefaultAsync(c => c.CredentialId == Convert.FromHexString(credentialId) && c.AccountId == accountId);
             if (device != null)
             {
                 _dataContext.Credentials.Remove(device);
@@ -47,11 +47,11 @@ namespace Fido2me.Services
 
         public async Task<DeviceViewModel> GetDeviceByCredentialIdAsync(string credentialId)
         {
-            var device = await _dataContext.Credentials.Where(c => c.CredentialId == credentialId).AsNoTracking()
+            var device = await _dataContext.Credentials.Where(c => c.CredentialId == Convert.FromHexString(credentialId)).AsNoTracking()
                 .Select(c => new DeviceViewModel() 
                 { 
                     Enabled = c.Enabled,
-                    CredentialId = c.CredentialId,
+                    CredentialId = c.CredentialIdString,
                     DeviceDescription = c.DeviceDescription,
                     Nickname = c.Nickname,
                     RegDate = c.RegDate,
@@ -60,12 +60,12 @@ namespace Fido2me.Services
             return device;
         }
 
-        public async Task<List<DeviceViewModel>> GetDevicesByAccountIdAsync(Guid accountId)
+        public async Task<List<DeviceViewModel>> GetDevicesByAccountIdAsync(long accountId)
         {
             var asd = await _dataContext.Credentials.Where(c => c.AccountId == accountId)
                 .Select(c => new DeviceViewModel 
                 { 
-                    CredentialId = c.CredentialId,
+                    CredentialId = c.CredentialIdString,
                     Enabled = c.Enabled,
                     DeviceDescription = c.DeviceDescription,               
                     Nickname = c.Nickname,
@@ -75,11 +75,11 @@ namespace Fido2me.Services
             //List<DeviceViewModel> deviceViewModels = new List<DeviceViewModel>();
         }
 
-        public async Task<bool> UpdateDeviceAsync(DeviceViewModel device, Guid accountId)
+        public async Task<bool> UpdateDeviceAsync(DeviceViewModel device, long accountId)
         {
             try
             {
-                var credential = await _dataContext.Credentials.FirstOrDefaultAsync(c => c.CredentialId == device.CredentialId);
+                var credential = await _dataContext.Credentials.FirstOrDefaultAsync(c => c.CredentialId == Convert.FromHexString(device.CredentialId));
                 if (credential == null)
                     return false;
             

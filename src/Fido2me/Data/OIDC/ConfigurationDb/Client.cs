@@ -13,6 +13,9 @@ namespace Fido2me.Data.OIDC.ConfigurationDb
         public long Id { get; set; }
 
         [Required]
+        public long AccountId { get; set; }
+
+        [Required]
         public bool Enabled { get; set; }
 
         [Required]
@@ -144,5 +147,9 @@ namespace Fido2me.Data.OIDC.ConfigurationDb
 
         [Required]
         public bool NonEditable { get; set; }
+
+        public IList<ClientSecret> ClientSecrets { get; set; } = new List<ClientSecret>();
+
+        public IList<ClientRedirectUri> ClientRedirectUris { get; set; } = new List<ClientRedirectUri>();
     }
 }
